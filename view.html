@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vizualizare Pro - Killer SRL</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <style>
+        :root { --primary: #2c3e50; --accent: #f39c12; --excel: #1d6f42; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; background: #1a1a1a; overflow: hidden; }
+        
+        nav { height: 60px; background: var(--primary); color: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        nav img { height: 35px; }
+
+        /* FIX PENTRU HARTĂ: Trebuie înălțime obligatorie */
+        #map { flex: 1; width: 100%; background: #222; outline: none; }
+
+        .panel { 
+            position: absolute; top: 80px; left: 20px; z-index: 1000; 
+            background: white; padding: 15px; border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); width: 240px; 
+        }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        .btn-s { width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        .popup-container { min-width: 250px; color: #333; }
+        .history-badge { background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; float: right; }
+        .btn-export { width: 100%; background: var(--excel); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+        .pulse-marker { animation: pulse 0.8s infinite; }
+        
+        /* Poziție zoom dreapta jos */
+        .leaflet-top.leaflet-left { top: auto; bottom: 30px; right: 20px; left: auto; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <img src="logo.png">
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <span id="cloudStatus" style="font-size: 10px; color: #27ae60; font-weight: bold;">● CLOUD ACTIV</span>
+        <button onclick="window.location.href='index.html'" style="background:var(--accent); border:none; color:white; padding:8px 16px; border-radius:8px; font-weight:bold; cursor:pointer;">🔙 ÎNAPOI</button>
+    </div>
+</nav>
+
+<div class="panel">
+    <input type="text" id="searchInput" placeholder="Caută ID sau Nume..." onkeyup="if(event.key==='Enter') cauta()">
+    <select id="filterSectie" onchange="afiseazaPuncte()">
+        <option value="Toate">Toate Secțiile</option>
+        <option value="Tratament Termic">Tratament Termic</option>
+        <option value="Fabricație">Fabricație</option>
+        <option value="Ambalare Vid">Ambalare Vid</option>
+        <option value="Tranșare">Tranșare</option>
+    </select>
+    <button class="btn-s" onclick="cauta()">APLICĂ CĂUTARE</button>
+</div>
+
+<div id="map"></div>
+
+<script>
+    // CONFIGURARE FIREBASE
+    const firebaseConfig = { databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app/" };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // CONFIGURARE HARTĂ (Identic cu varianta care mergea)
+    let map = L.map('map', { 
+        crs: L.CRS.Simple, 
+        minZoom: -1,
+        maxZoom: 2
+    });
+
+    let bounds = [[0, 0], [1000, 1400]];
+    let image = L.imageOverlay('harta.jpg', bounds).addTo(map);
+    map.fitBounds(bounds);
+    
+    let dbRaw = {}; 
+    let markersList = [];
+
+    // Ascultăm schimbările din Cloud
+    database.ref('utilaje').on('value', (snapshot) => {
+        dbRaw = snapshot.val() || {};
+        afiseazaPuncte();
+    });
+
+    function afiseazaPuncte() {
+        const filtru = document.getElementById('filterSectie').value;
+        markersList.forEach(m => map.removeLayer(m));
+        markersList = [];
+
+        Object.keys(dbRaw).forEach(key => {
+            const u = dbRaw[key];
+            if(filtru !== "Toate" && u.sectie !== filtru) return;
+
+            // Firebase salvează istoricul ca obiect, îl transformăm în Array pentru afișare
+            const istoricArr = u.istoric ? Object.values(u.istoric).reverse() : [];
+            const ultima = istoricArr[0] || { data: "-", obs: "N/A" };
+
+            const m = L.marker([u.lat, u.lng]).addTo(map).bindPopup(`
+                <div class="popup-container">
+                    <span class="history-badge">${istoricArr.length} Interv.</span>
+                    <b style="font-size:15px;">${u.nume}</b><br>
+                    <small>ID: ${u.id} | Secție: ${u.sectie}</small><hr>
+                    <div style="background:#f9f9f9; padding:8px; border-radius:5px; border-left:3px solid var(--accent);">
+                        <b>Ultima (${ultima.data}):</b><br>${ultima.obs}
+                    </div>
+                    <button class="btn-export" onclick="exportaExcel('${u.id}')">📊 EXPORTĂ FIȘA</button>
+                </div>
+            `);
+            m.uData = { id: String(u.id).toUpperCase(), nume: u.nume.toUpperCase() };
+            markersList.push(m);
+        });
+    }
+
+    function cauta() {
+        const val = document.getElementById('searchInput').value.toUpperCase().trim();
+        const m = markersList.find(x => x.uData.id.includes(val) || x.uData.nume.includes(val));
+        if(m) { 
+            map.setView(m.getLatLng(), 0); 
+            m.openPopup(); 
+            L.DomUtil.addClass(m._icon, 'pulse-marker'); 
+            setTimeout(() => L.DomUtil.removeClass(m._icon, 'pulse-marker'), 3000);
+        }
+    }
+
+    function exportaExcel(id) {
+        const u = dbRaw[id];
+        if(!u) return;
+        const istoricArr = Object.values(u.istoric);
+        let csv = "\uFEFFDATA;UTILAJ;ID;SECTIE;OBSERVATII\n";
+        istoricArr.forEach(i => {
+            csv += `${i.data};${u.nume};\t${u.id};${u.sectie};${(i.obs || "").replace(/;/g, ",")}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Fisa_${u.id}.csv`;
+        link.click();
+    }
+</script>
+</body>
+</html>

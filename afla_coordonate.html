@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style> #map { height: 100vh; width: 100%; cursor: crosshair; } </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map', { crs: L.CRS.Simple, minZoom: -2 });
+        L.imageOverlay('harta.jpg', [[0, 0], [1000, 1000]]).addTo(map);
+        map.fitBounds([[0, 0], [1000, 1000]]);
+        map.on('click', function(e) { 
+            alert("X: " + e.latlng.lat.toFixed(0) + " | Y: " + e.latlng.lng.toFixed(0));
+            console.log(e.latlng); 
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editare Cloud - Killer SRL</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <style>
+        :root { --primary: #2c3e50; --accent: #f39c12; --success: #27ae60; }
+        
+        /* Resetare totală pentru a forța vizibilitatea */
+        html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+        
+        body { font-family: 'Segoe UI', sans-serif; display: flex; background: #1a1a1a; color: white; }
+
+        #sidebar { 
+            width: 360px; height: 100vh; background: var(--primary); 
+            padding: 20px; overflow-y: auto; box-shadow: 5px 0 15px rgba(0,0,0,0.5); 
+            z-index: 10; box-sizing: border-box;
+        }
+
+        /* FIX CRITIC PENTRU HARTĂ */
+        #map { 
+            flex: 1; 
+            height: 100vh !important; /* Ocupă toată înălțimea ecranului */
+            background: #222; 
+            cursor: crosshair;
+        }
+
+        .group { margin-bottom: 12px; }
+        label { display: block; font-size: 10px; color: #bdc3c7; text-transform: uppercase; margin-bottom: 5px; }
+        input, select, textarea { 
+            width: 100%; padding: 10px; border-radius: 8px; border: none; 
+            background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; font-size: 14px;
+        }
+        
+        .btn-save { 
+            background: var(--success); color: white; padding: 15px; border: none; 
+            border-radius: 10px; width: 100%; cursor: pointer; font-weight: bold; 
+            margin-top: 10px; font-size: 14px;
+        }
+        .btn-save:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .status-badge { 
+            padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.05); 
+            text-align: center; font-size: 11px; margin-bottom: 15px; border-left: 4px solid var(--accent); 
+        }
+
+        /* Stil pentru bife (profilele de care vorbeam) */
+        .checklist { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-top: 5px; }
+        .check-item { display: block; font-size: 12px; margin-bottom: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <div style="text-align:center; margin-bottom:15px;"><img src="logo.png" width="100"></div>
+    <div id="status" class="status-badge">MOD: UTILAJ NOU<br>Dă click pe hartă pentru a pune pin-ul</div>
+
+    <div class="group"><label>Nume Utilaj</label><input type="text" id="nume" placeholder="Ex: Injector" oninput="check()"></div>
+    <div class="group"><label>Secție</label>
+        <select id="sectie" onchange="check()">
+            <option value="Tratament Termic">Tratament Termic</option>
+            <option value="Fabricație">Fabricație</option>
+            <option value="Ambalare Vid">Ambalare Vid</option>
+            <option value="Tranșare">Tranșare</option>
+        </select>
+    </div>
+    <div class="group"><label>Data</label><input type="date" id="data"></div>
+    <div class="group"><label>Observații / Intervenție</label><textarea id="obs" rows="3" placeholder="Ce s-a reparat?"></textarea></div>
+
+    <button class="btn-save" id="saveBtn" onclick="salveaza()" disabled>💾 SALVEAZĂ ÎN CLOUD</button>
+    
+    <button onclick="window.location.href='view.html'" style="background:none; color:var(--accent); border:1px solid var(--accent); padding:10px; border-radius:8px; width:100%; margin-top:15px; cursor:pointer; font-weight:bold;">🔎 MERGI LA VIZUALIZARE</button>
+</div>
+
+<div id="map"></div>
+
+<script>
+    // 1. CONFIGURARE FIREBASE
+    const firebaseConfig = { 
+        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app/" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // 2. CONFIGURARE HARTĂ - IMPORTANT: Coordonate fixe
+    let map = L.map('map', { 
+        crs: L.CRS.Simple, 
+        minZoom: -1,
+        maxZoom: 2 
+    });
+
+    let bounds = [[0, 0], [1000, 1400]];
+    L.imageOverlay('harta.jpg', bounds).addTo(map);
+    map.fitBounds(bounds);
+    
+    let currentMarker = null;
+    let currentCoords = null;
+    document.getElementById('data').valueAsDate = new Date();
+
+    // Adăugare Pin pe hartă
+    map.on('click', function(e) {
+        currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
+        if(currentMarker) map.removeLayer(currentMarker);
+        currentMarker = L.marker(e.latlng).addTo(map);
+        check();
+    });
+
+    function check() {
+        const numeOk = document.getElementById('nume').value.length > 2;
+        document.getElementById('saveBtn').disabled = !(currentCoords && numeOk);
+    }
+
+    async function salveaza() {
+        const nume = document.getElementById('nume').value;
+        const sectie = document.getElementById('sectie').value;
+        const dataVal = document.getElementById('data').value;
+        const obsVal = document.getElementById('obs').value;
+
+        // Generăm un ID unic scurt
+        const newID = "ID" + Math.floor(Math.random() * 9000 + 1000);
+
+        const utilajData = {
+            id: newID,
+            nume: nume,
+            sectie: sectie,
+            lat: parseFloat(currentCoords[0]),
+            lng: parseFloat(currentCoords[1]),
+            istoric: {
+                "init": {
+                    data: dataVal,
+                    obs: obsVal
+                }
+            }
+        };
+
+        try {
+            await database.ref('utilaje/' + newID).set(utilajData);
+            alert("Utilaj salvat cu succes în Firebase!");
+            location.reload(); // Refresh pentru a curăța formularul
+        } catch (error) {
+            alert("Eroare la salvare: " + error.message);
+        }
+    }
+</script>
+</body>
+</html>

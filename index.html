@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Killer SRL - Portal</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #f39c12; --bg: #1a1a1a; }
+        
+        body { 
+            margin: 0; font-family: 'Segoe UI', sans-serif; 
+            background: radial-gradient(circle, #2c3e50 0%, #0c0c0c 100%);
+            display: flex; align-items: center; justify-content: center; 
+            height: 100vh; overflow: hidden; color: white;
+        }
+
+        .portal-card { 
+            width: 350px; padding: 40px; background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px); border-radius: 25px; 
+            border: 1px solid rgba(255,255,255,0.1); text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .logo-box img { max-width: 170px; margin-bottom: 10px; }
+        .subtitle { 
+            font-size: 10px; letter-spacing: 3px; color: var(--accent); 
+            font-weight: bold; margin-bottom: 35px; text-transform: uppercase; 
+        }
+        
+        .btn { 
+            width: 100%; padding: 16px; border-radius: 12px; border: none; 
+            font-weight: bold; cursor: pointer; transition: 0.3s; 
+            text-transform: uppercase; margin-bottom: 15px; font-size: 13px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        .btn-view { background: white; color: var(--primary); }
+        .btn-admin { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .btn-login { background: var(--accent); color: white; margin-top: 10px; }
+
+        /* Container parolă cu animație de apariție */
+        #passField { 
+            display: none; 
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s ease;
+        }
+        
+        .input-pass { 
+            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3); color: white; text-align: center; font-size: 16px;
+            box-sizing: border-box; outline: none; margin-top: 5px;
+        }
+
+        .footer-credits { 
+            position: absolute; bottom: 20px; font-size: 9px; 
+            color: rgba(255,255,255,0.3); letter-spacing: 2px; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div class="portal-card">
+    <div class="logo-box">
+        <img src="logo.png">
+        <div class="subtitle">Mentenanță Tehnică</div>
+    </div>
+
+    <button class="btn btn-view" onclick="window.location.href='view.html'">👁️ Vizualizare Hartă</button>
+    
+    <button id="adminBtn" class="btn btn-admin" onclick="showLogin()">⚙️ Administrare</button>
+    
+    <div id="passField">
+        <input type="password" id="p" class="input-pass" placeholder="Parolă">
+        <button class="btn btn-login" onclick="login()">Intră în Editare</button>
+    </div>
+</div>
+
+<div class="footer-credits">Developed by Dragos Munteanu © 2026</div>
+
+<script>
+    function showLogin() {
+        const field = document.getElementById('passField');
+        const adminBtn = document.getElementById('adminBtn');
+        
+        field.style.display = 'block';
+        // Mic delay pentru animație
+        setTimeout(() => {
+            field.style.opacity = '1';
+            field.style.transform = 'translateY(0)';
+            adminBtn.style.display = 'none'; // Scoatem butonul de admin ca să nu se lungească prea mult cardul
+        }, 10);
+        
+        document.getElementById('p').focus();
+    }
+
+    function login() {
+        if(document.getElementById('p').value === 'killer2026') {
+            window.location.href='edit.html';
+        } else {
+            alert('Parolă incorectă!');
+        }
+    }
+
+    document.getElementById('p').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') login();
+    });
+</script>
+
+</body>
+</html>

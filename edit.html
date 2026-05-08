@@ -544,7 +544,8 @@
                 
             } else {
                 // Dacă este un utilaj complet nou pe hartă
-                const idNou = "K-" + Date.now();
+                // Generăm ID exact din 4 cifre
+                const idNou = "K-" + Math.floor(1000 + Math.random() * 9000);
                 
                 const utilajNou = {
                     id: idNou,

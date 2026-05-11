@@ -3,64 +3,124 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vizualizare Pro - Killer SRL</title>
-    
+    <title>Centru Control Mentenanță - Killer SRL</title>
+    <link rel="manifest" href="manifest.json">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        :root { --primary: #2c3e50; --accent: #f39c12; --success: #27ae60; --pdf: #c0392b; --excel: #1d6f42; }
-        body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; background: #1a1a1a; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60; 
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --excel: #1d6f42;
+            --pdf: #c0392b;
+        }
+
+        body {
+            margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column;
+            background: #1a1a1a; font-family: 'Segoe UI', sans-serif; overflow: hidden;
+        }
         
-        nav { height: 60px; background: var(--primary); color: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        nav {
+            height: 60px; background: var(--primary); color: white; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
         nav img { height: 35px; cursor: pointer; }
 
         #map { flex: 1; width: 100%; height: calc(100vh - 60px) !important; background: #222; }
 
-        /* Panel Cautare si Filtre */
-        .panel { 
-            position: absolute; top: 80px; left: 20px; z-index: 1000; 
-            background: white; padding: 15px; border-radius: 12px; 
+        /* Panou căutare lateral */
+        .panel {
+            position: absolute; top: 20px; left: 20px; z-index: 1000;
+            background: white; padding: 15px; border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); width: 260px; color: #333;
         }
-        select, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        .btn-search { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-search:hover { background: #34495e; }
 
-        /* Indicator Cloud Pulsatoriu */
+        .panel h4 { margin: 0 0 10px 0; font-size: 14px; }
+        
+        input, select {
+            width: 100%; padding: 10px; border: 1px solid #ddd;
+            border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-size: 13px;
+        }
+
+        /* Stiluri Pop-up Hartă */
+        .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
+        .leaflet-popup-content { margin: 0; width: 340px !important; }
+        
+        .popup-header {
+            background: var(--primary); color: white; padding: 15px;
+            text-align: center; border-bottom: 3px solid var(--accent);
+        }
+        .popup-header h3 { margin: 0; font-size: 16px; }
+        .popup-header p { margin: 5px 0 0; font-size: 11px; opacity: 0.8; }
+        
+        .popup-body { padding: 15px; background: white; color: #333; }
+        
+        .last-info {
+            font-size: 12px; margin-bottom: 12px; border-bottom: 1px solid #eee;
+            padding-bottom: 10px; line-height: 1.5;
+        }
+
+        .btn-history {
+            width: 100%; background: var(--accent); color: white; border: none;
+            padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
+            font-size: 12px; transition: 0.3s; margin-top: 10px;
+        }
+ /* Indicator Cloud Pulsatoriu */
         .cloud-indicator { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: bold; color: var(--success); }
         .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: pulse-green 1.5s infinite; }
         @keyframes pulse-green { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* Modal Rapoarte */
-        #reportModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-content { background: white; width: 90%; max-width: 900px; max-height: 85%; padding: 30px; border-radius: 20px; overflow-y: auto; color: #333; position: relative; }
-        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; }
-        
-        /* Buline Status in Tabel */
+        /* Modale Dashboard */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #f8f9fa; width: 95%; max-width: 1300px; max-height: 90%;
+            padding: 30px; border-radius: 20px; display: flex; gap: 20px;
+            position: relative; overflow: hidden;
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 20px; font-size: 30px;
+            cursor: pointer; color: #555; z-index: 10;
+        }
+
+        .report-card {
+            background: white; border-radius: 12px; padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow-y: auto; flex: 1;
+        }
+
+        /* Containere cu Scroll */
+        .scroll-container {
+            max-height: 250px; overflow-y: auto; border: 1px solid #eee;
+            border-radius: 8px; margin-top: 10px;
+        }
+
+        .table-pro { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .table-pro th { background: #f1f2f6; padding: 12px; text-align: left; position: sticky; top: 0; z-index: 5;}
+        .table-pro td { padding: 10px; border-bottom: 1px solid #eee; }
+
         .status-pill { padding: 4px 8px; border-radius: 4px; color: white; font-size: 10px; font-weight: bold; }
         .bg-ok { background: var(--success); }
-        .bg-warn { background: var(--accent); }
-        .bg-crit { background: var(--pdf); }
+        .bg-warn { background: #f39c12; color: #fff; }
+        .bg-crit { background: var(--danger); }
 
-        /* Pini Colorati Leaflet */
-        .pin-termic { filter: hue-rotate(280deg) saturate(2.5); }
-        .pin-ambalare { filter: hue-rotate(100deg); }
-
-        .footer-dev { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; color: rgba(255,255,255,0.4); font-size: 10px; white-space: nowrap; pointer-events: none; }
-        
-        .leaflet-top.leaflet-left { top: auto; bottom: 40px; right: 20px; left: auto; }
-
-        @media print {
-            .panel, nav, .btn-search, .close-btn { display: none !important; }
-            #reportModal { display: flex !important; position: static; background: white; }
-            .modal-content { width: 100%; max-width: 100%; box-shadow: none; padding: 0; }
+        .footer-dev {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; color: rgba(255,255,255,0.6); font-size: 11px;
+            font-weight: bold; text-shadow: 1px 1px 2px #000; pointer-events: none;
         }
     </style>
 </head>
@@ -68,18 +128,18 @@
 
 <nav>
     <img src="logo.png" onclick="window.location.href='index.html'">
-    <div style="display: flex; gap: 20px; align-items: center;">
-        <div class="cloud-indicator"><div class="dot"></div> CLOUD ONLINE</div>
-        <button onclick="deschideRapoarte()" style="background:var(--accent); border:none; color:white; padding:8px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">📊 RAPOARTE</button>
-        <button onclick="window.location.href='index.html'" style="background:transparent; border:1px solid white; color:white; padding:6px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">🔙</button>
+    <div style="display: flex; gap: 15px; align-items: center;">
+         <div class="cloud-indicator"><div class="dot"></div> CLOUD ONLINE</div>
+        <button onclick="deschideRapoarte()" style="background:var(--accent); border:none; color:white; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">📊 DASHBOARD MENTENANȚĂ</button>
+        <button onclick="window.location.href='index.html'" style="background:transparent; border:1px solid white; color:white; padding:8px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">🔙 PORTAL</button>
+        <button onclick="printeazaQR()" style="background:#8e44ad; border:none; color:white; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; margin-right:10px;">🖨️ ETICHETE QR</button>
     </div>
 </nav>
 
 <div class="panel">
-    <label style="font-size: 11px; font-weight: bold;">🔍 Căutare Utilaj:</label>
-    <input type="text" id="searchInput" placeholder="ID sau Nume..." onkeyup="if(event.key==='Enter') cauta()">
+    <h4>Căutare & Filtre</h4>
+    <input type="text" id="searchInput" placeholder="Caută utilaj..." onkeyup="if(event.key==='Enter') cauta()">
     
-    <label style="font-size: 11px; font-weight: bold;">📂 Filtru Secție:</label>
     <select id="filterSectie" onchange="afiseazaPuncte()">
         <option value="Toate">Toate Secțiile</option>
         <option value="Tranșare">Tranșare</option>
@@ -94,163 +154,253 @@
         <option value="Compresoare Aer">Compresoare Aer</option>
         <option value="Depozitare">Depozitare</option>
     </select>
-    <button class="btn-search" onclick="cauta()">CAUTĂ PE HARTĂ</button>
-</div>
-
-<div id="map"></div>
-
-<div id="reportModal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
-        <h2 style="margin-top:0;">📊 Raport Stare Mentenanță</h2>
-        <p id="dataRaport" style="font-size:12px; color:gray;"></p>
-        
-        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-            <button onclick="exportaTotExcel()" style="background:var(--excel); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">📥 EXCEL COMPLET</button>
-            <button onclick="window.print()" style="background:var(--pdf); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">🖨️ PDF</button>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Utilaj</th>
-                    <th>ID</th>
-                    <th>Secție</th>
-                    <th>Zile Revizie</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="corptabel"></tbody>
-        </table>
+    
+    <div style="font-size: 10px; color: #666; line-height: 1.6; margin-top: 10px;">
+        🟢 OK (Revizie < 30 zile)<br>
+        🟡 Atenție (30 - 90 zile scurs)<br>
+        🔴 Critic (Peste 90 zile / Plan 2026)
     </div>
 </div>
 
+<div id="map"></div>
 <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
 
+<div id="reportModal" class="modal">
+    <div class="modal-content" id="pdfArea">
+        <span class="close-btn" onclick="inchideModal('reportModal')">&times;</span>
+        
+        <div class="report-card" style="max-width: 320px; flex: none;">
+            <h3>📊 Sumar Activitate</h3>
+            <div style="text-align: center; margin-bottom: 20px; background: var(--primary); color: white; padding: 20px; border-radius: 12px;">
+                <h1 id="totalInterventii" style="margin:0; color: var(--accent);">0</h1>
+                <p style="font-size: 11px; margin: 5px 0 0;">INTERVENȚII ÎN TOTAL</p>
+            </div>
+            <canvas id="statusChart"></canvas>
+            
+            <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <button onclick="exportaExcelNativ()" style="background:var(--excel); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">📥 EXPORT EXCEL</button>
+                <button onclick="exportaPDF()" style="background:var(--pdf); color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">📕 EXPORT PDF</button>
+            </div>
+        </div>
+
+        <div class="report-card">
+            <h3 style="margin-top: 0;">⚠️ Alerte Scadențar</h3>
+            <div class="scroll-container" style="max-height: 180px;">
+                <table class="table-pro">
+                    <thead>
+                        <tr><th>Utilaj</th><th>Zile Scurse</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="corpScadente"></tbody>
+                </table>
+            </div>
+
+            <h3>🕒 Flux Live Intervenții</h3>
+            <div class="scroll-container">
+                <table class="table-pro">
+                    <thead>
+                        <tr><th>Data</th><th>Utilaj</th><th>Mecanic</th><th>Activitate</th></tr>
+                    </thead>
+                    <tbody id="corpFluxLive"></tbody>
+                </table>
+            </div>
+            <div style="text-align:center; font-size:11px; margin-top:15px; color:#7f8c8d; font-weight:bold;">
+                Developed by Dragos Munteanu • 2026
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="historyModal" class="modal">
+    <div class="modal-content" style="max-width: 1000px; flex-direction: column;">
+        <span class="close-btn" onclick="inchideModal('historyModal')">&times;</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+            <div>
+                <h2 id="histNume" style="margin:0; color: var(--primary);">Nume Utilaj</h2>
+                <p id="histModel" style="color: #666; margin: 5px 0 0;"></p>
+            </div>
+            <button id="btnExportIndividual" style="background:var(--excel); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">📥 EXPORTĂ FIȘĂ SERVICE</button>
+        </div>
+        <div class="scroll-container" style="flex: 1; max-height: none;">
+            <table class="table-pro">
+                <thead>
+                    <tr><th>Data</th><th>Tip</th><th>Tehnician</th><th>Operațiuni</th><th>Notițe</th></tr>
+                </thead>
+                <tbody id="corpIstoricIndividual"></tbody>
+            </table>
+        </div>
+        <div style="text-align:center; font-size:11px; margin-top:15px; color:#7f8c8d; font-weight:bold;">
+            Developed by Dragos Munteanu • 2026
+        </div>
+    </div>
+</div>
+
 <script>
-    // FIREBASE INITIALIZE
+    // 1. Initializare Firebase
     const firebaseConfig = { databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app/" };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // MAP INITIALIZE
-    var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3 });
-    var bounds = [[0, 0], [1000, 1400]];
-    L.imageOverlay('harta.jpg', bounds).addTo(map);
+    // 2. Initializare Hartă
+    var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3, zoomControl: false });
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
     map.setView([500, 700], 0.5);
 
     let dbRaw = {}; 
-    let markersList = [];
+    let markersList = []; 
+    let chartInstance = null;
 
-    // DATA SYNC
-    database.ref('utilaje').on('value', (snapshot) => {
-        dbRaw = snapshot.val() || {};
+    // 3. Preluare Date
+    database.ref('utilaje').on('value', (snap) => {
+        dbRaw = snap.val() || {};
         afiseazaPuncte();
     });
 
-    function calculeazaZile(istoric) {
-        if (!istoric) return null;
-        const entries = Object.values(istoric);
-        const ultimaData = new Date(entries[entries.length - 1].data);
-        return Math.floor((new Date() - ultimaData) / (1000 * 60 * 60 * 24));
+    function calculZile(dataStr) {
+        if (!dataStr || dataStr === "-") return 999;
+        return Math.floor((new Date() - new Date(dataStr)) / (1000 * 3600 * 24));
+    }
+
+    function getColoredIcon(color) {
+        const svg = `<svg viewBox="0 0 24 36" width="28" height="42"><path fill="${color}" stroke="#000" stroke-width="1.5" d="M12 0C5.373 0 0 5.373 0 12c0 7.333 12 24 12 24s12-16.667 12-24C24 5.373 18.627 0 12 0zm0 17.5c-3.038 0-5.5-2.462-5.5-5.5S8.962 6.5 12 6.5s5.5 2.462 5.5 5.5-2.462 5.5-5.5 5.5z"/></svg>`;
+        return L.divIcon({ className: "custom-pin", html: svg, iconSize: [28, 42], iconAnchor: [14, 42], popupAnchor: [0, -40] });
     }
 
     function afiseazaPuncte() {
-        const f = document.getElementById('filterSectie').value;
+        const filtru = document.getElementById('filterSectie').value;
         markersList.forEach(m => map.removeLayer(m));
         markersList = [];
+        let boundsArray = [];
 
-        Object.keys(dbRaw).forEach(k => {
-            const u = dbRaw[k];
-            if(f !== "Toate" && u.sectie !== f) return;
+        Object.keys(dbRaw).forEach(id => {
+            const u = dbRaw[id];
+            if (filtru !== "Toate" && u.sectie !== filtru) return;
+            if (!u.lat || !u.lng) return;
 
-            const istoricArr = u.istoric ? Object.values(u.istoric).reverse() : [];
-            const ult = istoricArr[0] || { data: "-", obs: "N/A", verificari: "" };
-            const zile = calculeazaZile(u.istoric);
+            let ultimaData = "-";
+            let tabelPopHtml = "";
+            if (u.istoric) {
+                const ist = Object.values(u.istoric).sort((a, b) => new Date(b.data) - new Date(a.data));
+                ultimaData = ist[0].data;
+                ist.slice(0, 2).forEach(i => {
+                    tabelPopHtml += `<tr><td><b>${i.data}</b></td><td>${i.verificari}</td></tr>`;
+                });
+            }
             
-            const colorClass = u.sectie.includes("Termic") ? 'pin-termic' : (u.sectie.includes("Ambalare") ? 'pin-ambalare' : '');
+            const zile = calculZile(ultimaData);
+            let col = zile < 30 ? "#27ae60" : (zile < 90 ? "#f39c12" : "#e74c3c");
 
-            const m = L.marker([u.lat, u.lng], {
-                icon: L.icon({ 
-                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-                    className: colorClass,
-                    iconSize: [25, 41], iconAnchor: [12, 41]
-                })
-            }).addTo(map).bindPopup(`
-                <div style="min-width:220px; color:#333;">
-                    <b style="font-size:14px;">${u.nume}</b><br><small>ID: ${u.id} | ${u.sectie}</small><hr>
-                    <b>Ultima (${ult.data}):</b><br>
-                    <small>${ult.verificari || "Fără bife"}</small><br>
-                    <i>"${ult.obs}"</i><br>
-                    <button onclick="exportaFisa('${k}')" style="width:100%; margin-top:10px; background:var(--excel); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 FIȘĂ EXCEL</button>
+            const m = L.marker([u.lat, u.lng], { icon: getColoredIcon(col) }).addTo(map);
+            boundsArray.push([u.lat, u.lng]);
+            
+            m.bindPopup(`
+                <div class="popup-header"><h3>${u.nume}</h3><p>ID: ${u.id}</p></div>
+                <div class="popup-body">
+                    <b>Status: ${zile === 999 ? 'Lipsă' : zile + ' zile'}</b>
+                    <table style="width:100%; font-size:10px; margin-top:5px; border-collapse:collapse;">
+                        ${tabelPopHtml}
+                    </table>
+                    <button class="btn-history" onclick="deschideIstoricUtilaj('${id}')">📜 VEZI ISTORIC</button>
                 </div>
             `);
             m.uData = { id: String(u.id).toUpperCase(), nume: u.nume.toUpperCase() };
             markersList.push(m);
         });
+
+        if (boundsArray.length > 0 && filtru !== "Toate") {
+            map.fitBounds(boundsArray, { padding: [50, 50], maxZoom: 1.5 });
+        } else if (filtru === "Toate") {
+            map.setView([500, 700], 0.5);
+        }
+    }
+
+    function deschideIstoricUtilaj(id) {
+        const u = dbRaw[id];
+        document.getElementById('histNume').innerText = u.nume;
+        document.getElementById('histModel').innerText = "Model: " + (u.model || "-") + " | Secție: " + u.sectie;
+        const corp = document.getElementById('corpIstoricIndividual');
+        corp.innerHTML = "";
+        if (u.istoric) {
+            Object.values(u.istoric).sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(i => {
+                corp.innerHTML += `<tr><td>${i.data}</td><td>${i.tip||'Plan'}</td><td>${i.mecanic||'-'}</td><td>${i.verificari}</td><td>${i.obs||'-'}</td></tr>`;
+            });
+        }
+        document.getElementById('btnExportIndividual').onclick = () => exportaExcelIndividual(id);
+        document.getElementById('historyModal').style.display = "flex";
     }
 
     function deschideRapoarte() {
-        const corp = document.getElementById('corptabel');
-        document.getElementById('dataRaport').innerText = "Generat la: " + new Date().toLocaleString('ro-RO');
-        corp.innerHTML = "";
-        
-        Object.keys(dbRaw).forEach(k => {
-            const u = dbRaw[k];
-            const zile = calculeazaZile(u.istoric);
-            let status = { text: "CRITIC", cls: "bg-crit" };
-            if(zile !== null && zile <= 7) status = { text: "OK", cls: "bg-ok" };
-            else if(zile !== null && zile <= 30) status = { text: "REVIZIE", cls: "bg-warn" };
+        let ok=0, wr=0, cr=0, total=0;
+        const cS = document.getElementById('corpScadente');
+        const cF = document.getElementById('corpFluxLive');
+        cS.innerHTML = ""; cF.innerHTML = "";
+        let fluxArray = [];
 
-            corp.innerHTML += `
-                <tr>
-                    <td><b>${u.nume}</b></td>
-                    <td>${u.id}</td>
-                    <td>${u.sectie}</td>
-                    <td>${zile === null ? '-' : zile} zile</td>
-                    <td><span class="status-pill ${status.cls}">${status.text}</span></td>
-                </tr>
-            `;
+        Object.values(dbRaw).forEach(u => {
+            let uD = "-";
+            if (u.istoric) {
+                const ist = Object.values(u.istoric).sort((a,b)=>new Date(b.data)-new Date(a.data));
+                uD = ist[0].data; total += ist.length;
+                Object.values(u.istoric).forEach(i => fluxArray.push({ d: i.data, n: u.nume, m: i.mecanic, a: i.verificari }));
+            }
+            const z = calculZile(uD);
+            if (z < 30) ok++; else if (z < 90) wr++; else cr++;
+            if (z >= 30 || uD === "-") {
+                cS.innerHTML += `<tr><td><b>${u.nume}</b></td><td>${z === 999 ? 'L' : z}</td><td><span class="status-pill ${z > 90 ? 'bg-crit' : 'bg-warn'}">${z > 90 ? 'C' : 'W'}</span></td></tr>`;
+            }
+        });
+
+        fluxArray.sort((a,b)=>new Date(b.d)-new Date(a.d)).slice(0, 20).forEach(f => {
+            cF.innerHTML += `<tr><td>${f.d}</td><td><b>${f.n}</b></td><td>${f.m || '-'}</td><td><small>${f.a}</small></td></tr>`;
+        });
+
+        document.getElementById('totalInterventii').innerText = total;
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['OK', 'Atenție', 'Critic'],
+                datasets: [{ data: [ok, wr, cr], backgroundColor: ['#27ae60', '#f39c12', '#e74c3c'], borderWidth: 0 }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } } }
         });
         document.getElementById('reportModal').style.display = "flex";
     }
 
-    function exportaFisa(key) {
-        const u = dbRaw[key];
-        let csv = "\uFEFFDATA;UTILAJ;ID;SECTIE;VERIFICARI;OBSERVATII\n";
-        Object.values(u.istoric).forEach(i => {
-            csv += `${i.data};${u.nume};${u.id};${u.sectie};${i.verificari || ""};${(i.obs || "").replace(/;/g, ",")}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `Fisa_${u.id}.csv`;
-        a.click();
+    function exportaExcelNativ() {
+        let d = []; Object.values(dbRaw).forEach(u => { if (u.istoric) Object.values(u.istoric).forEach(i => d.push({ Data: i.data, Utilaj: u.nume, Mecanic: i.mecanic, Activitate: i.verificari })); });
+        const ws = XLSX.utils.json_to_sheet(d); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Raport"); XLSX.writeFile(wb, "Killer_Mentenanta.xlsx");
     }
 
-    function exportaTotExcel() {
-        let csv = "\uFEFFDATA;ID;UTILAJ;SECTIE;VERIFICARI;OBSERVATII\n";
+    function exportaExcelIndividual(id) {
+        const u = dbRaw[id]; let d = []; if (u.istoric) Object.values(u.istoric).forEach(i => d.push({ Data: i.data, Activitate: i.verificari, Note: i.obs }));
+        const ws = XLSX.utils.json_to_sheet(d); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Fisa"); XLSX.writeFile(wb, `Fisa_${u.nume}.xlsx`);
+    }
+
+    function exportaPDF() {
+        const element = document.getElementById('pdfArea');
+        html2pdf().set({ margin: 10, filename: 'Raport_Mentenanta.pdf', jsPDF: { orientation: 'landscape' } }).from(element).save();
+    }
+
+    function printeazaQR() {
+        let b = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
+        let w = window.open('', '_blank');
+        let h = `<html><head><style>body{font-family:sans-serif;text-align:center;}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}.card{border:1px dashed #666;padding:8px;}img{max-width:80px;}</style></head><body><div class="grid">`;
         Object.values(dbRaw).forEach(u => {
-            if(u.istoric) {
-                Object.values(u.istoric).forEach(i => {
-                    csv += `${i.data};${u.id};${u.nume};${u.sectie};${i.verificari || ""};${(i.obs || "").replace(/;/g, ",")}\n`;
-                });
-            }
+            h += `<div class="card"><img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(b+'scan.html?id='+u.id)}"><br><b>${u.nume}</b><br>ID: ${u.id}</div>`;
         });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "Raport_Global_Killer.csv";
-        a.click();
+        h += '</div></body></html>'; w.document.write(h); w.document.close();
     }
 
+    function inchideModal(id) { document.getElementById(id).style.display = "none"; }
     function cauta() {
-        const v = document.getElementById('searchInput').value.toUpperCase().trim();
+        const v = document.getElementById('searchInput').value.toUpperCase();
         const m = markersList.find(x => x.uData.id.includes(v) || x.uData.nume.includes(v));
-        if(m) { map.setView(m.getLatLng(), 1); m.openPopup(); }
+        if (m) { map.setView(m.getLatLng(), 1.5); m.openPopup(); }
     }
-
-    window.onload = () => { setTimeout(() => map.invalidateSize(), 600); };
+    window.onload = () => setTimeout(() => map.invalidateSize(), 600);
 </script>
+</body>
+</html>
 </body>
 </html>

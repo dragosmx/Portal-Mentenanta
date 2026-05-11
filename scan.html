@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fișă Utilaj - Killer SRL</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            background: #f0f2f5; 
+            font-family: 'Segoe UI', sans-serif; 
+            color: #333;
+        }
+        
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            max-width: 500px; 
+            margin: auto; 
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo-container img {
+            max-width: 150px;
+        }
+        
+        .header-utilaj { 
+            background: #2c3e50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            text-align: center; 
+            border-bottom: 5px solid #27ae60; 
+            margin-bottom: 20px;
+        }
+        
+        .header-utilaj h2 {
+            margin: 0;
+            color: #27ae60;
+        }
+        
+        .header-utilaj p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+        }
+        
+        .istoric-item { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            margin-top: 15px; 
+            border-radius: 8px; 
+            border-left: 5px solid #27ae60; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .istoric-item.defect {
+            border-left-color: #e74c3c;
+        }
+        
+        .data-interventie {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .btn-mecanic { 
+            display: block; 
+            background: #27ae60; 
+            color: white; 
+            text-align: center; 
+            padding: 15px; 
+            text-decoration: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            margin-top: 30px; 
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+        
+        .btn-mecanic:hover {
+            background: #219653;
+        }
+        
+        #load {
+            text-align: center;
+            padding: 50px;
+            font-weight: bold;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="logo-container">
+        <img src="logo.png" alt="Killer SRL">
+    </div>
+    
+    <div id="load">Se încarcă datele utilajului...</div>
+    
+    <div id="content" style="display:none;">
+        <div class="header-utilaj">
+            <h2 id="uNume">Nume Utilaj</h2>
+            <p id="uDetalii">Secție | ID</p>
+        </div>
+        
+        <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">Istoric Intervenții:</h3>
+        
+        <div id="uIstoric"></div>
+        
+        <a href="#" id="btnEditare" class="btn-mecanic">🛠️ ADAUGĂ INTERVENȚIE (ACCES MECANIC)</a>
+    </div>
+</div>
+
+<script>
+    // Inițializare Firebase
+    const firebaseConfig = { 
+        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app/" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Citire parametru din URL
+    const urlParams = new URLSearchParams(window.location.search); 
+    const idUtilaj = urlParams.get('id');
+
+    if (idUtilaj) {
+        // Interogare bază de date
+        database.ref('utilaje/' + idUtilaj).once('value').then(snapshot => {
+            const utilaj = snapshot.val(); 
+            
+            if (!utilaj) {
+                document.getElementById('load').innerText = "❌ Eroare: Utilajul nu a fost găsit.";
+                return;
+            }
+            
+            // Ascundem loading-ul și afișăm conținutul
+            document.getElementById('load').style.display = "none"; 
+            document.getElementById('content').style.display = "block";
+            
+            // Populăm datele generale
+            document.getElementById('uNume').innerText = utilaj.nume; 
+            document.getElementById('uDetalii').innerText = "Secția: " + utilaj.sectie + " | ID: " + utilaj.id;
+            
+            // Setăm linkul pentru butonul de mecanic (îl va trimite la index.html pentru parolă, apoi la edit.html)
+            document.getElementById('btnEditare').href = "index.html?ref=?id=" + utilaj.id;
+            
+            const containerIstoric = document.getElementById('uIstoric');
+            
+            if (utilaj.istoric) {
+                // Sortăm descrescător după dată
+                const istoricSortat = Object.values(utilaj.istoric).sort((a, b) => new Date(b.data) - new Date(a.data));
+                
+                istoricSortat.forEach(i => {
+                    let clasaCSS = "istoric-item";
+                    
+                    // Dacă e intervenție corectivă (defect), o facem roșie
+                    if (i.tip && i.tip.includes("Corectivă")) {
+                        clasaCSS += " defect";
+                    }
+                    
+                    containerIstoric.innerHTML += `
+                        <div class="${clasaCSS}">
+                            <div class="data-interventie">📅 ${i.data} | Tip: ${i.tip || 'Preventivă'}</div>
+                            <div style="font-size:13px; margin-bottom:5px;"><b>👷 Mecanic:</b> ${i.mecanic || '-'}</div>
+                            <div style="font-size:13px; margin-bottom:5px;"><b>🔧 Operațiuni:</b> ${i.verificari}</div>
+                            <div style="font-size:13px; color:#555;"><b>📝 Obs:</b> ${i.obs || '-'}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                containerIstoric.innerHTML = "<p style='text-align:center; padding:20px;'>Niciun istoric înregistrat pentru acest utilaj.</p>";
+            }
+        });
+    } else {
+        document.getElementById('load').innerText = "❌ Eroare: Nu s-a scanat un cod valid.";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vizualizare Pro - Killer SRL</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root { --primary: #2c3e50; --accent: #f39c12; --success: #27ae60; --pdf: #c0392b; --excel: #1d6f42; }
+        body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; background: #1a1a1a; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        
+        nav { height: 60px; background: var(--primary); color: white; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        nav img { height: 35px; cursor: pointer; }
+
+        #map { flex: 1; width: 100%; height: calc(100vh - 60px) !important; background: #222; }
+
+        /* Panel Cautare si Filtre */
+        .panel { 
+            position: absolute; top: 80px; left: 20px; z-index: 1000; 
+            background: white; padding: 15px; border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); width: 260px; color: #333;
+        }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        .btn-search { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-search:hover { background: #34495e; }
+
+        /* Indicator Cloud Pulsatoriu */
+        .cloud-indicator { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: bold; color: var(--success); }
+        .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: pulse-green 1.5s infinite; }
+        @keyframes pulse-green { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        /* Modal Rapoarte */
+        #reportModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 90%; max-width: 900px; max-height: 85%; padding: 30px; border-radius: 20px; overflow-y: auto; color: #333; position: relative; }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; }
+        
+        /* Buline Status in Tabel */
+        .status-pill { padding: 4px 8px; border-radius: 4px; color: white; font-size: 10px; font-weight: bold; }
+        .bg-ok { background: var(--success); }
+        .bg-warn { background: var(--accent); }
+        .bg-crit { background: var(--pdf); }
+
+        /* Pini Colorati Leaflet */
+        .pin-termic { filter: hue-rotate(280deg) saturate(2.5); }
+        .pin-ambalare { filter: hue-rotate(100deg); }
+
+        .footer-dev { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; color: rgba(255,255,255,0.4); font-size: 10px; white-space: nowrap; pointer-events: none; }
+        
+        .leaflet-top.leaflet-left { top: auto; bottom: 40px; right: 20px; left: auto; }
+
+        @media print {
+            .panel, nav, .btn-search, .close-btn { display: none !important; }
+            #reportModal { display: flex !important; position: static; background: white; }
+            .modal-content { width: 100%; max-width: 100%; box-shadow: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <img src="logo.png" onclick="window.location.href='index.html'">
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <div class="cloud-indicator"><div class="dot"></div> CLOUD ONLINE</div>
+        <button onclick="deschideRapoarte()" style="background:var(--accent); border:none; color:white; padding:8px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">📊 RAPOARTE</button>
+        <button onclick="window.location.href='index.html'" style="background:transparent; border:1px solid white; color:white; padding:6px 15px; border-radius:6px; cursor:pointer; font-weight:bold;">🔙</button>
+    </div>
+</nav>
+
+<div class="panel">
+    <label style="font-size: 11px; font-weight: bold;">🔍 Căutare Utilaj:</label>
+    <input type="text" id="searchInput" placeholder="ID sau Nume..." onkeyup="if(event.key==='Enter') cauta()">
+    
+    <label style="font-size: 11px; font-weight: bold;">📂 Filtru Secție:</label>
+    <select id="filterSectie" onchange="afiseazaPuncte()">
+        <option value="Toate">Toate Secțiile</option>
+        <option value="Tranșare">Tranșare</option>
+        <option value="Injectare">Injectare</option>
+        <option value="Tocare">Tocare</option>
+        <option value="Fabricație">Fabricație</option>
+        <option value="Tratament Termic">Tratament Termic</option>
+        <option value="Secție Crude">Secție Crude</option>
+        <option value="Ambalare Vid">Ambalare Vid</option>
+        <option value="Livrare">Livrare</option>
+        <option value="Spălare">Spălare</option>
+        <option value="Compresoare Aer">Compresoare Aer</option>
+        <option value="Depozitare">Depozitare</option>
+    </select>
+    <button class="btn-search" onclick="cauta()">CAUTĂ PE HARTĂ</button>
+</div>
+
+<div id="map"></div>
+
+<div id="reportModal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
+        <h2 style="margin-top:0;">📊 Raport Stare Mentenanță</h2>
+        <p id="dataRaport" style="font-size:12px; color:gray;"></p>
+        
+        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <button onclick="exportaTotExcel()" style="background:var(--excel); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">📥 EXCEL COMPLET</button>
+            <button onclick="window.print()" style="background:var(--pdf); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">🖨️ PDF</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Utilaj</th>
+                    <th>ID</th>
+                    <th>Secție</th>
+                    <th>Zile Revizie</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="corptabel"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
+
+<script>
+    // FIREBASE INITIALIZE
+    const firebaseConfig = { databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app/" };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // MAP INITIALIZE
+    var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3 });
+    var bounds = [[0, 0], [1000, 1400]];
+    L.imageOverlay('harta.jpg', bounds).addTo(map);
+    map.setView([500, 700], 0.5);
+
+    let dbRaw = {}; 
+    let markersList = [];
+
+    // DATA SYNC
+    database.ref('utilaje').on('value', (snapshot) => {
+        dbRaw = snapshot.val() || {};
+        afiseazaPuncte();
+    });
+
+    function calculeazaZile(istoric) {
+        if (!istoric) return null;
+        const entries = Object.values(istoric);
+        const ultimaData = new Date(entries[entries.length - 1].data);
+        return Math.floor((new Date() - ultimaData) / (1000 * 60 * 60 * 24));
+    }
+
+    function afiseazaPuncte() {
+        const f = document.getElementById('filterSectie').value;
+        markersList.forEach(m => map.removeLayer(m));
+        markersList = [];
+
+        Object.keys(dbRaw).forEach(k => {
+            const u = dbRaw[k];
+            if(f !== "Toate" && u.sectie !== f) return;
+
+            const istoricArr = u.istoric ? Object.values(u.istoric).reverse() : [];
+            const ult = istoricArr[0] || { data: "-", obs: "N/A", verificari: "" };
+            const zile = calculeazaZile(u.istoric);
+            
+            const colorClass = u.sectie.includes("Termic") ? 'pin-termic' : (u.sectie.includes("Ambalare") ? 'pin-ambalare' : '');
+
+            const m = L.marker([u.lat, u.lng], {
+                icon: L.icon({ 
+                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+                    className: colorClass,
+                    iconSize: [25, 41], iconAnchor: [12, 41]
+                })
+            }).addTo(map).bindPopup(`
+                <div style="min-width:220px; color:#333;">
+                    <b style="font-size:14px;">${u.nume}</b><br><small>ID: ${u.id} | ${u.sectie}</small><hr>
+                    <b>Ultima (${ult.data}):</b><br>
+                    <small>${ult.verificari || "Fără bife"}</small><br>
+                    <i>"${ult.obs}"</i><br>
+                    <button onclick="exportaFisa('${k}')" style="width:100%; margin-top:10px; background:var(--excel); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 FIȘĂ EXCEL</button>
+                </div>
+            `);
+            m.uData = { id: String(u.id).toUpperCase(), nume: u.nume.toUpperCase() };
+            markersList.push(m);
+        });
+    }
+
+    function deschideRapoarte() {
+        const corp = document.getElementById('corptabel');
+        document.getElementById('dataRaport').innerText = "Generat la: " + new Date().toLocaleString('ro-RO');
+        corp.innerHTML = "";
+        
+        Object.keys(dbRaw).forEach(k => {
+            const u = dbRaw[k];
+            const zile = calculeazaZile(u.istoric);
+            let status = { text: "CRITIC", cls: "bg-crit" };
+            if(zile !== null && zile <= 7) status = { text: "OK", cls: "bg-ok" };
+            else if(zile !== null && zile <= 30) status = { text: "REVIZIE", cls: "bg-warn" };
+
+            corp.innerHTML += `
+                <tr>
+                    <td><b>${u.nume}</b></td>
+                    <td>${u.id}</td>
+                    <td>${u.sectie}</td>
+                    <td>${zile === null ? '-' : zile} zile</td>
+                    <td><span class="status-pill ${status.cls}">${status.text}</span></td>
+                </tr>
+            `;
+        });
+        document.getElementById('reportModal').style.display = "flex";
+    }
+
+    function exportaFisa(key) {
+        const u = dbRaw[key];
+        let csv = "\uFEFFDATA;UTILAJ;ID;SECTIE;VERIFICARI;OBSERVATII\n";
+        Object.values(u.istoric).forEach(i => {
+            csv += `${i.data};${u.nume};${u.id};${u.sectie};${i.verificari || ""};${(i.obs || "").replace(/;/g, ",")}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Fisa_${u.id}.csv`;
+        a.click();
+    }
+
+    function exportaTotExcel() {
+        let csv = "\uFEFFDATA;ID;UTILAJ;SECTIE;VERIFICARI;OBSERVATII\n";
+        Object.values(dbRaw).forEach(u => {
+            if(u.istoric) {
+                Object.values(u.istoric).forEach(i => {
+                    csv += `${i.data};${u.id};${u.nume};${u.sectie};${i.verificari || ""};${(i.obs || "").replace(/;/g, ",")}\n`;
+                });
+            }
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "Raport_Global_Killer.csv";
+        a.click();
+    }
+
+    function cauta() {
+        const v = document.getElementById('searchInput').value.toUpperCase().trim();
+        const m = markersList.find(x => x.uData.id.includes(v) || x.uData.nume.includes(v));
+        if(m) { map.setView(m.getLatLng(), 1); m.openPopup(); }
+    }
+
+    window.onload = () => { setTimeout(() => map.invalidateSize(), 600); };
+</script>
+</body>
+</html>

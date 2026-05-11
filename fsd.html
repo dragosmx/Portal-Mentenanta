@@ -3,259 +3,620 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editare Pro - Killer SRL</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        :root { --primary: #2c3e50; --accent: #f39c12; --success: #27ae60; --text-dim: #bdc3c7; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; background: #1a1a1a; }
+    <title>Administrare Pro - Killer SRL</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <script>
+        // 🛡️ PAZNICUL DE ACCES
+        if (sessionStorage.getItem('access_granted') !== 'true') {
+            window.location.href = 'index.html';
+        }
         
+        // ⏱️ AUTO-LOGOUT (30 min inactivitate)
+        let timeout;
+        function resetTimer() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                sessionStorage.removeItem('access_granted');
+                window.location.href = 'index.html';
+            }, 1800000);
+        }
+        window.onmousemove = resetTimer;
+        window.onkeypress = resetTimer;
+
+        // ⚠️ PREVENIRE ÎNCHIDERE ACCIDENTALĂ
+        window.onbeforeunload = function() { 
+            if(document.getElementById('nume').value !== "") {
+                return "Ai date nesalvate care se vor pierde!";
+            }
+        };
+    </script>
+
+    <style>
+        /* VARIABILE DE CULOARE */
+        :root { 
+            --primary: #2c3e50; 
+            --accent: #f39c12; 
+            --success: #27ae60; 
+            --danger: #e74c3c; 
+            --text: #ecf0f1; 
+            --text-dim: #bdc3c7;
+        }
+
+        /* RESETARE ȘI STRUCTURĂ GENERALĂ */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            height: 100vh; 
+            background: #1a1a1a; 
+            color: var(--text); 
+            font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; 
+        }
+        
+        /* BARA LATERALĂ */
         #sidebar { 
-            width: 380px; background: var(--primary); color: white; display: flex; flex-direction: column; 
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5); z-index: 10; border-right: 1px solid rgba(255,255,255,0.1);
+            width: 400px; 
+            height: 100vh; 
+            background: var(--primary); 
+            padding: 25px; 
+            overflow-y: auto; 
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; 
+            z-index: 10; 
+            border-right: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
 
-        .sidebar-content { flex: 1; overflow-y: auto; padding: 25px; scrollbar-width: none; }
-        .logo-box { text-align: center; margin-bottom: 25px; }
-        .logo-box img { max-width: 140px; }
+        /* LOGO */
+        .logo-box { 
+            text-align: center; 
+            margin-bottom: 20px; 
+        }
+        .logo-box img { 
+            max-width: 120px; 
+        }
 
+        /* BUTOANE NAVIGARE SUS */
+        .nav-header { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+        }
+        .btn-nav { 
+            padding: 10px; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            background: rgba(0,0,0,0.2); 
+            color: white; 
+            text-align: center; 
+            text-decoration: none; 
+            font-size: 11px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: background 0.3s;
+        }
+        .btn-nav:hover { 
+            background: var(--accent); 
+        }
+
+        /* BUTON ADAUGARE NOU */
+        .btn-add-new { 
+            background: var(--accent); 
+            color: #000; 
+            padding: 15px; 
+            border-radius: 10px; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-bottom: 20px; 
+            font-size: 13px; 
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3); 
+            transition: 0.3s; 
+        }
+        .btn-add-new:hover { 
+            background: #e67e22; 
+            transform: translateY(-2px); 
+        }
+
+        /* STATUS CLOUD (BULINA) */
+        .cloud-status { 
+            background: rgba(39, 174, 96, 0.1); 
+            padding: 10px; 
+            border-radius: 8px; 
+            font-size: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            color: var(--success); 
+            margin-bottom: 20px; 
+            border: 1px solid var(--success); 
+        }
+        .dot { 
+            width: 7px; 
+            height: 7px; 
+            background: var(--success); 
+            border-radius: 50%; 
+            animation: pulse 1.5s infinite; 
+        }
+        @keyframes pulse { 
+            0% { opacity: 0.4; } 
+            50% { opacity: 1; } 
+            100% { opacity: 0.4; } 
+        }
+
+        /* STATUS MOD (NOU SAU EDITARE) */
         .status-badge { 
-            padding: 12px; border-radius: 8px; font-size: 11px; font-weight: bold; 
-            margin-bottom: 20px; text-align: center; border-left: 5px solid #7f8c8d; background: rgba(0,0,0,0.2);
+            padding: 12px; 
+            border-radius: 8px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            text-align: center; 
+            border-left: 5px solid var(--accent); 
+            background: rgba(0,0,0,0.2); 
         }
-        .status-new { border-left-color: var(--accent); }
-        .status-edit { border-left-color: var(--success); background: rgba(39, 174, 96, 0.1); }
+        .status-edit { 
+            border-left-color: #3498db; 
+            color: #3498db; 
+        }
 
-        .group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-size: 10px; font-weight: bold; color: var(--text-dim); text-transform: uppercase; }
+        /* STILURI FORMULAR */
+        .group { 
+            margin-bottom: 15px; 
+        }
+        label { 
+            display: block; 
+            font-size: 10px; 
+            color: var(--text-dim); 
+            text-transform: uppercase; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            letter-spacing: 1px; 
+        }
         input, select, textarea { 
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); 
-            background: rgba(0,0,0,0.2); color: white; font-size: 14px; box-sizing: border-box; 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(0,0,0,0.2); 
+            color: white; 
+            font-size: 14px; 
+            box-sizing: border-box; 
+            outline: none; 
+            transition: border-color 0.3s;
         }
-        input:focus { border-color: var(--accent); outline: none; }
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--accent); 
+        }
 
-        .checklist { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-top: 5px; border: 1px dashed rgba(255,255,255,0.1); }
-        .check-item { display: flex; align-items: center; font-size: 12px; margin-bottom: 8px; cursor: pointer; }
-        .check-item input { width: auto; margin-right: 10px; cursor: pointer; }
+        /* BIFE (CHECKBOX-URI) */
+        .checklist { 
+            background: rgba(255,255,255,0.05); 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin-top: 5px; 
+            border: 1px dashed rgba(255,255,255,0.1); 
+        }
+        .check-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            font-size: 13px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+        }
+        .check-item input { 
+            width: auto; 
+        }
 
+        /* FEEDBACK MESAJE (SUCCES / EROARE) */
+        .msg-popup { 
+            padding: 10px; 
+            border-radius: 8px; 
+            margin-top: 10px; 
+            font-size: 12px; 
+            font-weight: bold; 
+            text-align: center; 
+            display: none; 
+        }
+        .msg-success { 
+            background: rgba(46, 204, 113, 0.2); 
+            color: #2ecc71; 
+            border: 1px solid #27ae60; 
+        }
+        .msg-error { 
+            background: rgba(231, 76, 60, 0.2); 
+            color: #e74c3c; 
+            border: 1px solid #c0392b; 
+        }
+
+        /* BUTON SALVARE & ȘTERGERE */
         .btn-save { 
-            background: var(--success); color: white; font-weight: bold; padding: 16px; border: none; 
-            border-radius: 10px; cursor: pointer; text-transform: uppercase; width: 100%; 
-            transition: 0.3s; box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            background: var(--success); 
+            color: white; 
+            padding: 18px; 
+            border: none; 
+            border-radius: 12px; 
+            width: 100%; 
+            cursor: pointer; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            margin-top: 10px; 
+            font-size: 14px; 
         }
-        .btn-save:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-save:disabled { 
+            opacity: 0.2; 
+            cursor: not-allowed; 
+        }
+        .btn-del { 
+            background: none; 
+            color: var(--danger); 
+            border: 1px solid var(--danger); 
+            padding: 10px; 
+            border-radius: 8px; 
+            width: 100%; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 11px; 
+            margin-top: 15px; 
+        }
 
-        .btn-backup { background: #8e44ad; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-size: 11px; margin-top: 15px; }
-
-        #map { flex: 1; background: #222; cursor: crosshair; }
-        .existing-pin { filter: hue-rotate(140deg); }
+        /* HARTĂ ȘI ELEMENTE */
+        #map { 
+            flex: 1; 
+            background: #222; 
+            cursor: crosshair; 
+        }
+        .existing-pin { 
+            filter: hue-rotate(150deg) brightness(1.2); 
+        }
+        
+        /* FOOTER DEVELOPER */
+        .footer-dev { 
+            margin-top: auto; 
+            padding-top: 25px; 
+            text-align: center; 
+            font-size: 10px; 
+            color: rgba(255,255,255,0.3); 
+        }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
-    <div class="sidebar-content">
-        <div class="logo-box"><img src="logo.png"></div>
-
-        <button onclick="conecteazaFisier()" id="btnConnect" style="background:var(--accent); color:white; padding:15px; border:none; border-radius:10px; cursor:pointer; margin-bottom:20px; font-weight:bold; width:100%;">🔗 CONECTEAZĂ BAZA DATE</button>
-        
-        <div id="status" class="status-badge status-new">MOD: UTILAJ NOU<br>(Click pe hartă pentru locație)</div>
-
-        <div class="group"><label>Nume Utilaj</label><input type="text" id="nume" placeholder="Ex: Injector Gunther" oninput="checkReady()"></div>
-        <div class="group"><label>Model / Serie</label><input type="text" id="model" placeholder="Ex: G-350"></div>
-        <div class="group"><label>Data Intervenției</label><input type="date" id="data"></div>
-        
-        <div class="group">
-            <label>Secție</label>
-            <select id="sectie" onchange="toggleExtra()">
-                <option value="Tranșare">Tranșare</option>
-                <option value="Injectare">Injectare</option>
-                <option value="Tocare">Tocare</option>
-                <option value="Fabricație">Fabricație</option>
-                <option value="Tratament Termic">Tratament Termic</option>
-                <option value="Secție Crude">Secție Crude</option>
-                <option value="Ambalare Vid">Ambalare Vid</option>
-                <option value="Livrare">Livrare</option>
-                <option value="Spălare">Spălare</option>
-                <option value="Compresoare Aer">Compresoare Aer</option>
-                <option value="Depozitare">Depozitare</option>
-            </select>
-        </div>
-
-        <div id="extraFields"></div>
-
-        <div class="group"><label>Descriere Detaliată (Obs)</label><textarea id="obs" rows="3"></textarea></div>
-        
-        <button class="btn-save" id="saveBtn" onclick="salveaza()" disabled>💾 Salvează în Bază</button>
-        <button class="btn-backup" onclick="recuperareBackup()">🆘 RECUPEREAZĂ BACKUP BROWSER</button>
-        
-        <button onclick="resetForm()" style="background:none; border:none; color:var(--text-dim); text-decoration:underline; cursor:pointer; width:100%; font-size:11px; margin-top:20px;">Anulează / Adaugă Utilaj Nou</button>
+    <div class="logo-box">
+        <img src="logo.png" alt="Logo">
     </div>
+
+    <div class="nav-header">
+        <a href="index.html" class="btn-nav">🏠 PORTAL</a>
+        <a href="view.html" class="btn-nav">👁️ VIZUALIZARE</a>
+    </div>
+
+    <button class="btn-add-new" onclick="resetForm()">➕ ADĂUGARE UTILAJ NOU</button>
+
+    <div class="cloud-status">
+        <div class="dot"></div> CLOUD ONLINE & ACTIV
+    </div>
+    
+    <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
+
+    <div class="group">
+        <label>Denumire Utilaj</label>
+        <input type="text" id="nume" placeholder="Ex: Injector Gunther" oninput="checkReady()">
+    </div>
+    
+    <div class="group">
+        <label>Marcă / Model / Serie</label>
+        <input type="text" id="model" placeholder="Ex: G350 / 2026 / SN990">
+    </div>
+    
+    <div class="group">
+        <label>Secție</label>
+        <select id="sectie" onchange="toggleExtra()">
+            <option value="Tranșare">Tranșare</option>
+            <option value="Injectare">Injectare</option>
+            <option value="Tocare">Tocare</option>
+            <option value="Fabricație">Fabricație</option>
+            <option value="Tratament Termic">Tratament Termic</option>
+            <option value="Secție Crude">Secție Crude</option>
+            <option value="Ambalare Vid">Ambalare Vid</option>
+            <option value="Livrare">Livrare</option>
+            <option value="Spălare">Spălare</option>
+            <option value="Compresoare Aer">Compresoare Aer</option>
+            <option value="Depozitare">Depozitare</option>
+        </select>
+    </div>
+
+    <div class="group">
+        <label>Data Intervenției</label>
+        <input type="date" id="data">
+    </div>
+
+    <div id="extraFields"></div>
+
+    <div class="group">
+        <label>Observații / Piese de Schimb</label>
+        <textarea id="obs" rows="3" placeholder="Descrie intervenția sau piesele înlocuite..."></textarea>
+    </div>
+
+    <button class="btn-save" id="saveBtn" onclick="salveaza()" disabled>💾 SALVEAZĂ ÎN CLOUD</button>
+    <div id="feedbackMsg" class="msg-popup"></div>
+    
+    <div id="deleteZone"></div>
+    
+    <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
 </div>
 
 <div id="map"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    let map = L.map('map', { crs: L.CRS.Simple, minZoom: -1 });
-    L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
-    map.fitBounds([[0, 0], [1000, 1400]]);
+    // --- 1. CONFIGURARE FIREBASE ---
+    const firebaseConfig = { 
+        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app/" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // --- 2. CONFIGURARE HARTĂ ---
+    var map = L.map('map', { 
+        crs: L.CRS.Simple, 
+        minZoom: 0, 
+        maxZoom: 3 
+    });
+    var bounds = [[0, 0], [1000, 1400]];
+    L.imageOverlay('harta.jpg', bounds).addTo(map);
+    map.setView([500, 700], 1); 
+
+    // --- 3. VARIABILE GLOBALE ---
+    let dbRaw = {};
+    let markersGroup = L.layerGroup().addTo(map);
+    let activeMarker = null;
+    let selectedId = null;
+    let currentCoords = null;
     
-    let fileHandle, activeMarker, existingGroup = L.layerGroup().addTo(map);
-    let selectedId = null, currentCoords = null;
+    // Setăm data de azi implicit
     document.getElementById('data').valueAsDate = new Date();
 
-    map.on('click', e => {
-        if(selectedId) return; 
+    // --- 4. ASCULTĂTOR FIREBASE (REALTIME) ---
+    database.ref('utilaje').on('value', (snap) => {
+        dbRaw = snap.val() || {};
+        refreshPini();
+    });
+
+    // --- 5. AFIȘARE PINI EXISTENȚI ---
+    function refreshPini() {
+        markersGroup.clearLayers();
+        Object.keys(dbRaw).forEach(id => {
+            const u = dbRaw[id];
+            
+            // Asigurare că avem coordonate valide înainte să desenăm pinul
+            if (u.lat && u.lng) {
+                const markerExist = L.marker([u.lat, u.lng], {
+                    icon: L.icon({ 
+                        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png', 
+                        className: 'existing-pin', 
+                        iconSize: [25, 41], 
+                        iconAnchor: [12, 41] 
+                    })
+                }).addTo(markersGroup);
+                
+                // Click pe un pin existent deschide modul "Editare"
+                markerExist.on('click', (e) => { 
+                    L.DomEvent.stopPropagation(e); 
+                    incarcaUtilaj(id); 
+                });
+            }
+        });
+    }
+
+    // --- 6. CLICK PE HARTĂ (ADĂUGARE PIN NOU) ---
+    map.on('click', (e) => {
+        // Dacă edităm deja un utilaj, nu permitem mutarea lui prin click
+        if (selectedId) return; 
+        
         currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
-        if(activeMarker) map.removeLayer(activeMarker);
+        
+        if (activeMarker) {
+            map.removeLayer(activeMarker);
+        }
+        
         activeMarker = L.marker(e.latlng).addTo(map);
         checkReady();
     });
 
-    async function conecteazaFisier() {
-        try {
-            [fileHandle] = await window.showOpenFilePicker();
-            document.getElementById('btnConnect').innerText = "✅ CONECTAT";
-            document.getElementById('btnConnect').style.background = "#27ae60";
-            refreshPini();
-            checkReady();
-        } catch(e) {}
-    }
-
-    async function refreshPini() {
-        const file = await fileHandle.getFile();
-        const db = JSON.parse(await file.text() || "[]");
-        existingGroup.clearLayers();
-        db.forEach(u => {
-            const m = L.marker([u.lat, u.lng], {
-                icon: L.icon({ iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png', className: 'existing-pin', iconSize: [25, 41], iconAnchor: [12, 41] })
-            }).addTo(existingGroup);
-            m.on('click', (e) => { 
-                L.DomEvent.stopPropagation(e);
-                selectedId = u.id;
-                document.getElementById('nume').value = u.nume;
-                document.getElementById('model').value = u.model || "";
-                document.getElementById('sectie').value = u.sectie;
-                document.getElementById('status').innerHTML = `MOD: EDITARE ID: ${u.id}<br><b>${u.nume}</b>`;
-                document.getElementById('status').className = "status-badge status-edit";
-                if(activeMarker) map.removeLayer(activeMarker);
-                toggleExtra();
-                checkReady();
-            });
-        });
-    }
-
-    function toggleExtra() {
-        const sectie = document.getElementById('sectie').value;
-        const extra = document.getElementById('extraFields');
-        let html = "";
-
-        // PROFILE DINAMICE
-        if (sectie === 'Tratament Termic' || sectie === 'Secție Crude') {
-            html = `<div class="group"><label>Verificări Celulă:</label><div class="checklist">
-                <label class="check-item"><input type="checkbox" class="task" value="Sonde"> Sonde</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Clapete"> Clapete</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Generator"> Generator Fum</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Garnituri"> Garnituri</label>
-            </div></div>`;
-        } else if (['Tocare', 'Injectare', 'Fabricație', 'Tranșare'].includes(sectie)) {
-            html = `<div class="group"><label>Verificări Mecanice:</label><div class="checklist">
-                <label class="check-item"><input type="checkbox" class="task" value="Ulei/Vaselina"> Nivel Ulei/Vaselină</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Lanturi/Curele"> Lanțuri/Curele</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Cutite/Site"> Cuțite/Site</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Rulmenti"> Zgomot Rulmenți</label>
-            </div></div>`;
-        } else if (sectie === 'Ambalare Vid') {
-            html = `<div class="group"><label>Verificări Ambalare:</label><div class="checklist">
-                <label class="check-item"><input type="checkbox" class="task" value="Pompa Vid"> Pompă Vid</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Rezistenta Lipire"> Rezistență Lipire</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Senzori"> Senzori</label>
-            </div></div>`;
-        } else {
-            html = `<div class="group"><label>Verificări Generale:</label><div class="checklist">
-                <label class="check-item"><input type="checkbox" class="task" value="Vizual"> Inspecție Vizuală</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Curatenie"> Curățenie/Igienă</label>
-            </div></div>`;
-        }
-
-        // Câmp extra pentru orice altceva
-        html += `<div class="group"><label>Altă verificare (Custom):</label><input type="text" id="extraCheck" placeholder="Ex: Presiune aer"></div>`;
-        extra.innerHTML = html;
-    }
-
-    function checkReady() {
-        const hasLoc = selectedId || currentCoords;
-        const hasName = document.getElementById('nume').value.length > 2;
-        document.getElementById('saveBtn').disabled = !(fileHandle && hasLoc && hasName);
-    }
-
-    async function salveaza() {
-        const f = await fileHandle.getFile();
-        let db = JSON.parse(await f.text() || "[]");
+    // --- 7. ÎNCĂRCARE DATE UTILAJ EXISTENT ---
+    function incarcaUtilaj(id) {
+        selectedId = id; 
+        const utilajCurent = dbRaw[id];
         
-        // Colectare bife + camp custom
-        let verificari = Array.from(document.querySelectorAll('.task:checked')).map(c => c.value).join(", ");
-        const custom = document.getElementById('extraCheck').value;
-        if(custom) verificari += (verificari ? ", " : "") + custom;
-
-        const entry = {
-            data: document.getElementById('data').value,
-            obs: document.getElementById('obs').value,
-            verificari: verificari
-        };
-
-        if(selectedId) {
-            let u = db.find(x => x.id === selectedId);
-            if(!u.istoric) u.istoric = [];
-            u.istoric.push(entry);
-            u.model = document.getElementById('model').value;
-        } else {
-            let nr = db.length + 1;
-            let newID = "ID" + nr.toString().padStart(3, '0');
-            while(db.some(x => x.id === newID)) { nr++; newID = "ID" + nr.toString().padStart(3, '0'); }
-            
-            db.push({
-                id: newID, nume: document.getElementById('nume').value, model: document.getElementById('model').value,
-                sectie: document.getElementById('sectie').value, lat: parseFloat(currentCoords[0]), lng: parseFloat(currentCoords[1]),
-                istoric: [entry]
-            });
-        }
-
-        // BACKUP BROWSER
-        localStorage.setItem('backup_killer_srl', JSON.stringify(db));
-
-        const wr = await fileHandle.createWritable();
-        await wr.write(JSON.stringify(db, null, 2));
-        await wr.close();
+        document.getElementById('nume').value = utilajCurent.nume;
+        document.getElementById('model').value = utilajCurent.model || "";
+        document.getElementById('sectie').value = utilajCurent.sectie;
         
-        alert("Salvat cu succes!");
-        resetForm();
-        refreshPini();
-    }
-
-    function resetForm() {
-        selectedId = null; currentCoords = null;
-        document.getElementById('nume').value = ""; document.getElementById('obs').value = "";
-        document.getElementById('status').innerHTML = `MOD: UTILAJ NOU<br>(Click pe hartă pentru locație)`;
-        document.getElementById('status').className = "status-badge status-new";
-        if(activeMarker) map.removeLayer(activeMarker);
-        toggleExtra();
+        document.getElementById('status').innerHTML = `MOD: EDITARE (ID: ${id})`;
+        document.getElementById('status').className = "status-badge status-edit";
+        
+        document.getElementById('deleteZone').innerHTML = `<button class="btn-del" onclick="stergeUtilaj('${id}')">⚠️ ȘTERGE UTILAJ DEFINITIV</button>`;
+        
+        if (activeMarker) {
+            map.removeLayer(activeMarker);
+        }
+        
+        toggleExtra(); 
         checkReady();
     }
 
-    function recuperareBackup() {
-        const b = localStorage.getItem('backup_killer_srl');
-        if(b) {
-            const blob = new Blob([b], {type:'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = "BACKUP_MENTENANTA.json";
-            a.click();
-        } else { alert("Nu există backup!"); }
+    // --- 8. GENERARE BIFE DINAMICE ÎN FUNCȚIE DE SECȚIE ---
+    function toggleExtra() {
+        const sectieSelectata = document.getElementById('sectie').value;
+        const divExtra = document.getElementById('extraFields');
+        
+        let htmlExtra = '<label>Verificări Specifice:</label><div class="checklist">';
+
+        if (sectieSelectata === 'Tratament Termic' || sectieSelectata === 'Secție Crude') {
+            htmlExtra += `
+                <label class="check-item"><input type="checkbox" class="task" value="Sonde"> Sonde Produs/Cameră</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Generator Fum"> Generator Fum</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Clapete"> Clapete / Ventilație</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Garnituri"> Garnituri Ușă</label>`;
+        } else if (['Tocare', 'Injectare', 'Fabricație', 'Tranșare'].includes(sectieSelectata)) {
+            htmlExtra += `
+                <label class="check-item"><input type="checkbox" class="task" value="Ulei"> Nivel Ulei / Gresare</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Lanturi"> Lanțuri / Curele</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Cutite"> Stare Cuțite / Site</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Zgomot"> Zgomot Rulmenți</label>`;
+        } else if (sectieSelectata === 'Ambalare Vid') {
+            htmlExtra += `
+                <label class="check-item"><input type="checkbox" class="task" value="Pompa Vid"> Filtre / Ulei Pompă</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Lipire"> Rezistențe Lipire</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Senzori"> Senzori Poziție</label>`;
+        } else {
+            htmlExtra += `
+                <label class="check-item"><input type="checkbox" class="task" value="Inspectie"> Inspecție Vizuală</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Igienizare"> Curățenie</label>`;
+        }
+        
+        htmlExtra += `</div><div class="group" style="margin-top:10px;"><label>Altă verificare manuală</label><input type="text" id="extraCheck" placeholder="Introduceți alte detalii sau măsurători..."></div>`;
+        
+        divExtra.innerHTML = htmlExtra;
     }
 
-    // Inițializare bife la pornire
+    // --- 9. VERIFICARE BUTON SALVARE ---
+    function checkReady() {
+        const numeCompletat = document.getElementById('nume').value.trim().length > 2;
+        const areLocatie = (selectedId !== null) || (currentCoords !== null);
+        
+        document.getElementById('saveBtn').disabled = !(areLocatie && numeCompletat);
+    }
+
+    // --- 10. ȘTERGERE UTILAJ ---
+    async function stergeUtilaj(id) {
+        if (confirm("ATENȚIE! Ești sigur că vrei să ștergi acest utilaj și întreg istoricul lui de mentenanță din baza de date?")) {
+            try {
+                await database.ref('utilaje/' + id).remove();
+                resetForm();
+            } catch(e) {
+                alert("Eroare la ștergere: " + e.message);
+            }
+        }
+    }
+
+    // --- 11. FUNCȚIA PRINCIPALĂ DE SALVARE ---
+    async function salveaza() {
+        const btnSalvare = document.getElementById('saveBtn');
+        const mesajFeedback = document.getElementById('feedbackMsg');
+        
+        // Dezactivăm butonul și arătăm că se încarcă
+        btnSalvare.disabled = true; 
+        btnSalvare.innerText = "⏳ SE SALVEAZĂ...";
+
+        try {
+            // Colectăm bifele
+            const checkBife = Array.from(document.querySelectorAll('.task:checked')).map(c => c.value).join(", ");
+            const inputManual = document.getElementById('extraCheck') ? document.getElementById('extraCheck').value : "";
+            const verificariFinale = checkBife + (inputManual ? " | " + inputManual : "");
+
+            // Construim obiectul pentru istoric
+            const istoricEntry = {
+                data: document.getElementById('data').value,
+                verificari: verificariFinale,
+                obs: document.getElementById('obs').value,
+                timestamp: Date.now() // Timp exact pentru a păstra ordinea
+            };
+
+            if (selectedId) {
+                // Dacă utilajul există deja, adăugăm o intervenție NOUĂ în istoricul lui
+                const referintaIstoricNou = database.ref('utilaje/' + selectedId + '/istoric').push();
+                await referintaIstoricNou.set(istoricEntry);
+                
+                // Actualizăm modelul în cazul în care a fost corectat
+                await database.ref('utilaje/' + selectedId + '/model').set(document.getElementById('model').value);
+                
+            } else {
+                // Dacă este un utilaj complet nou pe hartă
+                // Generăm ID exact din 4 cifre
+                const idNou = "K-" + Math.floor(1000 + Math.random() * 9000);
+                
+                const utilajNou = {
+                    id: idNou,
+                    nume: document.getElementById('nume').value,
+                    model: document.getElementById('model').value,
+                    sectie: document.getElementById('sectie').value,
+                    lat: parseFloat(currentCoords[0]),
+                    lng: parseFloat(currentCoords[1]),
+                    istoric: { 
+                        "init": istoricEntry 
+                    }
+                };
+                
+                await database.ref('utilaje/' + idNou).set(utilajNou);
+            }
+
+            // Arătăm mesaj de SUCCES
+            mesajFeedback.innerText = "✅ SALVAT CU SUCCES!";
+            mesajFeedback.className = "msg-popup msg-success";
+            mesajFeedback.style.display = "block";
+
+            // După 2 secunde, resetăm formularul automat
+            setTimeout(() => {
+                resetForm();
+                btnSalvare.innerText = "💾 SALVEAZĂ ÎN CLOUD";
+                mesajFeedback.style.display = "none";
+            }, 2000);
+
+        } catch(eroare) {
+            // Arătăm mesaj de EROARE dacă a picat netul
+            mesajFeedback.innerText = "❌ EROARE: " + eroare.message;
+            mesajFeedback.className = "msg-popup msg-error";
+            mesajFeedback.style.display = "block";
+            
+            btnSalvare.disabled = false;
+            btnSalvare.innerText = "💾 ÎNCEARCĂ DIN NOU";
+        }
+    }
+
+    // --- 12. RESETARE FORMULAR PENTRU ACȚIUNI NOI ---
+    function resetForm() {
+        selectedId = null; 
+        currentCoords = null;
+        
+        document.getElementById('nume').value = ""; 
+        document.getElementById('model').value = ""; 
+        document.getElementById('obs').value = "";
+        
+        document.getElementById('status').innerHTML = `MOD: UTILAJ NOU`;
+        document.getElementById('status').className = "status-badge";
+        
+        document.getElementById('deleteZone').innerHTML = "";
+        
+        if (activeMarker) {
+            map.removeLayer(activeMarker);
+        }
+        
+        toggleExtra(); 
+        checkReady();
+    }
+
+    // --- 13. INIȚIALIZARE LA PORNIRE ---
     toggleExtra();
+    
+    // Ajută harta Leaflet să se randeze corect după ce interfața este gata
+    window.onload = () => { 
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 500); 
+    };
+
 </script>
 </body>
 </html>

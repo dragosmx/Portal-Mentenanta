@@ -122,6 +122,21 @@
             z-index: 1000; color: rgba(255,255,255,0.6); font-size: 11px;
             font-weight: bold; text-shadow: 1px 1px 2px #000; pointer-events: none;
         }
+        /* Forțează accelerarea hardware pentru o navigare fluidă */
+.leaflet-zoom-animated {
+    will-change: transform;
+}
+
+.leaflet-marker-icon {
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Optimizează randarea imaginilor mari */
+#map {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
     </style>
 </head>
 <body>
@@ -267,52 +282,63 @@
     }
 
     function afiseazaPuncte() {
-        const filtru = document.getElementById('filterSectie').value;
-        markersList.forEach(m => map.removeLayer(m));
-        markersList = [];
-        let boundsArray = [];
+    const filtru = document.getElementById('filterSectie').value;
+    
+    // 1. Curățare rapidă
+    markersList.forEach(m => map.removeLayer(m));
+    markersList = [];
 
-        Object.keys(dbRaw).forEach(id => {
-            const u = dbRaw[id];
-            if (filtru !== "Toate" && u.sectie !== filtru) return;
-            if (!u.lat || !u.lng) return;
+    // 2. Creăm un grup de straturi (LayerGroup) pentru randare "la pachet"
+    // Asta elimină sacadarea pentru că nu mai desenează pin cu pin
+    const layerGrupNou = L.layerGroup();
+    let boundsArray = [];
 
-            let ultimaData = "-";
-            let tabelPopHtml = "";
-            if (u.istoric) {
-                const ist = Object.values(u.istoric).sort((a, b) => new Date(b.data) - new Date(a.data));
-                ultimaData = ist[0].data;
-                ist.slice(0, 2).forEach(i => {
-                    tabelPopHtml += `<tr><td><b>${i.data}</b></td><td>${i.verificari}</td></tr>`;
-                });
-            }
-            
-            const zile = calculZile(ultimaData);
-            let col = zile < 30 ? "#27ae60" : (zile < 90 ? "#f39c12" : "#e74c3c");
+    Object.keys(dbRaw).forEach(id => {
+        const u = dbRaw[id];
+        if (filtru !== "Toate" && u.sectie !== filtru) return;
+        if (!u.lat || !u.lng) return;
 
-            const m = L.marker([u.lat, u.lng], { icon: getColoredIcon(col) }).addTo(map);
-            boundsArray.push([u.lat, u.lng]);
-            
-            m.bindPopup(`
-                <div class="popup-header"><h3>${u.nume}</h3><p>ID: ${u.id}</p></div>
-                <div class="popup-body">
-                    <b>Status: ${zile === 999 ? 'Lipsă' : zile + ' zile'}</b>
-                    <table style="width:100%; font-size:10px; margin-top:5px; border-collapse:collapse;">
-                        ${tabelPopHtml}
-                    </table>
-                    <button class="btn-history" onclick="deschideIstoricUtilaj('${id}')">📜 VEZI ISTORIC</button>
-                </div>
-            `);
-            m.uData = { id: String(u.id).toUpperCase(), nume: u.nume.toUpperCase() };
-            markersList.push(m);
-        });
-
-        if (boundsArray.length > 0 && filtru !== "Toate") {
-            map.fitBounds(boundsArray, { padding: [50, 50], maxZoom: 1.5 });
-        } else if (filtru === "Toate") {
-            map.setView([500, 700], 0.5);
+        let ultimaData = "-";
+        let popTabel = "";
+        if (u.istoric) {
+            const ist = Object.values(u.istoric).sort((a, b) => new Date(b.data) - new Date(a.data));
+            ultimaData = ist[0].data;
+            ist.slice(0, 2).forEach(i => { 
+                popTabel += `<tr><td><b>${i.data}</b></td><td>${i.verificari}</td></tr>`; 
+            });
         }
+        
+        const zile = calculZile(ultimaData);
+        let col = zile < 30 ? "#27ae60" : (zile < 90 ? "#f39c12" : "#e74c3c");
+
+        // 3. Creare marker cu opțiuni de performanță
+        const m = L.marker([u.lat, u.lng], { 
+            icon: getColoredIcon(col),
+            updateWhenIdle: true, // Nu recalcula poziția în timp ce faci zoom
+            powerSave: true       // Eficiență pe mobil
+        });
+        
+        const popHtml = `<div class="popup-header"><h3>${u.nume}</h3></div><div class="popup-body"><b>Status: ${zile === 999 ? 'Lipsă' : zile + ' zile'}</b><table style="width:100%; font-size:10px; margin-top:5px;">${popTabel}</table><button class="btn-history" onclick="deschideIstoricUtilaj('${id}')">📜 ISTORIC</button></div>`;
+        
+        m.bindPopup(popHtml);
+        m.uData = { id: String(u.id).toUpperCase(), nume: u.nume.toUpperCase() };
+        
+        // Adăugăm în grup, nu direct pe hartă încă
+        layerGrupNou.addLayer(m);
+        markersList.push(m);
+        boundsArray.push([u.lat, u.lng]);
+    });
+
+    // 4. Desenăm tot grupul deodată (mult mai rapid)
+    layerGrupNou.addTo(map);
+
+    // 5. Zoom-ul lin
+    if (boundsArray.length > 0 && filtru !== "Toate") {
+        map.fitBounds(boundsArray, { padding: [50, 50], maxZoom: 1.5, animate: true });
+    } else if (filtru === "Toate") {
+        map.setView([500, 700], 0.5, { animate: true });
     }
+}
 
     function deschideIstoricUtilaj(id) {
         const u = dbRaw[id];

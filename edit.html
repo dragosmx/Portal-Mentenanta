@@ -320,7 +320,7 @@ table {
 <div class="cloud-status">
         <div class="dot"></div> CLOUD ONLINE & ACTIV
     </div>
-    <button class="btn-add-new" onclick="resetForm()">➕ ADĂUGARE UTILAJ NOU</button>
+    <button class="btn-add-new" onclick="executCuProtectie(resetForm)">➕ ADĂUGARE UTILAJ NOU</button>
     
     <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
 
@@ -389,7 +389,7 @@ table {
     <input type="file" id="fotoUtilaj" accept="image/*" capture="environment" style="padding: 10px;">
     <p style="font-size: 9px; color: #888;">* Poza se va încărca automat la salvare.</p>
 </div>
-    <button class="btn-save" id="saveBtn" onclick="salveaza()" disabled>💾 SALVEAZĂ FIȘA</button>
+    <button class="btn-save" id="saveBtn" onclick="verificareSalvare()" disabled>💾 SALVEAZĂ FIȘA</button>
     
     <div id="feedbackMsg" class="msg-popup"></div>
     
@@ -517,7 +517,7 @@ table {
         document.getElementById('status').className = "status-badge status-edit";
         
         // Creăm butonul de ștergere definitivă
-        const deleteBtnHtml = `<button class="btn-del" onclick="stergeUtilaj('${id}')">⚠️ ȘTERGE UTILAJ DEFINITIV</button>`;
+        const deleteBtnHtml = `<button class="btn-del" onclick="executCuProtectie(() => stergeUtilaj('${id}'))">⚠️ ȘTERGE UTILAJ DEFINITIV</button>`;
         document.getElementById('deleteZone').innerHTML = deleteBtnHtml;
         
         if (activeMarker) {
@@ -786,6 +786,33 @@ table {
             map.invalidateSize();
         }, 500); 
     };
+     const PAROLA_MASTER = "killer2026";
+
+    // Funcția care cere parola pentru acțiuni critice
+    function executCuProtectie(functieDeExecutat) {
+        const confirmare = prompt("Acțiune restricționată! Introdu parola MASTER:");
+        if (confirmare === PAROLA_MASTER) {
+            functieDeExecutat();
+        } else {
+            alert("Acces refuzat! Doar un inginer poate efectua această operațiune.");
+        }
+    }
+
+    // Funcție specială pentru butonul de salvare
+    function verificareSalvare() {
+        // Dacă este un utilaj NOU (nu avem selectedId), cerem parola Master
+        if (!selectedId) {
+            const confirmare = prompt("Adăugare UTILAJ NOU. Introdu parola MASTER:");
+            if (confirmare === PAROLA_MASTER) {
+                salveaza();
+            } else {
+                alert("Acces refuzat pentru adăugarea de utilaje noi.");
+            }
+        } else {
+            // Dacă este doar o intervenție pe un utilaj existent, lăsăm salvarea fără parolă master
+            salveaza();
+        }
+    }
 </script>
 </body>
 </html>

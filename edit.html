@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
+    <script>
+    // Verificăm dacă userul vine "la rece" (a scris link-ul manual)
+    if (document.referrer === "") {
+        // Îl trimitem direct la pagina principală
+        window.location.href = "/"; 
+    } else {
+        // Verificăm dacă adresa de unde vine NU este site-ul tău
+        // (asta previne blocarea dacă navighezi între paginile tale)
+        var hostname = window.location.hostname;
+        if (document.referrer.indexOf(hostname) === -1) {
+            window.location.href = "/";
+        }
+    }
+</script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administrare - Killer SRL</title>

@@ -1,24 +1,27 @@
-const CACHE_NAME = 'killer-cmms-v1';
-const assets = [
-  'view.html',
-  'harta.jpg',
-  'logo.png',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+const CACHE_NAME = 'killer-mentenanta-v1';
+const urlsToCache = [
+    './',
+    './index.html',
+    './view.html',
+    './edit.html',
+    './logo.png',
+    './harta.jpg'
 ];
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(assets);
-    })
-  );
+// Instalarea Service Worker-ului
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                console.log('Fișiere salvate în cache (pentru viteză).');
+                return cache.addAll(urlsToCache);
+            })
+    );
 });
 
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(response => {
-      return response || fetch(e.request);
-    })
-  );
+// Interceptarea cererilor (Dacă nu e net, arată ce are în cache)
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
+    );
 });

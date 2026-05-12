@@ -4,12 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administrare - Killer SRL</title>
-    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mentenanță">
+    <link rel="apple-touch-icon" href="logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
+    
     <script>
         if (sessionStorage.getItem('access_granted') !== 'true') {
             window.location.href = 'index.html';
@@ -58,7 +64,14 @@
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
         }
-
+            /* Permite tabelelor să facă scroll orizontal pe ecrane mici fără să strice modalul */
+.scroll-v {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+table {
+    min-width: 500px; /* Forțează tabelul să păstreze proporțiile */
+}
         /* Bara laterală stânga */
         #sidebar {
             width: 420px;
@@ -278,6 +291,7 @@
         }
     </style>
 </head>
+
 <body>
 
 <div id="sidebar">
@@ -309,9 +323,9 @@
     <div class="group">
         <label>Secție</label>
         <select id="sectie" onchange="toggleExtra()">
-            <option value="Tranșare">Tranșare (Feliatoare Bizerba)</option>
+            <option value="Tranșare">Tranșare </option>
             <option value="Injectare">Injectare</option>
-            <option value="Tocare">Tocare (Cuter Seydelmann)</option>
+            <option value="Tocare">Tocare </option>
             <option value="Fabricație">Fabricație</option>
             <option value="Tratament Termic">Tratament Termic (Celule)</option>
             <option value="Secție Crude">Secție Crude</option>
@@ -335,16 +349,19 @@
             </select>
         </div>
     </div>
-    
+    <div class="group" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 12px; border-radius: 8px;">
+        <label class="check-item" style="color: #2ecc71; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="esteRevizie" style="width: 18px; height: 18px; cursor: pointer;">
+            BIFEAZĂ DACĂ ACEASTA ESTE O REVIZIE SAU MENTENANȚĂ PREVENTIVĂ
+        </label>
+    </div>
+
     <div class="group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
         <div>
             <label>Efectuat de (Mecanic):</label>
             <input type="text" id="mecanic" placeholder="Nume mecanic...">
         </div>
-        <div>
-            <label>Cost (RON):</label>
-            <input type="number" id="cost" placeholder="0" min="0">
-        </div>
+        
     </div>
 
     <div id="extraFields"></div>
@@ -353,7 +370,11 @@
         <label>Observații / Piese înlocuite</label>
         <textarea id="obs" rows="3" placeholder="Ex: Înlocuit ulei Shell Tellus 90..."></textarea>
     </div>
-
+    <div class="group">
+    <label>📸 FOTOGRAFIE DEFECT / REPARAȚIE (OPȚIONAL)</label>
+    <input type="file" id="fotoUtilaj" accept="image/*" capture="environment" style="padding: 10px;">
+    <p style="font-size: 9px; color: #888;">* Poza se va încărca automat la salvare.</p>
+</div>
     <button class="btn-save" id="saveBtn" onclick="salveaza()" disabled>💾 SALVEAZĂ FIȘA</button>
     
     <div id="feedbackMsg" class="msg-popup"></div>
@@ -482,43 +503,86 @@
         
         let html = '<label>Operațiuni Plan Mentenanță 2026:</label><div class="checklist">';
 
-        if (s === 'Tocare' || s === 'Injectare') {
+        // 1. TOCARE ȘI INJECTARE (Cuter, Injectoare, Malaxoare)
+        if (s === 'Tocare' || s === 'Injectare' || s === 'Fabricație') {
             html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Filtru admisie aer"> Filtru admisie aer</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Sistem hidraulic"> Sistem hidraulic</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Motor principal"> Motor principal</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Transmisie cuva"> Transmisie cuvă (Ulei)</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Descarcator pasta"> Descărcător pastă</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Curele transmisie"> Curele</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Hidraulic"> Schimb Ulei Hidraulic</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Vacuum"> Schimb Ulei Pompă Vacuum</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Filtre Aer/Ulei"> Verificare/Schimb Filtre</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Gresare Lagare/Rulmenti"> Gresare Lagăre/Rulmenți</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Cutite/Ace"> Verificare Cuțite/Ace</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Motor principal"> Motor principal & Curele</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Generală"> Verificare Generală</label>
             `;
-        } else if (s === 'Tranșare') {
+        } 
+        // 2. TRATAMENT TERMIC (Celule Afumare)
+        else if (s === 'Tratament Termic') {
             html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Benzi transport"> Verificare benzi transport</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Tablou electric"> Tablou electric (contacte)</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Sistem taiere"> Sistem tăiere (Ascuțire/Gresare)</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Curatare Tubulatura"> Curățare Tubulatură</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Clapeti"> Clapete </label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Ventilatoare"> Motoare Ventilație</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Sonda Temp"> Calibrare Sondă</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Sonda Temperatură"> Înlocuire Sonde Temperatură </label>
+                <label class="check-item"><input type="checkbox" class="task" value="Gresare Balamale/Garnituri"> Gresare Balamale & Garnituri</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Generator Fum"> Mentenanță Generator Fum</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
             `;
-        } else if (s === 'Ambalare Vid') {
+        }
+        // 3. AMBALARE VID
+        else if (s === 'Ambalare Vid') {
             html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Ulei Pompa Vid"> Ulei Pompă Vid</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Rezistente Lipire"> Rezistențe Lipire</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Banda Teflon"> Bandă Teflon</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Ulei Pompa Vid"> Schimb Ulei Pompă Vid</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Filtre Separatoare"> Filtre Separatoare Ulei</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Rezistente/Teflon"> Rezistențe Lipire & Teflon</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Membrane/Garnituri"> Verificare Membrane/Garnituri</label>
             `;
-        } else {
+        }
+        // 4. DEPOZITARE (Frig / Compresoare)
+        else if (s === 'Depozitare') {
             html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Inspectie Vizuala"> Inspecție Vizuală</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Verificare Tablou"> Tablou Electric</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Nivel Freon"> Verificare Nivel Freon</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Curatare Condensatoare"> Curățare Condensatoare</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Motoare Ventilatoare"> Ventilatoare Vaporizator</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Garnituri Usi"> Verificare Etanșeitate Uși</label>
+            `;
+        }
+        else if (s === 'Spălare') {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Pompa"> Schimb Ulei Pompă</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Etansare Pompa/Presetupe"> Etanșare Pompă (Presetupe/Garnituri)</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Furtunuri/Cuplaje"> Verificare Furtunuri & Cuplaje</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Motor si Curele"> Motor Electric & Curele Transmisie</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Curatare Duze/Accesorii"> Curățare Duze & Accesorii</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Filtre Apa"> Verificare Filtre/Decantoare Apă</label>
+            `;
+        }
+        // 5. TRANȘARE (Feliatoare / Benzi)
+        else if (s === 'Tranșare') {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Gresare Ghidaje"> Gresare Ghidaje/Liniar</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Ascutire Lama"> Ascuțire/Verificare Lamă</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Curatare Benzi"> Verificare Stare Benzi</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Senzori Prezenta"> Curățare/Reglare Fotocelule</label>
+            `;
+        }
+        // 6. DEFAULT (Restul secțiilor)
+        else {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Inspectie Vizuala"> Inspecție Vizuală Generală</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Gresare Generala"> Gresare Componente Mobile</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Suruburi"> Strângere Șuruburi/Fixări</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Tablou Electric"> Suflare/Strângere Tablou El.</label>
             `;
         }
         
         html += `</div>`;
         html += `<div class="group" style="margin-top:10px;">`;
-        html += `<label>Altă operațiune manuală:</label>`;
-        html += `<input type="text" id="extraCheck">`;
+        html += `<label>Altă operațiune manuală (Piese înlocuite):</label>`;
+        html += `<input type="text" id="extraCheck" placeholder="Ex: Înlocuit rulment 6205...">`;
         html += `</div>`;
         
         extraFieldsDiv.innerHTML = html;
     }
-
     // 9. Verificare validitate formular înainte de salvare
     function checkReady() {
         const numeValid = document.getElementById('nume').value.trim().length > 2;
@@ -546,25 +610,24 @@
     async function salveaza() {
         const btn = document.getElementById('saveBtn'); 
         const msg = document.getElementById('feedbackMsg');
+        const fileInput = document.getElementById('fotoUtilaj');
+        const file = fileInput.files[0];
         
         btn.disabled = true; 
-        btn.innerText = "⏳ SE SALVEAZĂ...";
+        btn.innerText = file ? "⏳ SE ÎNCARCĂ POZA ȘI DATELE..." : "⏳ SE SALVEAZĂ...";
 
         try {
-            // Colectăm ce a fost bifat
             const bifeList = document.querySelectorAll('.task:checked');
             const bifeArray = Array.from(bifeList);
             const bifeValues = bifeArray.map(c => c.value);
             const bifeString = bifeValues.join(", ");
             
-            // Colectăm valoarea extra scrisă manual
             const extraCheckElement = document.getElementById('extraCheck');
             let manual = "";
             if (extraCheckElement) {
                 manual = extraCheckElement.value;
             }
             
-            // Creăm șirul final de verificări
             let verificariFinale = bifeString;
             if (manual !== "") {
                 if (verificariFinale !== "") {
@@ -574,13 +637,20 @@
                 }
             }
             
-            // Colectăm costul
             let costValoare = parseFloat(document.getElementById('cost').value);
-            if (isNaN(costValoare)) {
-                costValoare = 0;
-            }
+            if (isNaN(costValoare)) costValoare = 0;
 
-            // Creăm obiectul pentru intervenție
+            const isRevizie = document.getElementById('esteRevizie').checked;
+
+            // ---- LOGICA DE ÎNCĂRCARE FOTO ----
+            let fotoUrl = "";
+            if (file) {
+                const storageRef = firebase.storage().ref('mentenanta/' + Date.now() + "_" + file.name);
+                const snapshot = await storageRef.put(file);
+                fotoUrl = await snapshot.ref.getDownloadURL();
+            }
+            // ----------------------------------
+
             const entry = {
                 data: document.getElementById('data').value,
                 tip: document.getElementById('tipInterventie').value,
@@ -588,21 +658,19 @@
                 cost: costValoare,
                 verificari: verificariFinale,
                 obs: document.getElementById('obs').value,
-                timestamp: Date.now()
+                timestamp: Date.now(), 
+                revizie: isRevizie,
+                foto: fotoUrl // Salvăm link-ul pozei în baza de date
             };
 
             if (selectedId) {
-                // Dacă utilajul există, actualizăm și adăugăm în istoric
                 const istoricRef = database.ref('utilaje/' + selectedId + '/istoric').push();
                 await istoricRef.set(entry);
-                
                 await database.ref('utilaje/' + selectedId + '/model').set(document.getElementById('model').value);
                 await database.ref('utilaje/' + selectedId + '/sectie').set(document.getElementById('sectie').value);
             } else {
-                // Dacă este un utilaj complet nou
                 const idGenerat = Math.floor(1000 + Math.random() * 9000);
                 const idNou = "K-" + idGenerat;
-                
                 const utilajNouObject = { 
                     id: idNou, 
                     nume: document.getElementById('nume').value, 
@@ -610,15 +678,11 @@
                     sectie: document.getElementById('sectie').value, 
                     lat: parseFloat(currentCoords[0]), 
                     lng: parseFloat(currentCoords[1]), 
-                    istoric: { 
-                        "init": entry 
-                    } 
+                    istoric: { "init": entry } 
                 };
-                
                 await database.ref('utilaje/' + idNou).set(utilajNouObject);
             }
 
-            // Confirmare de succes
             msg.innerText = "✅ SALVAT CU SUCCES!"; 
             msg.className = "msg-popup msg-success"; 
             msg.style.display = "block";
@@ -630,11 +694,9 @@
             }, 2000);
             
         } catch(e) {
-            // Confirmare eroare
             msg.innerText = "❌ EROARE: " + e.message; 
             msg.className = "msg-popup msg-error"; 
             msg.style.display = "block";
-            
             btn.disabled = false; 
             btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
         }
@@ -654,6 +716,7 @@
         document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; 
         document.getElementById('status').className = "status-badge"; 
         document.getElementById('deleteZone').innerHTML = "";
+        document.getElementById('fotoUtilaj').value = "";
         
         if (activeMarker) {
             map.removeLayer(activeMarker); 

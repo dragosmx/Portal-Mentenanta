@@ -4,6 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Mentenanță - Killer SRL</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mentenanță">
+    <link rel="apple-touch-icon" href="logo.png">
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
             --primary: #2c3e50;
@@ -102,6 +109,16 @@
 
     </style>
 </head>
+
+<script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Aplicație PWA activată cu succes!'))
+                .catch(err => console.log('Eroare PWA: ', err));
+            });
+        }
+    </script>
 <body>
 
 <div class="container">
@@ -131,6 +148,13 @@
         
         <button class="btn" style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:20px;" onclick="logout()">Ieșire</button>
     </div>
+    <div id="mobile-qr-section" style="margin-top: 20px; text-align: center;">
+    <button onclick="pornesteScanner()" style="background: #8e44ad; color: white; padding: 15px; border: none; border-radius: 12px; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer;">
+        📷 SCANEAZĂ COD QR UTILAJ
+    </button>
+</div>
+
+<div id="reader" style="width: 100%; max-width: 500px; margin: 20px auto; display: none; border-radius: 15px; overflow: hidden;"></div>
 </div>
  <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
 
@@ -169,6 +193,21 @@
         sessionStorage.removeItem('access_granted');
         location.reload();
     }
+    function pornesteScanner() {
+    document.getElementById('reader').style.display = 'block';
+    const html5QrCode = new Html5Qrcode("reader");
+    
+    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+        // decodedText va fi link-ul tau de genul .../scan.html?id=K1234
+        window.location.href = decodedText; 
+        html5QrCode.stop();
+    };
+    
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+    // Pornim camera din spate (environment)
+    html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+}
 </script>
 </body>
 </html>

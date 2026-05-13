@@ -463,49 +463,8 @@ table {
         }
     });
 }
-    // 2. Definim iconița stil Google Maps
-    const customIcon = L.divIcon({ 
-        className: 'custom-pin', 
-        html: `
-            <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
-                <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
-                <circle cx="15" cy="15" r="5.5" fill="white"/>
-            </svg>
-        `,
-        iconSize: [30, 45], 
-        iconAnchor: [15, 45],
-        popupAnchor: [0, -45]
-    });
-    
-    // 3. Creăm markerul folosind noua iconiță
-    const m = L.marker([u.lat, u.lng], { icon: customIcon }).addTo(markersGroup);
-    
-    // 4. Păstrăm evenimentul de click pentru încărcarea utilajului
-    m.on('click', (e) => { 
-        L.DomEvent.stopPropagation(e); 
-        incarcaUtilaj(id); 
-    });
-}
-          /* if (u.lat && u.lng) {
-                const customIcon = L.icon({ 
-                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png', 
-                    className: 'existing-pin', 
-                    iconSize: [25, 41], 
-                    iconAnchor: [12, 41] 
-                });
-                
-                const m = L.marker([u.lat, u.lng], { icon: customIcon }).addTo(markersGroup);
-                
-                m.on('click', (e) => { 
-                    L.DomEvent.stopPropagation(e); 
-                    incarcaUtilaj(id); 
-                });
-            }*/
-        });
-    }
-
-    // 6. Funcția de click pe hartă pentru a adăuga un pin nou
+   
+      // 6. Funcția de click pe hartă pentru a adăuga un pin nou
     map.on('click', (e) => {
         // Dacă edităm deja un utilaj existent, nu putem adăuga unul nou din greșeală
         if (selectedId) {

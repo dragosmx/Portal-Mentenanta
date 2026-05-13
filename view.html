@@ -118,14 +118,24 @@
 @keyframes pulse-cloud { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
 @media print { .cloud-status-view { display: none !important; } }
-        .custom-pin svg {
-    transition: transform 0.2s ease-in-out;
+        .custom-pin {
+    /* Eliminăm orice tranziție de pe containerul principal ca să nu miște harta */
+    transition: none !important; 
+    pointer-events: auto;
 }
 
-/* Efect de mărire când pui mouse-ul pe el */
+.custom-pin svg {
+    /* Aplicăm animația doar pe desenul din interior */
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform, filter; /* Spunem browserului să folosească placa video */
+    transform-origin: bottom center; /* Se mărește de jos în sus, nu din mijloc */
+    display: block;
+}
+
+/* Efectul de Hover - Modificat să fie extrem de clar */
 .custom-pin:hover svg {
-    transform: scale(1.2);
-    filter: drop-shadow(0 5px 8px rgba(0,0,0,0.5)) !important;
+    transform: scale(1.15); /* Nu exagerăm cu mărirea ca să păstrăm claritatea */
+    filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)) !important;
 }
     </style>
 </head>

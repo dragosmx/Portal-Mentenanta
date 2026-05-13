@@ -307,7 +307,9 @@
                 icon: L.divIcon({ 
                     className:'custom-pin', 
                     html:`<svg viewBox="0 0 24 36" width="30" height="42"><path fill="${col}" stroke="#1a1a1a" stroke-width="1.5" d="M12 0C5.3 0 0 5.3 0 12c0 7.3 12 24 12 24s12-16.7 12-24C24 5.3 18.7 0 12 0zm0 17.5c-3 0-5.5-2.5-5.5-5.5s2.5-5.5 5.5-5.5 5.5 2.462 5.5 5.5-2.5 5.5-5.5 5.5z"/></svg>`, 
-                    iconAnchor:[15,42], popupAnchor:[0,-40] 
+                    iconSize: [30, 45],
+                    iconAnchor: [15, 45], 
+                    popupAnchor: [0, -45] 
                 }) 
             }).addTo(map);
 

@@ -500,7 +500,6 @@ table {
         document.getElementById('nume').value = u.nume; 
         document.getElementById('model').value = u.model || ""; 
         document.getElementById('sectie').value = u.sectie;
-        
         document.getElementById('status').innerHTML = `MOD: EDITARE UTILAJ (ID: ${id})`; 
         document.getElementById('status').className = "status-badge status-edit";
         
@@ -658,8 +657,7 @@ table {
                 }
             }
             
-            let costValoare = parseFloat(document.getElementById('cost').value);
-            if (isNaN(costValoare)) costValoare = 0;
+           let costValoare = 0;
 
             const isRevizie = document.getElementById('esteRevizie').checked;
 
@@ -752,8 +750,7 @@ table {
         document.getElementById('model').value = ""; 
         document.getElementById('obs').value = ""; 
         document.getElementById('mecanic').value = "";
-        document.getElementById('cost').value = "";
-        
+        //document.getElementById('cost').value = "";
         document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; 
         document.getElementById('status').className = "status-badge"; 
         document.getElementById('deleteZone').innerHTML = "";

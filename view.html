@@ -325,11 +325,12 @@
                 icon: L.divIcon({ 
                     className:'custom-pin', 
                    html: `
-        <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 4px rgba(0,0,0,0.4));">
-            <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.2)" />
-            <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}"/>
-            <circle cx="15" cy="15" r="5.5" fill="white"/>
-        </svg>
+        <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg" 
+         style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); shape-rendering: geometricPrecision;">
+        <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
+        <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
+        <circle cx="15" cy="15" r="5.5" fill="white"/>
+    </svg>
     `, 
                     iconSize: [30, 45],
                     iconAnchor: [15, 45], 

@@ -17,34 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
     
-    /*
-    <script>
-        if (sessionStorage.getItem('access_granted') !== 'true') {
-            window.location.href = 'index.html';
-        }
-
-        let timeout;
-        
-        function resetTimer() {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                sessionStorage.removeItem('access_granted');
-                window.location.href = 'index.html';
-            }, 1800000); // Auto-logout după 30 minute
-        }
-
-        window.onmousemove = resetTimer;
-        window.onkeypress = resetTimer;
-
-        window.onbeforeunload = function() {
-            const numeField = document.getElementById('nume').value;
-            if (numeField !== "") {
-                return "Ai date nesalvate care se vor pierde!";
-            }
-        };
-    </script>*/
-
-    <style>
+ <style>
         /* Variabile de culoare */
         :root {
             --primary: #2c3e50;

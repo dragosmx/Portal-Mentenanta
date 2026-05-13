@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Killer Mentenanță - Control Panel ULTIMATE PRO</title>
 
+    <meta name="mobile-web-app-capable" content="yes"> <meta name="apple-mobile-web-app-capable" content="yes"> <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mentenanță">
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="logo.png">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
@@ -226,7 +227,8 @@
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    
+    let dbRaw = {};
+    let markersList = [];
  
     function calculeazaZile(dataString) {
         if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
@@ -323,6 +325,22 @@
             m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
             markersList.push(m);
         });
+        // 5. Funcția ZOOM (Reparată și mutată în spațiul global)
+    window.zoomSectie = function(sectie) {
+        console.log("Zoom pe sectia:", sectie);
+        const bounds = [];
+        Object.values(dbRaw).forEach(u => {
+            if (u.sectie && u.sectie.toLowerCase() === sectie.toLowerCase() && u.lat && u.lng) {
+                bounds.push([u.lat, u.lng]);
+            }
+        });
+
+        if (bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 2 });
+        } else {
+            alert("Nu există utilaje în secția: " + sectie);
+        }
+    };
     }
 
     function inchideModal(idModal) {
@@ -447,25 +465,6 @@
         if (m) { map.setView(m.getLatLng(), 2); m.openPopup(); }
     }
 
-    function zoomSectie(sectie) {
-    if (typeof dbRaw === 'undefined' || !dbRaw) {
-        console.log("Datele nu s-au încărcat încă din Firebase.");
-        return;
-    }
-
-    const bounds = [];
-    Object.values(dbRaw).forEach(u => {
-        if (u.sectie === sectie && u.lat && u.lng) {
-            bounds.push([u.lat, u.lng]);
-        }
-    });
-
-    if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 18 });
-    } else {
-        alert("Nu există utilaje înregistrate în secția: " + sectie);
-    }
-}
     </script>
 
 <script>

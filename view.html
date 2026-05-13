@@ -446,6 +446,7 @@
         const m = markersList.find(x => x.uData.id.includes(v) || x.uData.n.includes(v));
         if (m) { map.setView(m.getLatLng(), 2); m.openPopup(); }
     }
+
     function zoomSectie(sectie) {
     if (typeof dbRaw === 'undefined' || !dbRaw) {
         console.log("Datele nu s-au încărcat încă din Firebase.");
@@ -465,7 +466,7 @@
         alert("Nu există utilaje înregistrate în secția: " + sectie);
     }
 }
-</script>
+    </script>
 
 <script>
     if ('serviceWorker' in navigator) {

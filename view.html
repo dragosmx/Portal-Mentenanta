@@ -118,6 +118,15 @@
 @keyframes pulse-cloud { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
 @media print { .cloud-status-view { display: none !important; } }
+        .custom-pin svg {
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Efect de mărire când pui mouse-ul pe el */
+.custom-pin:hover svg {
+    transform: scale(1.2);
+    filter: drop-shadow(0 5px 8px rgba(0,0,0,0.5)) !important;
+}
     </style>
 </head>
 <body>

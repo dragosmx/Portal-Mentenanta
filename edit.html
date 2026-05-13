@@ -2,14 +2,10 @@
 <html lang="ro">
 <head>
     <script>
-    // Verificăm dacă userul vine "la rece" (a scris link-ul manual)
-    if (document.referrer === "") {
-        // Îl trimitem direct la pagina principală
-        window.location.href = "/"; 
+        if (document.referrer === "") {
+                window.location.href = "/"; 
     } else {
-        // Verificăm dacă adresa de unde vine NU este site-ul tău
-        // (asta previne blocarea dacă navighezi între paginile tale)
-        var hostname = window.location.hostname;
+                var hostname = window.location.hostname;
         if (document.referrer.indexOf(hostname) === -1) {
             window.location.href = "/";
         }
@@ -27,6 +23,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
     
@@ -399,30 +396,21 @@ table {
 <div id="map"></div>
 
 <script>
-    // 1. Configurare Firebase
-    const firebaseConfig = { 
-        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app/" 
+   //Pentru curiosi
+    const firebaseConfig = {
+        apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
+        authDomain: "killer-mentenanta.firebaseapp.com",
+        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "killer-mentenanta",
+        storageBucket: "killer-mentenanta.firebasestorage.app",
+        messagingSenderId: "434460062600",
+        appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
     };
     
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-    // DETECTOR DE SEMNAL (ONLINE / OFFLINE)
-    let esteOnline = true;
-    firebase.database().ref('.info/connected').on('value', function(snap) {
-        esteOnline = snap.val() === true;
-        
-        const cloudBtn = document.querySelector('.cloud-status');
-        if(cloudBtn) {
-            if (esteOnline) {
-                cloudBtn.innerHTML = '<div class="dot" style="background:#2ecc71;"></div> CLOUD ONLINE & ACTIV';
-                cloudBtn.style.color = '#2ecc71';
-                cloudBtn.style.borderColor = '#2ecc71';
-            } else {
-                cloudBtn.innerHTML = '<div class="dot" style="background:#e74c3c;"></div> FĂRĂ SEMNAL (SALVARE LOCALĂ)';
-                cloudBtn.style.color = '#e74c3c';
-                cloudBtn.style.borderColor = '#e74c3c';
-            }
-        }
+    firebase.auth().onAuthStateChanged((user) => {
+        if (!user) { window.location.href = "index.html"; }
     });
 
     // 2. Configurare Hartă Leaflet
@@ -778,7 +766,7 @@ table {
         checkReady();
     }
 
-    // Inițializare scripturi după ce se încarcă pagina
+    
     toggleExtra(); 
     
     window.onload = () => { 
@@ -786,30 +774,30 @@ table {
             map.invalidateSize();
         }, 500); 
     };
-     const PAROLA_MASTER = "killer2026";
+     function executCuProtectie(functieDeExecutat) {
+        const parolaConfirmare = prompt("Acțiune restricționată! Introdu parola de Administrator:");
+        if (!parolaConfirmare) return; 
+        const user = firebase.auth().currentUser;
+        if (!user) return;
 
-    // Funcția care cere parola pentru acțiuni critice
-    function executCuProtectie(functieDeExecutat) {
-        const confirmare = prompt("Acțiune restricționată! Introdu parola MASTER:");
-        if (confirmare === PAROLA_MASTER) {
+        
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, parolaConfirmare);
+
+        user.reauthenticateWithCredential(credential).then(() => {
+    
             functieDeExecutat();
-        } else {
-            alert("Acces refuzat! Doar un inginer poate efectua această operațiune.");
-        }
+        }).catch((error) => {
+            alert("❌ Acces refuzat! Parolă incorectă.");
+        });
     }
 
     // Funcție specială pentru butonul de salvare
     function verificareSalvare() {
-        // Dacă este un utilaj NOU (nu avem selectedId), cerem parola Master
         if (!selectedId) {
-            const confirmare = prompt("Adăugare UTILAJ NOU. Introdu parola MASTER:");
-            if (confirmare === PAROLA_MASTER) {
-                salveaza();
-            } else {
-                alert("Acces refuzat pentru adăugarea de utilaje noi.");
-            }
+           
+            executCuProtectie(salveaza);
         } else {
-            // Dacă este doar o intervenție pe un utilaj existent, lăsăm salvarea fără parolă master
+            
             salveaza();
         }
     }

@@ -393,7 +393,7 @@ table {
     <div id="deleteZone"></div>
 </div>
 
-<div id="map"></div>
+<div id="map" style="height: 300px; width: 100%; border-radius: 12px; margin-bottom: 20px; border: 2px solid var(--primary);"></div>
 
 <script>
    //Pentru curiosi
@@ -409,8 +409,11 @@ table {
     
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+
     firebase.auth().onAuthStateChanged((user) => {
-        if (!user) { window.location.href = "index.html"; }
+        if (!user) { 
+            window.location.href = "index.html"; 
+        }
     });
 
     // 2. Configurare Hartă Leaflet

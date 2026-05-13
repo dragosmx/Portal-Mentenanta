@@ -421,22 +421,48 @@ table {
 
     // 5. Funcția pentru afișarea pinilor pe hartă (în modul edit)
     function refreshPini() {
-        markersGroup.clearLayers();
-        
-        Object.keys(dbRaw).forEach(id => {
-            const u = dbRaw[id];
-            if (u.lat && u.lng) {
-    // 1. Calculăm culoarea în funcție de revizie (pentru consistență cu harta de vizualizare)
-    let col = "#2ecc71"; // Verde default
-    if (u.istoric) {
-        const istArr = Object.values(u.istoric);
-        const ultimaRev = istArr.find(i => i.revizie === true);
-        if (ultimaRev) {
-            const z = calculeazaZile(ultimaRev.data); // Asigură-te că funcția calculeazaZile există și în edit.html
-            col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
-        }
-    }
+    markersGroup.clearLayers();
+    
+    Object.keys(dbRaw).forEach(id => {
+        const u = dbRaw[id];
+        if (u.lat && u.lng) {
+            // 1. Calculăm culoarea în funcție de revizie
+            let col = "#2ecc71"; // Verde default
+            if (u.istoric) {
+                const istArr = Object.values(u.istoric);
+                const ultimaRev = istArr.find(i => i.revizie === true);
+                if (ultimaRev) {
+                    const z = calculeazaZile(ultimaRev.data); 
+                    col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
+                }
+            }
 
+            // 2. CREAREA ICONIȚEI (Partea nouă)
+            const customIcon = L.divIcon({ 
+                className: 'custom-pin', 
+                html: `
+                    <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
+                        <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
+                        <circle cx="15" cy="15" r="5.5" fill="white"/>
+                    </svg>
+                `,
+                iconSize: [30, 45], 
+                iconAnchor: [15, 45],
+                popupAnchor: [0, -45]
+            });
+            
+            // 3. CREAREA MARKERULUI
+            const m = L.marker([u.lat, u.lng], { icon: customIcon }).addTo(markersGroup);
+            
+            // 4. EVENIMENTUL DE CLICK (Să se încarce datele în formular când apeși pe pin)
+            m.on('click', (e) => { 
+                L.DomEvent.stopPropagation(e); 
+                incarcaUtilaj(id); 
+            });
+        }
+    });
+}
     // 2. Definim iconița stil Google Maps
     const customIcon = L.divIcon({ 
         className: 'custom-pin', 

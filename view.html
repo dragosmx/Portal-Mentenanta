@@ -139,7 +139,7 @@
     <label>🔍 Căutare Utilaj</label>
     <input type="text" id="searchInput" placeholder="Nume sau Cod..." onkeyup="if(event.key==='Enter') cauta()">
     <label>📂 Filtru Secție</label>
-    <select id="filterSectie" onchange="afiseazaPuncte()">
+    <select id="filterSectie" onchange="afiseazaPuncte(); zoomSectie(this.value)">
         <option value="Toate">Toate Secțiile</option>
         <option value="Spălare">Spălare</option>
         <option value="Tranșare">Tranșare</option>
@@ -325,6 +325,7 @@
             m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
             markersList.push(m);
         });
+        }
         // 5. Funcția ZOOM (Reparată și mutată în spațiul global)
     window.zoomSectie = function(sectie) {
         console.log("Zoom pe sectia:", sectie);
@@ -341,7 +342,6 @@
             alert("Nu există utilaje în secția: " + sectie);
         }
     };
-    }
 
     function inchideModal(idModal) {
         document.getElementById(idModal).style.display = 'none';

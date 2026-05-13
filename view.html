@@ -84,7 +84,12 @@
             th { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; }
             .pdf-header { display: none !important; }
         }
-        
+        .status-online {
+    width: 10px; height: 10px; background: #2ecc71;
+    border-radius: 50%; display: inline-block; margin-right: 5px;
+    box-shadow: 0 0 5px #2ecc71;
+}
+.offline { background: #e74c3c; box-shadow: 0 0 5px #e74c3c; }
 /* Stil pentru Bulina Cloud Activ */
 .cloud-status-view {
     display: flex;
@@ -124,6 +129,7 @@
 
 <nav>
     <div class="nav-left"><img src="logo.png" onclick="window.location.href='index.html'"></div>
+    <div id="connStatus" class="status-online"></div>
     <div class="nav-scroll">
         <button onclick="deschideRapoarte()" style="background:var(--success);">📊 DASHBOARD GLOBAL</button>
         <button onclick="window.location.href='edit.html'" style="background:var(--warning); color:black;">⚙️ ADMINISTRARE</button>
@@ -137,7 +143,7 @@
 
 <div class="panel">
     <label>🔍 Căutare Utilaj</label>
-    <input type="text" id="searchInput" placeholder="Nume sau Cod..." onkeyup="if(event.key==='Enter') cauta()">
+    <input type="text" id="searchInput" placeholder="Nume sau Cod..." onkeyup="if(event.key==='Enter') cautaSmart()">
     <label>📂 Filtru Secție</label>
     <select id="filterSectie" onchange="afiseazaPuncte(); zoomSectie(this.value)">
         <option value="Toate">Toate Secțiile</option>
@@ -231,26 +237,24 @@
     let markersList = [];
  
     function calculeazaZile(dataString) {
-        if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
-        
-        let day, month, year;
-        const regRO = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})/;
-        const regEN = /^(\d{4})[./-](\d{1,2})[./-](\d{1,2})/;
+    if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
+    
+    // Curățăm orice spațiu sau caracter ciudat
+    const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+    const part = curat.split(/[./-]/);
+    
+    if (part.length < 3) return 999;
 
-        if (regRO.test(dataString)) {
-            const p = dataString.match(regRO);
-            day = parseInt(p[1], 10); month = parseInt(p[2], 10) - 1; year = parseInt(p[3], 10);
-        } else if (regEN.test(dataString)) {
-            const p = dataString.match(regEN);
-            year = parseInt(p[1], 10); month = parseInt(p[2], 10) - 1; day = parseInt(p[3], 10);
-        } else { return 999; }
+    let d, m, y;
+    if (part[0].length === 4) { [y, m, d] = part; } // Format YYYY-MM-DD
+    else { [d, m, y] = part; } // Format DD.MM.YYYY
 
-        const dtInterv = new Date(year, month, day);
-        const azi = new Date();
-        azi.setHours(0, 0, 0, 0); dtInterv.setHours(0, 0, 0, 0);
-        
-        const diff = Math.floor((azi.getTime() - dtInterv.getTime()) / 86400000);
-        return diff < 0 ? 0 : diff;
+    const dt = new Date(y, m - 1, d);
+    const azi = new Date();
+    azi.setHours(0,0,0,0);
+    
+    const diff = Math.floor((azi - dt) / 86400000);
+    return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
     }
 
     // 4. CONFIGURARE HARTĂ
@@ -348,14 +352,27 @@
     });
 
     if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 1 });
+        map.flyToBounds(bounds, { 
+    padding: [50, 50], 
+    duration: 1.5, // secunde - cât de repede să "zboare"
+    easeLinearity: 0.25 
+    });
     } else {
         // Această eroare va apărea doar dacă alegi o secție (ex: Abator) 
         // și chiar nu ai niciun pin pus acolo
         alert("Nu există utilaje cu coordonate înregistrate în secția: " + sectie);
     }
 };
-
+    function cautaSmart() {
+    // Resetăm cronometrul de fiecare dată când utilizatorul apasă o tastă
+    clearTimeout(searchTimer);
+    
+    // Așteptăm 300ms (0.3 secunde) de inactivitate înainte de a porni căutarea
+    searchTimer = setTimeout(() => {
+        console.log("Pornesc căutarea automată...");
+        cauta(); // Apelează funcția ta existentă de căutare
+    }, 300);
+}
     function inchideModal(idModal) {
         document.getElementById(idModal).style.display = 'none';
         document.getElementById(idModal).classList.remove('print-active');

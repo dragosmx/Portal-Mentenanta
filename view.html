@@ -326,32 +326,33 @@
             markersList.push(m);
         });
         }
-        // 5. Funcția ZOOM (Reparată și mutată în spațiul global)
-    window.zoomSectie = function(sectie) {
-    // Dacă alegem "Toate", centrăm harta pe mijlocul general
+     window.zoomSectie = function(sectie) {
+    // 1. Verificăm dacă s-a ales opțiunea "Toate"
     if (sectie === "Toate") {
+        console.log("Resetare vedere hartă: Toate secțiile.");
+        // Resetăm harta pe centru, la zoom-ul inițial
         map.setView([500, 700], 0.5); 
-        return;
+        return; // Oprim execuția aici, nu mai căutăm utilaje
     }
 
-    const puncteSectie = [];
+    console.log("Zoom pe sectia:", sectie);
+    const bounds = [];
     
-    // Căutăm coordonatele tuturor utilajelor din secția selectată
+    if (typeof dbRaw === 'undefined' || !dbRaw) return;
+
     Object.values(dbRaw).forEach(u => {
-        if (u.sectie && u.sectie.trim() === sectie && u.lat && u.lng) {
-            puncteSectie.push([u.lat, u.lng]);
+        // Comparăm secția (ignorăm litere mari/mici și spații)
+        if (u.sectie && u.sectie.trim().toLowerCase() === sectie.toLowerCase() && u.lat && u.lng) {
+            bounds.push([u.lat, u.lng]);
         }
     });
 
-    if (puncteSectie.length > 0) {
-        // Aceasta este comanda "magică" care centrează și face zoom automat
-        // Indiferent unde ești pe hartă, te va duce la grupul de utilaje
-        map.fitBounds(puncteSectie, { 
-            padding: [100, 100], // Lasă un spațiu de siguranță de 100px la margini
-            maxZoom: 1.5         // Ajustează asta (0.5 - 2) în funcție de cât de aproape vrei să fie
-        });
+    if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 1 });
     } else {
-        console.log("Nu am găsit utilaje pentru zoom în secția: " + sectie);
+        // Această eroare va apărea doar dacă alegi o secție (ex: Abator) 
+        // și chiar nu ai niciun pin pus acolo
+        alert("Nu există utilaje cu coordonate înregistrate în secția: " + sectie);
     }
 };
 

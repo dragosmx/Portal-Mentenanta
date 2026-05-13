@@ -328,20 +328,32 @@
         }
         // 5. Funcția ZOOM (Reparată și mutată în spațiul global)
     window.zoomSectie = function(sectie) {
-        console.log("Zoom pe sectia:", sectie);
-        const bounds = [];
-        Object.values(dbRaw).forEach(u => {
-            if (u.sectie && u.sectie.toLowerCase() === sectie.toLowerCase() && u.lat && u.lng) {
-                bounds.push([u.lat, u.lng]);
-            }
-        });
+    // Dacă alegem "Toate", centrăm harta pe mijlocul general
+    if (sectie === "Toate") {
+        map.setView([500, 700], 0.5); 
+        return;
+    }
 
-        if (bounds.length > 0) {
-            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 2 });
-        } else {
-            alert("Nu există utilaje în secția: " + sectie);
+    const puncteSectie = [];
+    
+    // Căutăm coordonatele tuturor utilajelor din secția selectată
+    Object.values(dbRaw).forEach(u => {
+        if (u.sectie && u.sectie.trim() === sectie && u.lat && u.lng) {
+            puncteSectie.push([u.lat, u.lng]);
         }
-    };
+    });
+
+    if (puncteSectie.length > 0) {
+        // Aceasta este comanda "magică" care centrează și face zoom automat
+        // Indiferent unde ești pe hartă, te va duce la grupul de utilaje
+        map.fitBounds(puncteSectie, { 
+            padding: [100, 100], // Lasă un spațiu de siguranță de 100px la margini
+            maxZoom: 1.5         // Ajustează asta (0.5 - 2) în funcție de cât de aproape vrei să fie
+        });
+    } else {
+        console.log("Nu am găsit utilaje pentru zoom în secția: " + sectie);
+    }
+};
 
     function inchideModal(idModal) {
         document.getElementById(idModal).style.display = 'none';

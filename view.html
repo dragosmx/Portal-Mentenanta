@@ -286,6 +286,7 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     let dbRaw = {};
+    let selectedId = null;
     let markersList = [];
  
     function calculeazaZile(dataString) {
@@ -608,9 +609,9 @@ alertList.innerHTML += `
             🔪 Necesită înlocuire cuțite
         </div>
 
-        <button class="btn-locate" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng})">
-            📍 VEZI PE HARTĂ
-        </button>
+        <button class="btn-locate" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${u.id}')">
+    📍 VEZI PE HARTĂ
+</button>
     </div>
 `;
                 }
@@ -634,13 +635,18 @@ alertList.innerHTML += `
     "4444": 14  // Exemplu utilaj Tocare
     };
 
-    function focalizeazaUtilaj(lat, lng) {
-    // 1. Mutăm harta la coordonatele utilajului
-    // Folosim zoom 2 (sau ce nivel preferi tu) pentru a-l vedea bine
-    map.flyTo([lat, lng], 2);
+    function focalizeazaUtilaj(lat, lng, id) {
+    // 1. Setăm ID-ul selectat global (ca sistemul să știe pe cine să lumineze)
+    selectedId = id;
 
-    // 2. Opțional: Putem face harta să "tremure" puțin sau să deschidem popup-ul
-    // Dar setView este suficient pentru a-l găsi imediat.
+    // 2. Redesenăm pinii (fără asta, pinul nu se va aprinde albastru)
+    refreshPini();
+
+    // 3. Zburăm către locație (flyTo este mai lin decât setView)
+    map.flyTo([lat, lng], 2, {
+        animate: true,
+        duration: 1.5
+    });
 }
     </script>
 

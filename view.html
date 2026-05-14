@@ -569,7 +569,7 @@
         });
         hContent += '</div></body></html>';
         win.document.write(hContent); win.document.close();
-    }*/
+    }
     function printeazaQR() {
     let root = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
     let win = window.open('', '_blank');
@@ -611,8 +611,91 @@
     hContent += '</div></body></html>';
     win.document.write(hContent); 
     win.document.close();
-}
+}*/
+function printeazaQR() {
+    let root = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
+    let win = window.open('', '_blank');
+    
+    let hContent = `
+    <html>
+    <head>
+        <style>
+            @page { size: portrait; margin: 10mm; }
+            body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; }
+            
+            /* Am pus 3 coloane pentru a lăsa etichetele să fie mai "zvelte" */
+            .grid-container { 
+                display: grid; 
+                grid-template-columns: repeat(3, 1fr); 
+                gap: 20px; 
+            }
 
+            .qr-card { 
+                border: 1.5px solid #000; 
+                padding: 15px 10px; 
+                text-align: center; 
+                border-radius: 8px; 
+                page-break-inside: avoid;
+                /* Forțăm un aspect de portret */
+                min-height: 220px; 
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .qr-card img {
+                width: 130px;
+                height: 130px;
+                margin-bottom: 10px;
+            }
+
+            .utilaj-nume { 
+                font-size: 8px; 
+                font-weight: bold; 
+                display: block; 
+                margin-top: 5px;
+                border-top: 1px solid #eee;
+                padding-top: 5px;
+                width: 100%;
+            }
+
+            .utilaj-model { 
+                font-size: 8px; 
+                color: #000; 
+                font-weight: bold; 
+                display: block; 
+                margin: 4px 0; 
+            }
+
+            .utilaj-id { 
+                font-size: 6px; 
+                color: #444; 
+                background: #f0f0f0;
+                padding: 2px 6px;
+                border-radius: 4px;
+            }
+        </style>
+    </head>
+    <body onload="window.print()">
+        <div class="grid-container">`;
+
+    Object.values(dbRaw).forEach(u => {
+        const modelAfisat = u.model ? u.model.toUpperCase() : "---";
+        
+        hContent += `
+            <div class="qr-card">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(root+'scan.html?id='+u.id)}">
+                <span class="utilaj-nume">${u.nume.toUpperCase()}</span>
+                <span class="utilaj-model">${modelAfisat}</span>
+                <span class="utilaj-id">ID: ${u.id}</span>
+            </div>`;
+    });
+
+    hContent += '</div></body></html>';
+    win.document.write(hContent); 
+    win.document.close();
+}
     function cauta() {
         const v = document.getElementById('searchInput').value.toUpperCase().trim();
         const m = markersList.find(x => x.uData.id.includes(v) || x.uData.n.includes(v));

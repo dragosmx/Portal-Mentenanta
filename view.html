@@ -390,7 +390,7 @@
             zIndexOffset: esteSelectat ? 1000 : 0 
         }).addTo(map);
 
-        m.bindPopup(`
+        /*m.bindPopup(`
             <div class="popup-header">
                 <h3>${u.nume}</h3>
                 <p>ID: ${u.id} | ${u.sectie}</p>
@@ -404,7 +404,28 @@
                 </div>
                 <button class="btn-history" onclick="deschideHist('${id}')">📜 VEZI ISTORIC COMPLET</button>
             </div>
-        `);
+        `);*/m.bindPopup(`
+    <div class="popup-header" style="border-bottom: 2px solid ${col}; padding-bottom: 8px;">
+        <h3 style="margin: 0; color: #2c3e50;">${u.nume}</h3>
+        <div style="font-weight: bold; color: #34495e; font-size: 14px; margin-top: 4px;">
+            Mod: ${u.model || 'Nespecificat'}
+        </div>
+        <p style="margin: 5px 0 0 0; font-size: 11px; color: #7f8c8d;">ID: ${u.id} | Secția: ${u.sectie}</p>
+    </div>
+    <div class="popup-body" style="padding-top: 10px;">
+        <div class="last-info">
+            <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
+            <span style="color:#666; font-size:11px;">Ultima revizie oficială: ${dataRevizieAfisata}</span><br>
+            <span style="color:#666; font-size:11px;">Ultima intervenție: ${ultimaData}</span><br>
+            <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px; font-size: 11px;">
+                Activitate recentă: ${ultimaActivitate}
+            </i>
+        </div>
+        <button class="btn-history" onclick="deschideHist('${id}')" style="width: 100%; margin-top: 10px;">
+            📜 VEZI ISTORIC COMPLET
+        </button>
+    </div>
+`);
 
         m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
         markersList.push(m);
@@ -555,7 +576,7 @@
         XLSX.utils.book_append_sheet(wb, ws, "Fisa"); XLSX.writeFile(wb, `Fisa_${u.id}.xlsx`);
     }
 
-    function printeazaQR() {
+    /*function printeazaQR() {
         let root = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
         let win = window.open('', '_blank');
         let hContent = '<html><body onload="window.print()"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:15px;padding:20px;">';
@@ -567,7 +588,49 @@
         });
         hContent += '</div></body></html>';
         win.document.write(hContent); win.document.close();
-    }
+    }*/
+    function printeazaQR() {
+    let root = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
+    let win = window.open('', '_blank');
+    
+    // Începem documentul pentru print
+    let hContent = `
+    <html>
+    <head>
+        <style>
+            body { font-family: sans-serif; margin: 0; padding: 20px; }
+            .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+            .qr-card { 
+                border: 1px solid #000; 
+                padding: 12px; 
+                text-align: center; 
+                border-radius: 10px; 
+                page-break-inside: avoid; 
+            }
+            .utilaj-nume { font-size: 13px; font-weight: bold; display: block; margin-top: 5px; }
+            .utilaj-model { font-size: 11px; color: #333; font-weight: 600; display: block; margin: 2px 0; }
+            .utilaj-id { font-size: 10px; color: #666; }
+        </style>
+    </head>
+    <body onload="window.print()">
+        <div class="grid-container">`;
+
+    Object.values(dbRaw).forEach(u => {
+        const modelAfisat = u.model ? u.model.toUpperCase() : "---";
+        
+        hContent += `
+            <div class="qr-card">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(root+'scan.html?id='+u.id)}">
+                <span class="utilaj-nume">${u.nume.toUpperCase()}</span>
+                <span class="utilaj-model">MODEL: ${modelAfisat}</span>
+                <span class="utilaj-id">ID: ${u.id}</span>
+            </div>`;
+    });
+
+    hContent += '</div></body></html>';
+    win.document.write(hContent); 
+    win.document.close();
+}
 
     function cauta() {
         const v = document.getElementById('searchInput').value.toUpperCase().trim();

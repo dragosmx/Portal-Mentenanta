@@ -404,7 +404,9 @@
                 </div>
                 <button class="btn-history" onclick="deschideHist('${id}')">📜 VEZI ISTORIC COMPLET</button>
             </div>
-        `);*/m.bindPopup(`
+        `);*/
+        /*
+        m.bindPopup(`
     <div class="popup-header" style="border-bottom: 2px solid ${col}; padding-bottom: 8px;">
         <h3 style="margin: 0; color: #2c3e50;">${u.nume}</h3>
         <div style="font-weight: bold; color: #34495e; font-size: 14px; margin-top: 4px;">
@@ -425,8 +427,45 @@
             📜 VEZI ISTORIC COMPLET
         </button>
     </div>
-`);
+`);*/
+m.bindPopup(`
+    <div style="min-width: 220px; color: #333 !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="border-bottom: 2px solid ${col}; padding-bottom: 8px; margin-bottom: 10px;">
+            <h3 style="margin: 0; font-size: 16px; color: #1a1a1a !important; text-transform: uppercase;">
+                ${u.nume}
+            </h3>
+        </div>
 
+        <div style="background: #f4f4f4; padding: 8px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #3498db;">
+            <div style="font-size: 13px; font-weight: bold; color: #2c3e50 !important;">
+                🏷️ Marca/Model: <span style="color: #000 !important;">${u.model || 'Nespecificat'}</span>
+            </div>
+            <div style="font-size: 11px; color: #7f8c8d !important; margin-top: 4px;">
+                ID: ${u.id} | Secția: ${u.sectie}
+            </div>
+        </div>
+
+        <div style="margin-bottom: 12px; line-height: 1.4;">
+            <div style="font-size: 13px; font-weight: bold; color: ${col} !important;">
+                📅 Zile de la revizie: ${z}
+            </div>
+            <div style="font-size: 11px; color: #444 !important;">
+                Ultima revizie: <b>${dataRevizieAfisata}</b>
+            </div>
+            <div style="font-size: 11px; color: #444 !important; margin-top: 5px; padding: 6px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 4px;">
+                📝 <i>Note: ${ultimaActivitate}</i>
+            </div>
+        </div>
+
+        <button class="btn-history" onclick="deschideHist('${id}')" 
+                style="width: 100%; background: #2c3e50; color: white !important; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; transition: background 0.2s;">
+            📜 VEZI ISTORIC COMPLET
+        </button>
+    </div>
+`, {
+    maxWidth: 300,  // Forțăm o lățime maximă mai mare
+    className: 'custom-popup-style' // O clasă opțională dacă vrei să mai stilizezi din CSS
+});
         m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
         markersList.push(m);
     });

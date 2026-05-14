@@ -411,6 +411,23 @@ table {
     let selectedId = null;
     let currentCoords = null;
     
+    // --- FUNCȚIA LIPSĂ PENTRU CALCULUL ZILELOR ---
+function calculeazaZile(dataString) {
+    if (!dataString || dataString === "-") return 999; // Dacă nu are dată, e critic
+    
+    // Convertim data (acceptă și YYYY-MM-DD și DD/MM/YYYY)
+    let dt = new Date(dataString);
+    if (isNaN(dt)) {
+        const p = dataString.split(/[./-]/);
+        if (p.length === 3) dt = new Date(p[2], p[1]-1, p[0]);
+    }
+    
+    const azi = new Date();
+    azi.setHours(0,0,0,0);
+    
+    const diff = Math.floor((azi - dt) / 86400000);
+    return diff < 0 ? 0 : diff;
+}
     // Setăm data de astăzi automat în câmpul Dată
     document.getElementById('data').valueAsDate = new Date();
 

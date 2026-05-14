@@ -640,7 +640,7 @@ alertList.innerHTML += `
     selectedId = id;
 
     // 2. Redesenăm pinii (fără asta, pinul nu se va aprinde albastru)
-    refreshPini();
+    afiseazaPuncte();
 
     // 3. Zburăm către locație (flyTo este mai lin decât setView)
     map.flyTo([lat, lng], 2, {

@@ -591,12 +591,12 @@
                     if (zileRamase < 0) statusMesaj = `EXPIRAT DE ${Math.abs(zileRamase)} ZILE`;
                     else if (zileRamase === 0) statusMesaj = `EXPIRĂ AZI!`;
                     else statusMesaj = `Expiră în ${zileRamase} zile`;
-                    const modelAfișat = u.model ? ` | Model: ${u.model}` : '';
+                    const modelAfisat = u.model ? ` | Model: ${u.model}` : '';
 
 alertList.innerHTML += `
     <div class="alert-item ${tipAlerta}">
         <div style="font-size:11px; opacity:0.8; margin-bottom: 2px;">
-            ID: ${u.id}${modelAfi_at}
+            ID: ${u.id}${modelAfisat}
         </div>
         <strong style="font-size: 14px;">${u.nume}</strong>
         
@@ -637,7 +637,7 @@ alertList.innerHTML += `
     function focalizeazaUtilaj(lat, lng) {
     // 1. Mutăm harta la coordonatele utilajului
     // Folosim zoom 2 (sau ce nivel preferi tu) pentru a-l vedea bine
-    map.setView([lat, lng], 2);
+    map.flyTo([lat, lng], 2);
 
     // 2. Opțional: Putem face harta să "tremure" puțin sau să deschidem popup-ul
     // Dar setView este suficient pentru a-l găsi imediat.

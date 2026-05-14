@@ -390,7 +390,7 @@
             zIndexOffset: esteSelectat ? 1000 : 0 
         }).addTo(map);
 
-        /*m.bindPopup(`
+        m.bindPopup(`
             <div class="popup-header">
                 <h3>${u.nume}</h3>
                 <p>ID: ${u.id} | ${u.sectie}</p>
@@ -404,68 +404,9 @@
                 </div>
                 <button class="btn-history" onclick="deschideHist('${id}')">📜 VEZI ISTORIC COMPLET</button>
             </div>
-        `);*/
-        /*
-        m.bindPopup(`
-    <div class="popup-header" style="border-bottom: 2px solid ${col}; padding-bottom: 8px;">
-        <h3 style="margin: 0; color: #2c3e50;">${u.nume}</h3>
-        <div style="font-weight: bold; color: #34495e; font-size: 14px; margin-top: 4px;">
-            Mod: ${u.model || 'Nespecificat'}
-        </div>
-        <p style="margin: 5px 0 0 0; font-size: 11px; color: #7f8c8d;">ID: ${u.id} | Secția: ${u.sectie}</p>
-    </div>
-    <div class="popup-body" style="padding-top: 10px;">
-        <div class="last-info">
-            <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
-            <span style="color:#666; font-size:11px;">Ultima revizie oficială: ${dataRevizieAfisata}</span><br>
-            <span style="color:#666; font-size:11px;">Ultima intervenție: ${ultimaData}</span><br>
-            <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px; font-size: 11px;">
-                Activitate recentă: ${ultimaActivitate}
-            </i>
-        </div>
-        <button class="btn-history" onclick="deschideHist('${id}')" style="width: 100%; margin-top: 10px;">
-            📜 VEZI ISTORIC COMPLET
-        </button>
-    </div>
-`);*/
-m.bindPopup(`
-    <div style="min-width: 220px; color: #333 !important;">
-        <div class="popup-header" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-            <h3 style="margin: 0; color: #000 !important; font-size: 18px;">${u.nume}</h3>
-            
-            <div style="margin: 3px 0; color: #2c3e50 !important; font-weight: bold; font-size: 13px;">
-                ${u.marca || ''} ${u.model || ''}
-            </div>
-            
-            <p style="margin: 0; color: #666 !important; font-size: 11px;">ID: ${u.id} | ${u.sectie}</p>
-        </div>
-
-        <div class="popup-body">
-            <div class="last-info">
-                <b style="color:${col} !important; font-size:14px; display: block; margin-bottom: 5px;">
-                    Zile de la revizie: ${z}
-                </b>
-                
-                <span style="color: #333 !important; font-size: 11px;">
-                    Ultima revizie oficială: <b>${dataRevizieAfisata}</b>
-                </span><br>
-                
-                <span style="color: #333 !important; font-size: 11px;">
-                    Ultima intervenție: ${ultimaData}
-                </span><br>
-                
-                <i style="color: #444 !important; margin-top: 8px; display: block; padding: 6px; background: #f8f9fa; border-radius: 5px; border: 1px solid #efefef; font-size: 11px;">
-                    Activitate recentă: ${ultimaActivitate}
-                </i>
-            </div>
-            
-            <button class="btn-history" onclick="deschideHist('${id}')" 
-                style="width: 100%; margin-top: 10px; background: #34495e; color: white !important; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                📜 VEZI ISTORIC COMPLET
-            </button>
-        </div>
-    </div>
-`);
+        `);
+    
+    
         m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
         markersList.push(m);
     });

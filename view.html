@@ -137,6 +137,19 @@
     transform: scale(1.15); /* Nu exagerăm cu mărirea ca să păstrăm claritatea */
     filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)) !important;
 }
+        #alert-panel {
+    position: fixed; top: 80px; right: 20px;
+    width: 280px; background: rgba(44, 62, 80, 0.95);
+    border-left: 5px solid #f39c12; border-radius: 8px;
+    z-index: 2000; color: white; padding: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    transition: all 0.5s ease;
+}
+.alert-hidden { right: -350px !important; }
+.alert-header { font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
+.alert-item { font-size: 12px; margin-bottom: 8px; padding: 5px; border-radius: 4px; }
+.alert-urgent { background: rgba(231, 76, 60, 0.2); border-left: 3px solid #e74c3c; }
+.alert-warning { background: rgba(243, 156, 18, 0.2); border-left: 3px solid #f39c12; }
     </style>
 </head>
 <body>
@@ -237,7 +250,10 @@
         </div>
     </div>
 </div>
-
+<div id="alert-panel" class="alert-hidden">
+    <div class="alert-header">⚠️ Alerte Mentenanță Planificată</div>
+    <div id="alert-list"></div>
+</div>
 <script>
   
     const firebaseConfig = {
@@ -522,6 +538,71 @@
         if (m) { map.setView(m.getLatLng(), 2); m.openPopup(); }
     }
 
+    function verificaAlarmeMentenanta() {
+    const alertList = document.getElementById('alert-list');
+    const alertPanel = document.getElementById('alert-panel');
+    alertList.innerHTML = ""; 
+    let areAlerte = false;
+
+    Object.values(dbRaw).forEach(u => {
+        // Extragem ultimele 4 cifre din ID (ex: din "K-9728" scoatem "9728")
+        const idScurt = u.id.split('-')[1]; 
+        
+        // Vedem dacă acest ID are un interval definit de noi mai sus
+        let interval = configuratieAlarme[idScurt] || 0;
+
+        if (interval > 0 && u.istoric) {
+            const istArr = Object.values(u.istoric);
+            
+            // Căutăm ultima intervenție marcată ca REVIZIE (schimb cuțite)
+            const ultimaRev = istArr
+                .filter(i => i.revizie === true)
+                .sort((a, b) => b.timestamp - a.timestamp)[0];
+
+            if (ultimaRev) {
+                const zileTrecute = calculeazaZile(ultimaRev.data);
+                const zileRamase = interval - zileTrecute;
+
+                // Atenționăm cu 3 zile înainte sau dacă a expirat deja
+                if (zileRamase <= 3) {
+                    areAlerte = true;
+                    const tipAlerta = zileRamase <= 0 ? 'alert-urgent' : 'alert-warning';
+                    
+                    let statusMesaj = "";
+                    if (zileRamase < 0) statusMesaj = `EXPIRAT DE ${Math.abs(zileRamase)} ZILE`;
+                    else if (zileRamase === 0) statusMesaj = `EXPIRĂ AZI!`;
+                    else statusMesaj = `Expiră în ${zileRamase} zile`;
+
+                    alertList.innerHTML += `
+                        <div class="alert-item ${tipAlerta}">
+                            <div style="font-size:10px; opacity:0.8;">ID: ${u.id}</div>
+                            <strong>${u.nume}</strong><br>
+                            <span style="color:${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'}">
+                                ⚠️ ${statusMesaj}
+                            </span><br>
+                            <small>Necesită înlocuire cuțite</small>
+                        </div>
+                    `;
+                }
+            }
+        }
+    });
+
+    if (areAlerte) {
+        alertPanel.classList.remove('alert-hidden');
+    } else {
+        alertPanel.classList.add('alert-hidden');
+    }
+}
+    // Definim intervalele pentru fiecare ID (ultimele 4 cifre)
+    const configuratieAlarme = {
+    "9728": 30, // K-9728 are interval de 30 zile
+    "6355": 30, // K-6355 are interval de 30 zile
+    "1111": 14, // Exemplu utilaj Tocare
+    "2222": 14, // Exemplu utilaj Tocare
+    "3333": 14, // Exemplu utilaj Tocare
+    "4444": 14  // Exemplu utilaj Tocare
+    };
     </script>
 
 <script>

@@ -329,70 +329,78 @@
 
     // 6. AFIȘARE PIN-URI (Bazat strict pe ultima Revizie Bifată)
     function afiseazaPuncte() {
-        const filtru = document.getElementById('filterSectie').value;
-        markersList.forEach(m => map.removeLayer(m)); markersList = [];
+    const filtru = document.getElementById('filterSectie').value;
+    markersList.forEach(m => map.removeLayer(m)); 
+    markersList = [];
 
-        Object.keys(dbRaw).forEach(id => {
-            const u = dbRaw[id];
-            if (filtru !== "Toate" && u.sectie !== filtru) return;
-            if (!u.lat || !u.lng) return;
+    Object.keys(dbRaw).forEach(id => {
+        const u = dbRaw[id];
+        if (filtru !== "Toate" && u.sectie !== filtru) return;
+        if (!u.lat || !u.lng) return;
 
-            const istArr = u.istoric ? Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)) : [];
-            const ultimaData = istArr[0] ? istArr[0].data : "-";
-            const ultimaActivitate = istArr[0] ? istArr[0].verificari : "Nicio activitate înregistrată.";
-            
-            // CAUTĂM ULTIMA REVIZIE OFICIALĂ (Acolo unde mecanicul a pus bifa)
-            const ultimaRevizie = istArr.find(i => i.revizie === true);
-            let z = 0;
-            let dataRevizieAfisata = "";
-            
-            if (ultimaRevizie) {
-                z = calculeazaZile(ultimaRevizie.data);
-                dataRevizieAfisata = ultimaRevizie.data;
-            } else {
-                // Dacă nu există revizie, forțăm valoarea pe 0 (Va fi verde direct)
-                z = 0; 
-                dataRevizieAfisata = "0 ZILE (Nicio revizie raportată)";
-            }
-            
-            let col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
+        // --- 1. LOGICA DE SELECȚIE (AICI SE FACE MAGIA) ---
+        // Verificăm dacă ID-ul curent este cel selectat din alarma
+        const esteSelectat = (id === selectedId);
+        const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
 
-            const m = L.marker([u.lat, u.lng], { 
-                icon: L.divIcon({ 
-                    className:'custom-pin', 
-                   html: `
-        <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg" 
-         style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); shape-rendering: geometricPrecision;">
-        <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
-        <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
-        <circle cx="15" cy="15" r="5.5" fill="white"/>
-    </svg>
-    `, 
-                    iconSize: [30, 45],
-                    iconAnchor: [15, 45], 
-                    popupAnchor: [0, -45] 
-                }) 
-            }).addTo(map);
-
-            m.bindPopup(`
-                <div class="popup-header">
-                    <h3>${u.nume}</h3>
-                    <p>ID: ${u.id} | ${u.sectie}</p>
-                </div>
-                <div class="popup-body">
-                    <div class="last-info">
-                        <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
-                        <span style="color:#666; font-size:11px;">Ultima revizie oficială: ${dataRevizieAfisata}</span><br>
-                        <span style="color:#666; font-size:11px;">Ultima intervenție: ${ultimaData}</span><br>
-                        <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px;">Activitate recentă: ${ultimaActivitate}</i>
-                    </div>
-                    <button class="btn-history" onclick="deschideHist('${id}')">📜 VEZI ISTORIC COMPLET</button>
-                </div>
-            `);
-            m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
-            markersList.push(m);
-        });
+        const istArr = u.istoric ? Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)) : [];
+        const ultimaData = istArr[0] ? istArr[0].data : "-";
+        const ultimaActivitate = istArr[0] ? istArr[0].verificari : "Nicio activitate înregistrată.";
+        
+        const ultimaRevizie = istArr.find(i => i.revizie === true);
+        let z = 0;
+        let dataRevizieAfisata = "";
+        
+        if (ultimaRevizie) {
+            z = calculeazaZile(ultimaRevizie.data);
+            dataRevizieAfisata = ultimaRevizie.data;
+        } else {
+            z = 0; 
+            dataRevizieAfisata = "0 ZILE (Nicio revizie raportată)";
         }
+        
+        let col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
+
+        // --- 2. MODIFICĂM ICONIȚA (Adăugăm clasaPin) ---
+        const m = L.marker([u.lat, u.lng], { 
+            icon: L.divIcon({ 
+                className: clasaPin, // Folosim variabila care decide dacă pinul e selectat
+                html: `
+                    <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg" 
+                         style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); shape-rendering: geometricPrecision;">
+                        <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
+                        <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
+                        <circle cx="15" cy="15" r="5.5" fill="white"/>
+                    </svg>
+                `, 
+                iconSize: [30, 45],
+                iconAnchor: [15, 45], 
+                popupAnchor: [0, -45] 
+            }),
+            // --- 3. ÎL ADUCEM ÎN FAȚĂ (Z-Index) ---
+            zIndexOffset: esteSelectat ? 1000 : 0 
+        }).addTo(map);
+
+        m.bindPopup(`
+            <div class="popup-header">
+                <h3>${u.nume}</h3>
+                <p>ID: ${u.id} | ${u.sectie}</p>
+            </div>
+            <div class="popup-body">
+                <div class="last-info">
+                    <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
+                    <span style="color:#666; font-size:11px;">Ultima revizie oficială: ${dataRevizieAfisata}</span><br>
+                    <span style="color:#666; font-size:11px;">Ultima intervenție: ${ultimaData}</span><br>
+                    <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px;">Activitate recentă: ${ultimaActivitate}</i>
+                </div>
+                <button class="btn-history" onclick="deschideHist('${id}')">📜 VEZI ISTORIC COMPLET</button>
+            </div>
+        `);
+
+        m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
+        markersList.push(m);
+    });
+}
      window.zoomSectie = function(sectie) {
     // 1. Verificăm dacă s-a ales opțiunea "Toate"
     if (sectie === "Toate") {

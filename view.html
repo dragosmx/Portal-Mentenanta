@@ -573,17 +573,23 @@
                     if (zileRamase < 0) statusMesaj = `EXPIRAT DE ${Math.abs(zileRamase)} ZILE`;
                     else if (zileRamase === 0) statusMesaj = `EXPIRĂ AZI!`;
                     else statusMesaj = `Expiră în ${zileRamase} zile`;
-
+                    const modelAfișat = u.model ? ` | Model: ${u.model}` : '';
                     alertList.innerHTML += `
-                        <div class="alert-item ${tipAlerta}">
-                            <div style="font-size:10px; opacity:0.8;">ID: ${u.id}</div>
-                            <strong>${u.nume}</strong><br>
-                            <span style="color:${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'}">
-                                ⚠️ ${statusMesaj}
-                            </span><br>
-                            <small>Necesită înlocuire cuțite</small>
-                        </div>
-                    `;
+    <div class="alert-item ${tipAlerta}">
+        <div style="font-size:11px; opacity:0.8; margin-bottom: 2px;">
+            ID: ${u.id}${modelAfișat}
+        </div>
+        <strong style="font-size: 14px; letter-spacing: 0.5px;">${u.nume}</strong>
+        
+        <div style="color:${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'}; font-weight: bold; margin: 6px 0; font-size: 13px;">
+            ⚠️ ${statusMesaj}
+        </div>
+        
+        <div style="font-size: 13px; font-weight: bold; text-transform: uppercase; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px; border-left: 3px solid ${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'};">
+            🔪 Necesită înlocuire cuțite
+        </div>
+    </div>
+`;
                 }
             }
         }

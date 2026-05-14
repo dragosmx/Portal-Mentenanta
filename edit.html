@@ -278,6 +278,16 @@ table {
     background: var(--danger); 
     animation: none; /* Oprim pulsația ca să fie clar că e oprit */
 }
+     /* Efect vizual pentru pinul activ/selectat */
+.pin-selectat svg {
+    filter: drop-shadow(0 0 10px #3498db) drop-shadow(0 0 15px #3498db) !important;
+    transform: scale(1.2); /* Îl face cu 20% mai mare */
+    transition: all 0.3s ease;
+}
+.pin-selectat path {
+    stroke: #3498db !important; /* Margine albastră */
+    stroke-width: 2.5px !important;
+}
     </style>
 </head>
 
@@ -445,14 +455,65 @@ function calculeazaZile(dataString) {
             incarcaUtilaj(qrId);
         }
     });
-
-    // 5. Funcția pentru afișarea pinilor pe hartă (în modul edit)
-    function refreshPini() {
+function refreshPini() {
     markersGroup.clearLayers();
     
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
         if (u.lat && u.lng) {
+            
+            // 1. Calculăm culoarea în funcție de revizie
+            let col = "#2ecc71"; // Verde default
+            if (u.istoric) {
+                const istArr = Object.values(u.istoric);
+                const ultimaRev = istArr.find(i => i.revizie === true);
+                if (ultimaRev) {
+                    const z = calculeazaZile(ultimaRev.data); 
+                    col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
+                }
+            }
+
+            // --- PARTEA NOUĂ: Verificăm dacă pinul este cel selectat ---
+            const esteSelectat = (id === selectedId);
+            const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
+
+            // 2. CREAREA ICONIȚEI (Folosind clasa dinamică)
+            const customIcon = L.divIcon({ 
+                className: clasaPin, 
+                html: `
+                    <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
+                        <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
+                        <circle cx="15" cy="15" r="5.5" fill="white"/>
+                    </svg>
+                `,
+                iconSize: [30, 45], 
+                iconAnchor: [15, 45],
+                popupAnchor: [0, -45]
+            });
+            
+            // 3. CREAREA MARKERULUI (Îl aducem în față vizual cu zIndexOffset)
+            const m = L.marker([u.lat, u.lng], { 
+                icon: customIcon,
+                zIndexOffset: esteSelectat ? 1000 : 0 
+            }).addTo(markersGroup);
+            
+            // 4. EVENIMENTUL DE CLICK
+            m.on('click', (e) => { 
+                L.DomEvent.stopPropagation(e); 
+                incarcaUtilaj(id); 
+            });
+        }
+    });
+}
+    // 5. Funcția pentru afișarea pinilor pe hartă (în modul edit)
+    /*function refreshPini() {
+    markersGroup.clearLayers();
+    
+    Object.keys(dbRaw).forEach(id => {
+        const u = dbRaw[id];
+        if (u.lat && u.lng) {
+            
             // 1. Calculăm culoarea în funcție de revizie
             let col = "#2ecc71"; // Verde default
             if (u.istoric) {
@@ -489,7 +550,7 @@ function calculeazaZile(dataString) {
             });
         }
     });
-}
+}*/
    
       // 6. Funcția de click pe hartă pentru a adăuga un pin nou
     map.on('click', (e) => {

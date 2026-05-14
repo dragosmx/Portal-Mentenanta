@@ -626,9 +626,127 @@ table {
             resetForm(); 
         } 
     }
-
-      // 11. Funcția principală de salvare a datelor (Ajustată pentru Offline)
 async function salveaza() {
+    const btn = document.getElementById('saveBtn');
+    const msg = document.getElementById('feedbackMsg');
+    const fileInput = document.getElementById('fotoUtilaj');
+    const file = fileInput.files[0];
+    const esteOnline = navigator.onLine;
+
+    btn.disabled = true;
+    btn.innerText = (file && esteOnline) ? "⏳ SE ÎNCARCĂ POZA..." : "⏳ SE SALVEAZĂ...";
+
+    try {
+        // Colectăm bifele
+        const bifeList = document.querySelectorAll('.task:checked');
+        const bifeValues = Array.from(bifeList).map(c => c.value);
+        let verificariFinale = bifeValues.join(", ");
+
+        const extraCheckElement = document.getElementById('extraCheck');
+        let manual = extraCheckElement ? extraCheckElement.value : "";
+        if (manual !== "") {
+            verificariFinale = verificariFinale !== "" ? verificariFinale + " | " + manual : manual;
+        }
+
+        const isRevizie = document.getElementById('esteRevizie').checked;
+        const finalId = selectedId ? selectedId : "K-" + Math.floor(1000 + Math.random() * 9000);
+
+        let fotoUrl = "";
+        let fortamOffline = false; // Se activează dacă laptopul se blochează
+
+        // Colectăm pachetul de date
+        const entry = {
+            data: document.getElementById('data').value, tip: document.getElementById('tipInterventie').value,
+            mecanic: document.getElementById('mecanic').value, verificari: verificariFinale,
+            obs: document.getElementById('obs').value, timestamp: Date.now(),
+            revizie: isRevizie, foto: "" 
+        };
+
+        if (esteOnline) {
+            // FUNCȚIE ANTI-ÎNGHEȚ (Așteaptă maxim 8 secunde)
+            const ruleazaFirebase = (promisiune) => Promise.race([
+                promisiune,
+                new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT_FIREBASE")), 8000))
+            ]);
+
+            try {
+                // Încercăm să salvăm în Cloud, dar cu cronometru
+                if (file) {
+                    const storageRef = firebase.storage().ref('mentenanta/' + Date.now() + "_" + file.name);
+                    const snapshot = await ruleazaFirebase(storageRef.put(file));
+                    entry.foto = await snapshot.ref.getDownloadURL();
+                }
+
+                if (selectedId) {
+                    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
+                    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
+                    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
+                } else {
+                    const utilajNouObject = {
+                        id: finalId, nume: document.getElementById('nume').value,
+                        model: document.getElementById('model').value, sectie: document.getElementById('sectie').value,
+                        lat: parseFloat(currentCoords[0]), lng: parseFloat(currentCoords[1]),
+                        istoric: { "init": entry }
+                    };
+                    await ruleazaFirebase(database.ref('utilaje/' + finalId).set(utilajNouObject));
+                }
+
+                // Dacă a ajuns aici înainte de 8 secunde, e pe server 100%
+                msg.innerText = "✅ SALVAT CU SUCCES ÎN CLOUD!";
+                msg.className = "msg-popup msg-success";
+
+            } catch (err) {
+                if (err.message === "TIMEOUT_FIREBASE") {
+                    console.warn("Conexiune înceată/blocată! Forțăm salvarea pe dispozitiv.");
+                    fortamOffline = true; // S-a blocat laptopul, trecem pe offline
+                } else {
+                    throw err; // Alt tip de eroare critică
+                }
+            }
+        }
+
+        // CAZUL OFFLINE SAU DACĂ S-A BLOCAT REȚEAUA
+        if (!esteOnline || fortamOffline) {
+            let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
+            
+            coada.push({
+                isNew: !selectedId,
+                id: finalId,
+                nume: document.getElementById('nume').value,
+                model: document.getElementById('model').value,
+                sectie: document.getElementById('sectie').value,
+                lat: currentCoords ? parseFloat(currentCoords[0]) : null,
+                lng: currentCoords ? parseFloat(currentCoords[1]) : null,
+                entryData: entry
+            });
+            
+            localStorage.setItem('coada_sincronizare', JSON.stringify(coada));
+
+            msg.innerText = fortamOffline ? "⚠️ REȚEA LENTĂ! Salvat local (se va trimite mai târziu)." : "⚠️ SALVAT PE TELEFON! (Se va trimite când revine semnalul)";
+            msg.className = "msg-popup msg-error";
+            msg.style.borderColor = "#f39c12"; msg.style.color = "#f39c12";
+        }
+
+        msg.style.display = "block";
+
+        // Resetăm formularul după 3 secunde
+        setTimeout(() => {
+            resetForm();
+            btn.innerText = "💾 SALVEAZĂ FIȘA";
+            btn.disabled = false;
+            msg.style.display = "none";
+        }, 3000);
+
+    } catch (e) {
+        msg.innerText = "❌ EROARE: " + e.message;
+        msg.className = "msg-popup msg-error";
+        msg.style.display = "block";
+        btn.disabled = false;
+        btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
+    }
+}
+      // 11. Funcția principală de salvare a datelor (Ajustată pentru Offline)
+/*async function salveaza() {
     const btn = document.getElementById('saveBtn'); 
     const msg = document.getElementById('feedbackMsg');
     const fileInput = document.getElementById('fotoUtilaj');
@@ -735,7 +853,7 @@ async function salveaza() {
         btn.disabled = false; 
         btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
     }
-}
+}*/
 
     // 12. Resetare formular pentru acțiuni noi
     function resetForm() {
@@ -768,7 +886,7 @@ async function salveaza() {
             map.invalidateSize();
         }, 500); 
     };
-     function executCuProtectie(functieDeExecutat) {
+    /* function executCuProtectie(functieDeExecutat) {
         const parolaConfirmare = prompt("Acțiune restricționată! Introdu parola de Administrator:");
         if (!parolaConfirmare) return; 
         const user = firebase.auth().currentUser;
@@ -783,7 +901,40 @@ async function salveaza() {
         }).catch((error) => {
             alert("❌ Acces refuzat! Parolă incorectă.");
         });
+    }*/
+
+    function executCuProtectie(functieDeExecutat) {
+    // 1. Dacă nu avem net, Firebase Auth va eșua oricum. Trecem direct la salvarea offline.
+    if (!navigator.onLine) {
+        functieDeExecutat();
+        return;
     }
+
+    const parolaConfirmare = prompt("Acțiune restricționată! Introdu parola de Administrator:");
+    if (!parolaConfirmare) return; 
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        alert("❌ Eroare: Nu ești logat în sistem.");
+        return;
+    }
+
+    // Feedback vizual ca să știi că lucrează
+    const btn = document.getElementById('saveBtn');
+    if (btn) btn.innerText = "⏳ VERIFICARE PAROLĂ...";
+
+    const credential = firebase.auth.EmailAuthProvider.credential(user.email, parolaConfirmare);
+
+    user.reauthenticateWithCredential(credential).then(() => {
+        functieDeExecutat();
+    }).catch((error) => {
+        alert("❌ Acces refuzat! Parolă incorectă sau rețea blocată.");
+        if (btn) {
+            btn.innerText = "💾 SALVEAZĂ FIȘA";
+            btn.disabled = false;
+        }
+    });
+}
 
     // Funcție specială pentru butonul de salvare
     function verificareSalvare() {

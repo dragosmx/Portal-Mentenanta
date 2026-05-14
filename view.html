@@ -150,6 +150,24 @@
 .alert-item { font-size: 12px; margin-bottom: 8px; padding: 5px; border-radius: 4px; }
 .alert-urgent { background: rgba(231, 76, 60, 0.2); border-left: 3px solid #e74c3c; }
 .alert-warning { background: rgba(243, 156, 18, 0.2); border-left: 3px solid #f39c12; }
+
+        .btn-locate {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.2s;
+}
+.btn-locate:hover {
+    background: #2980b9;
+}
     </style>
 </head>
 <body>
@@ -574,20 +592,25 @@
                     else if (zileRamase === 0) statusMesaj = `EXPIRĂ AZI!`;
                     else statusMesaj = `Expiră în ${zileRamase} zile`;
                     const modelAfișat = u.model ? ` | Model: ${u.model}` : '';
-                    alertList.innerHTML += `
+
+alertList.innerHTML += `
     <div class="alert-item ${tipAlerta}">
         <div style="font-size:11px; opacity:0.8; margin-bottom: 2px;">
-            ID: ${u.id}${modelAfișat}
+            ID: ${u.id}${modelAfi_at}
         </div>
-        <strong style="font-size: 14px; letter-spacing: 0.5px;">${u.nume}</strong>
+        <strong style="font-size: 14px;">${u.nume}</strong>
         
-        <div style="color:${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'}; font-weight: bold; margin: 6px 0; font-size: 13px;">
+        <div style="color:${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'}; font-weight: bold; margin: 4px 0; font-size: 13px;">
             ⚠️ ${statusMesaj}
         </div>
         
-        <div style="font-size: 13px; font-weight: bold; text-transform: uppercase; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px; border-left: 3px solid ${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'};">
+        <div style="font-size: 12px; font-weight: bold; text-transform: uppercase; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px;">
             🔪 Necesită înlocuire cuțite
         </div>
+
+        <button class="btn-locate" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng})">
+            📍 VEZI PE HARTĂ
+        </button>
     </div>
 `;
                 }
@@ -610,6 +633,15 @@
     "3333": 14, // Exemplu utilaj Tocare
     "4444": 14  // Exemplu utilaj Tocare
     };
+
+    function focalizeazaUtilaj(lat, lng) {
+    // 1. Mutăm harta la coordonatele utilajului
+    // Folosim zoom 2 (sau ce nivel preferi tu) pentru a-l vedea bine
+    map.setView([lat, lng], 2);
+
+    // 2. Opțional: Putem face harta să "tremure" puțin sau să deschidem popup-ul
+    // Dar setView este suficient pentru a-l găsi imediat.
+}
     </script>
 
 <script>

@@ -268,6 +268,16 @@ table {
     filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
     shape-rendering: geometricPrecision;
 }
+     /* Stil pentru când pică internetul */
+.cloud-status.offline { 
+    background: rgba(231, 76, 60, 0.1); 
+    border-color: var(--danger); 
+    color: var(--danger); 
+}
+.cloud-status.offline .dot { 
+    background: var(--danger); 
+    animation: none; /* Oprim pulsația ca să fie clar că e oprit */
+}
     </style>
 </head>
 
@@ -617,120 +627,115 @@ table {
         } 
     }
 
-    // 11. Funcția principală de salvare a datelor
-    async function salveaza() {
-        const btn = document.getElementById('saveBtn'); 
-        const msg = document.getElementById('feedbackMsg');
-        const fileInput = document.getElementById('fotoUtilaj');
-        const file = fileInput.files[0];
+      // 11. Funcția principală de salvare a datelor (Ajustată pentru Offline)
+async function salveaza() {
+    const btn = document.getElementById('saveBtn'); 
+    const msg = document.getElementById('feedbackMsg');
+    const fileInput = document.getElementById('fotoUtilaj');
+    const file = fileInput.files[0];
+    const esteOnline = navigator.onLine; // Verificăm netul de la început
+
+    btn.disabled = true; 
+    btn.innerText = (file && esteOnline) ? "⏳ SE ÎNCARCĂ POZA ȘI DATELE..." : "⏳ SE SALVEAZĂ...";
+
+    try {
+        // Colectăm bifele
+        const bifeList = document.querySelectorAll('.task:checked');
+        const bifeValues = Array.from(bifeList).map(c => c.value);
+        let verificariFinale = bifeValues.join(", ");
         
-        btn.disabled = true; 
-        btn.innerText = file ? "⏳ SE ÎNCARCĂ POZA ȘI DATELE..." : "⏳ SE SALVEAZĂ...";
+        const extraCheckElement = document.getElementById('extraCheck');
+        let manual = extraCheckElement ? extraCheckElement.value : "";
+        if (manual !== "") {
+            verificariFinale = verificariFinale !== "" ? verificariFinale + " | " + manual : manual;
+        }
+        
+        const isRevizie = document.getElementById('esteRevizie').checked;
 
-        try {
-            const bifeList = document.querySelectorAll('.task:checked');
-            const bifeArray = Array.from(bifeList);
-            const bifeValues = bifeArray.map(c => c.value);
-            const bifeString = bifeValues.join(", ");
-            
-            const extraCheckElement = document.getElementById('extraCheck');
-            let manual = "";
-            if (extraCheckElement) {
-                manual = extraCheckElement.value;
-            }
-            
-            let verificariFinale = bifeString;
-            if (manual !== "") {
-                if (verificariFinale !== "") {
-                    verificariFinale += " | " + manual;
-                } else {
-                    verificariFinale = manual;
-                }
-            }
-            
-           let costValoare = 0;
-           const isRevizie = document.getElementById('esteRevizie').checked;
-
-            // ---- LOGICA DE ÎNCĂRCARE FOTO ----
-            let fotoUrl = "";
-            if (file) {
+        // ---- LOGICA DE ÎNCĂRCARE FOTO ----
+        let fotoUrl = "";
+        if (file) {
+            if (esteOnline) {
                 const storageRef = firebase.storage().ref('mentenanta/' + Date.now() + "_" + file.name);
                 const snapshot = await storageRef.put(file);
                 fotoUrl = await snapshot.ref.getDownloadURL();
-            }
-            // ----------------------------------
-
-            const entry = {
-                data: document.getElementById('data').value,
-                tip: document.getElementById('tipInterventie').value,
-                mecanic: document.getElementById('mecanic').value,
-                verificari: verificariFinale,
-                obs: document.getElementById('obs').value,
-                timestamp: Date.now(), 
-                revizie: isRevizie,
-                foto: fotoUrl 
-            };
-
-            // LOGICA DE SALVARE (CU SUPORT OFFLINE)
-            if (selectedId) {
-                const istoricRef = database.ref('utilaje/' + selectedId + '/istoric').push();
-                
-                istoricRef.set(entry);
-                database.ref('utilaje/' + selectedId + '/model').set(document.getElementById('model').value);
-                database.ref('utilaje/' + selectedId + '/sectie').set(document.getElementById('sectie').value);
             } else {
-                const idGenerat = Math.floor(1000 + Math.random() * 9000);
-                const idNou = "K-" + idGenerat;
+                alert("⚠️ Ești offline! Poza nu a putut fi încărcată, dar datele fișei vor fi salvate local.");
+            }
+        }
+        // ----------------------------------
+
+        const entry = {
+            data: document.getElementById('data').value,
+            tip: document.getElementById('tipInterventie').value,
+            mecanic: document.getElementById('mecanic').value,
+            verificari: verificariFinale,
+            obs: document.getElementById('obs').value,
+            timestamp: Date.now(), 
+            revizie: isRevizie,
+            foto: fotoUrl 
+        };
+
+        // Generare ID pentru utilaj nou
+        const finalId = selectedId ? selectedId : "K-" + Math.floor(1000 + Math.random() * 9000);
+
+        if (esteOnline) {
+            // == CAZUL 1: AVEM INTERNET (Salvare normală pe Firebase) ==
+            if (selectedId) {
+                await database.ref('utilaje/' + finalId + '/istoric').push(entry);
+                await database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value);
+                await database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value);
+            } else {
                 const utilajNouObject = { 
-                    id: idNou, nume: document.getElementById('nume').value, 
+                    id: finalId, nume: document.getElementById('nume').value, 
                     model: document.getElementById('model').value, sectie: document.getElementById('sectie').value, 
                     lat: parseFloat(currentCoords[0]), lng: parseFloat(currentCoords[1]), 
                     istoric: { "init": entry } 
                 };
-                
-                database.ref('utilaje/' + idNou).set(utilajNouObject);
+                await database.ref('utilaje/' + finalId).set(utilajNouObject);
             }
 
-            // VERIFICĂM DACĂ AVEM INTERNET ACUM
-            const esteOnline = navigator.onLine;
-
-            // MESAJE DE SUCCES ÎN FUNCȚIE DE SEMNAL
-            if (esteOnline) {
-                msg.innerText = "✅ SALVAT CU SUCCES ÎN CLOUD!"; 
-                msg.className = "msg-popup msg-success"; 
-            } else {
-                msg.innerText = "⚠️ SALVAT PE TELEFON! (Se va sincroniza la revenirea semnalului)"; 
-                msg.className = "msg-popup msg-error"; 
-                msg.style.borderColor = "#f39c12";
-                msg.style.color = "#f39c12";
-            }
+            msg.innerText = "✅ SALVAT CU SUCCES ÎN CLOUD!"; 
+            msg.className = "msg-popup msg-success";
+        } else {
+            // == CAZUL 2: OFFLINE (Salvare în memoria telefonului) ==
+            let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
             
-            msg.style.display = "block";
+            coada.push({
+                isNew: !selectedId,
+                id: finalId,
+                nume: document.getElementById('nume').value,
+                model: document.getElementById('model').value,
+                sectie: document.getElementById('sectie').value,
+                lat: currentCoords ? parseFloat(currentCoords[0]) : null,
+                lng: currentCoords ? parseFloat(currentCoords[1]) : null,
+                entryData: entry
+            });
             
-            setTimeout(() => { 
-                resetForm(); 
-                btn.innerText = "💾 SALVEAZĂ FIȘA"; 
-                msg.style.display = "none"; 
-            }, 3000);
+            localStorage.setItem('coada_sincronizare', JSON.stringify(coada));
             
-            msg.innerText = "✅ SALVAT CU SUCCES!"; 
-            msg.className = "msg-popup msg-success"; 
-            msg.style.display = "block";
-            
-            setTimeout(() => { 
-                resetForm(); 
-                btn.innerText = "💾 SALVEAZĂ FIȘA"; 
-                msg.style.display = "none"; 
-            }, 2000);
-            
-        } catch(e) {
-            msg.innerText = "❌ EROARE: " + e.message; 
+            msg.innerText = "⚠️ SALVAT PE TELEFON! (Se va trimite când revine semnalul)"; 
             msg.className = "msg-popup msg-error"; 
-            msg.style.display = "block";
-            btn.disabled = false; 
-            btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
+            msg.style.borderColor = "#f39c12"; msg.style.color = "#f39c12";
         }
+        
+        msg.style.display = "block";
+        
+        setTimeout(() => { 
+            resetForm(); 
+            btn.innerText = "💾 SALVEAZĂ FIȘA"; 
+            btn.disabled = false;
+            msg.style.display = "none"; 
+        }, 3000);
+        
+    } catch(e) {
+        msg.innerText = "❌ EROARE: " + e.message; 
+        msg.className = "msg-popup msg-error"; 
+        msg.style.display = "block";
+        btn.disabled = false; 
+        btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
     }
+}
 
     // 12. Resetare formular pentru acțiuni noi
     function resetForm() {
@@ -790,6 +795,59 @@ table {
             salveaza();
         }
     }
+    // --- SISTEM OFFLINE & AUTO-SINCRONIZARE ---
+
+// Schimbă culoarea bulinei din stânga sus
+function updateConnectionStatus() {
+    const cloudBanner = document.querySelector('.cloud-status');
+    if (navigator.onLine) {
+        cloudBanner.classList.remove('offline');
+        cloudBanner.innerHTML = '<div class="dot"></div> CLOUD ONLINE & ACTIV';
+        sincronizeazaDatele(); // Încearcă să urce datele pe server când vine netul
+    } else {
+        cloudBanner.classList.add('offline');
+        cloudBanner.innerHTML = '<div class="dot" style="background:#e74c3c; animation:none;"></div> OFFLINE - SALVĂM PE TELEFON';
+    }
+}
+
+// Funcția care "varsă" datele din telefon pe Firebase
+async function sincronizeazaDatele() {
+    let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
+    if (coada.length === 0) return; // Nimic de trimis
+
+    console.log(`Încep sincronizarea a ${coada.length} fișe...`);
+    
+    for (let i = 0; i < coada.length; i++) {
+        const item = coada[i];
+        try {
+            if (item.isNew) {
+                // Era utilaj nou
+                const utilajNouObject = { 
+                    id: item.id, nume: item.nume, model: item.model, sectie: item.sectie, 
+                    lat: item.lat, lng: item.lng, istoric: { "init": item.entryData } 
+                };
+                await database.ref('utilaje/' + item.id).set(utilajNouObject);
+            } else {
+                // Era doar o fișă nouă la utilaj existent
+                await database.ref('utilaje/' + item.id + '/istoric').push(item.entryData);
+                await database.ref('utilaje/' + item.id + '/model').set(item.model);
+                await database.ref('utilaje/' + item.id + '/sectie').set(item.sectie);
+            }
+        } catch (error) {
+            console.error("Eroare sync:", error);
+            return; // Oprim ca să nu ștergem din coadă ceva ce nu s-a trimis
+        }
+    }
+
+    // Golim coada locală dacă totul s-a trimis
+    localStorage.removeItem('coada_sincronizare');
+    alert("✅ Datele salvate offline au fost sincronizate cu succes în Cloud!");
+}
+
+// Ascultăm schimbările de internet în timp real
+window.addEventListener('online', updateConnectionStatus);
+window.addEventListener('offline', updateConnectionStatus);
+updateConnectionStatus(); // Rulăm la încărcarea paginii
 </script>
 </body>
 </html>

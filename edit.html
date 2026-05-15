@@ -350,10 +350,16 @@
     }
    
     map.on('click', (e) => {
-        if (selectedId) return; 
-        currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
-        if (activeMarker) map.removeLayer(activeMarker);
+        // Dacă avem un utilaj selectat și dăm click pe hartă, închidem totul (ne-am răzgândit)
+        if (selectedId) {
+            resetForm();
+            return;
+        }
         
+        // Dacă nu avem nimic selectat, procedăm la adăugarea unui utilaj nou
+        currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
+        
+        if (activeMarker) map.removeLayer(activeMarker);
         activeMarker = L.marker(e.latlng).addTo(map); 
         
         // Afișăm formularul

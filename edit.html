@@ -351,11 +351,11 @@
    
     map.on('click', (e) => {
         // Dacă avem un utilaj selectat și dăm click pe hartă, închidem totul (ne-am răzgândit)
-        if (selectedId) {
+        /*if (selectedId) {
             resetForm();
             return;
-        }
-        
+        }*/
+        resetForm();
         // Dacă nu avem nimic selectat, procedăm la adăugarea unui utilaj nou
         currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
         

@@ -70,26 +70,37 @@
         }
 
         /* --- STILURI PENTRU MOBIL (Sub 768px) --- */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column; /* Forțăm elementele sus-jos */
-                overflow-y: auto; /* Permitem scroll pe toată pagina */
-                height: auto;
-            }
-            #sidebar {
-                width: 100%;
-                min-width: 100%;
-                height: auto;
-                overflow: visible;
-                order: 2; /* Sidebar-ul merge JOS */
-            }
-            #map {
-                width: 100%;
-                height: 55vh; /* Harta ocupă puțin peste jumătate din ecran */
-                order: 1; /* Harta merge SUS */
-                flex: none;
-            }
-        }
+       @media (max-width: 768px) {
+    body { overflow: hidden; } /* Oprim scroll-ul paginii intregi */
+    
+    #map { 
+        position: absolute !important;
+        top: 0; left: 0;
+        width: 100vw !important; 
+        height: 100vh !important; /* Harta ocupă TOT ecranul */
+        z-index: 1; 
+    }
+
+    #sidebar {
+        position: fixed !important;
+        bottom: -150%; /* Ascuns sub ecran la început */
+        left: 0;
+        width: 100% !important;
+        min-width: 100% !important;
+        height: auto !important;
+        max-height: 80vh; /* Se va ridica până la max 80% din ecran */
+        z-index: 1000;
+        border-radius: 20px 20px 0 0; /* Colțuri rotunjite sus */
+        box-shadow: 0 -5px 25px rgba(0,0,0,0.6);
+        transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex !important;
+    }
+
+    /* Clasa care face magia și ridică panoul */
+    #sidebar.panou-deschis {
+        bottom: 0 !important;
+    }
+}
 
         .scroll-v { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { min-width: 500px; }
@@ -367,7 +378,9 @@
         document.getElementById('sidebar').style.display = 'flex';
         document.getElementById('form-container').style.display = 'block';
         document.getElementById('data-punere').disabled = false;
-        
+
+        document.getElementById('sidebar').classList.add('panou-deschis');
+        setTimeout(() => { map.invalidateSize(); }, 400);
         // Scroll pe mobil direct la formular
         if(window.innerWidth <= 768) {
             document.getElementById('sidebar').scrollIntoView({ behavior: 'smooth' });
@@ -383,6 +396,9 @@
         document.getElementById('sidebar').style.display = 'flex';
         // Afișăm formularul
         document.getElementById('form-container').style.display = 'block';
+
+        document.getElementById('sidebar').classList.add('panou-deschis');
+        setTimeout(() => { map.invalidateSize(); }, 400);
         
         const campPunere = document.getElementById('data-punere');
         if (u.dataPunere) {
@@ -637,6 +653,9 @@
         
         document.getElementById('sidebar').style.display = 'none';
         document.getElementById('form-container').style.display = 'none';
+
+        document.getElementById('sidebar').classList.remove('panou-deschis');
+        setTimeout(() => { map.invalidateSize(); }, 400);
         
         document.getElementById('nume').value = ""; 
         document.getElementById('model').value = ""; 

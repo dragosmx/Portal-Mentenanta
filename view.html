@@ -19,7 +19,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
-
     <style>
         :root {
             --primary: #2c3e50; --accent: #27ae60; --success: #2ecc71;
@@ -84,133 +83,80 @@
             th { background-color: #f8f9fa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .pdf-header { display: none !important; }
         }
-        .status-online {
-    width: 10px; height: 10px; background: #2ecc71;
-    border-radius: 50%; display: inline-block; margin-right: 5px;
-    box-shadow: 0 0 5px #2ecc71;
-}
-.offline { background: #e74c3c; box-shadow: 0 0 5px #e74c3c; }
-/* Stil pentru Bulina Cloud Activ */
-.cloud-status-view {
-    display: flex;
-    flex-direction: row; /* Forțează așezarea pe orizontală */
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 10px;
-    font-weight: bold;
-    color: #2ecc71;
-    background: rgba(39, 174, 96, 0.1);
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: 1px solid rgba(39, 174, 96, 0.3);
-    margin-left: 15px;
-    white-space: nowrap;
-}
-.dot-cloud {
-    width: 8px;
-    height: 8px;
-    background: #2ecc71;
-    border-radius: 50%;
-    animation: pulse-cloud 1.5s infinite;
-    flex-shrink: 0; /* Împiedică bulina să se deformeze */
-}
-@keyframes pulse-cloud { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        
+        .status-online { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 5px #2ecc71; }
+        .offline { background: #e74c3c; box-shadow: 0 0 5px #e74c3c; }
+        
+        /* Stil pentru Bulina Cloud Activ */
+        .cloud-status-view {
+            display: flex; flex-direction: row; align-items: center; justify-content: center;
+            gap: 6px; font-size: 10px; font-weight: bold; color: #2ecc71;
+            background: rgba(39, 174, 96, 0.1); padding: 6px 12px; border-radius: 20px;
+            border: 1px solid rgba(39, 174, 96, 0.3); margin-left: 15px; white-space: nowrap;
+        }
+        .dot-cloud { width: 8px; height: 8px; background: #2ecc71; border-radius: 50%; animation: pulse-cloud 1.5s infinite; flex-shrink: 0; }
+        @keyframes pulse-cloud { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        @media print { .cloud-status-view { display: none !important; } }
 
-@media print { .cloud-status-view { display: none !important; } }
-        .custom-pin {
-    /* Eliminăm orice tranziție de pe containerul principal ca să nu miște harta */
-    transition: none !important; 
-    pointer-events: auto;
-}
+        .custom-pin { transition: none !important; pointer-events: auto; }
+        .custom-pin svg { transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: transform, filter; transform-origin: bottom center; display: block; }
+        .custom-pin:hover svg { transform: scale(1.15); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)) !important; }
 
-.custom-pin svg {
-    /* Aplicăm animația doar pe desenul din interior */
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    will-change: transform, filter; /* Spunem browserului să folosească placa video */
-    transform-origin: bottom center; /* Se mărește de jos în sus, nu din mijloc */
-    display: block;
-}
-
-/* Efectul de Hover - Modificat să fie extrem de clar */
-.custom-pin:hover svg {
-    transform: scale(1.15); /* Nu exagerăm cu mărirea ca să păstrăm claritatea */
-    filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)) !important;
-}
+        /* PANOUL DE ALERTE - PC SI MOBIL */
         #alert-panel {
-    position: fixed; top: 80px; right: 20px;
-    width: 280px; background: rgba(44, 62, 80, 0.95);
-    border-left: 5px solid #f39c12; border-radius: 8px;
-    z-index: 2000; color: white; padding: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    transition: all 0.5s ease;
-}
-.alert-hidden { right: -350px !important; }
-.alert-header { font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
-.alert-item { font-size: 12px; margin-bottom: 8px; padding: 5px; border-radius: 4px; }
-.alert-urgent { background: rgba(231, 76, 60, 0.2); border-left: 3px solid #e74c3c; }
-.alert-warning { background: rgba(243, 156, 18, 0.2); border-left: 3px solid #f39c12; }
+            position: fixed; top: 80px; right: 20px;
+            width: 280px; background: rgba(44, 62, 80, 0.95);
+            border-left: 5px solid #f39c12; border-radius: 8px;
+            z-index: 2000; color: white; padding: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transition: all 0.5s ease;
+        }
+        .alert-hidden { right: -350px !important; opacity: 0; pointer-events: none; }
+        .alert-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
+        .alert-item { font-size: 12px; margin-bottom: 8px; padding: 5px; border-radius: 4px; }
+        .alert-urgent { background: rgba(231, 76, 60, 0.2); border-left: 3px solid #e74c3c; }
+        .alert-warning { background: rgba(243, 156, 18, 0.2); border-left: 3px solid #f39c12; }
 
-        .btn-locate {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 6px 12px;
-    background: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: background 0.2s;
-}
-.btn-locate:hover {
-    background: #2980b9;
-}
-        .pin-selectat svg {
-    filter: drop-shadow(0 0 10px #3498db) drop-shadow(0 0 20px #3498db) !important;
-    transform: scale(1.3) !important;
-    transition: all 0.3s ease;
-}
-.pin-selectat path {
-    stroke: #3498db !important;
-    stroke-width: 3px !important;
-}
+        .btn-locate { display: inline-block; margin-top: 10px; padding: 6px 12px; background: #3498db; color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
+        .btn-locate:hover { background: #2980b9; }
 
+        .pin-selectat svg { filter: drop-shadow(0 0 10px #3498db) drop-shadow(0 0 20px #3498db) !important; transform: scale(1.3) !important; transition: all 0.3s ease; }
+        .pin-selectat path { stroke: #3498db !important; stroke-width: 3px !important; }
 
-/* =======================================================
-   ADĂUGĂRI STRICT PENTRU ASCUNDERE CĂUTARE/ALERTE PE MOBIL
-   (Nu afectează absolut deloc aspectul pe PC)
-   ======================================================= */
-.btn-mobil-toggle { display: none; } /* Ascunse implicit pe PC */
+        /* CLOPOȚEL UNIVERSAL (PC & MOBIL) */
+        #btn-clopotel {
+            display: none; /* Ascuns implicit, se arată doar când închizi alertele */
+            position: absolute; z-index: 2005;
+            top: 80px; right: 20px;
+            width: 45px; height: 45px; border-radius: 50%;
+            background: var(--danger); color: white;
+            align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 2px solid white;
+            animation: pulse-cloud 2s infinite;
+        }
 
-@media (max-width: 768px) {
-    /* Butoanele rotunde care apar doar pe telefon */
-    .btn-mobil-toggle {
-        display: flex; position: absolute; z-index: 1005;
-        width: 45px; height: 45px; border-radius: 50%;
-        align-items: center; justify-content: center;
-        font-size: 20px; color: white; cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 2px solid white;
-    }
-    #btn-lupa-mobil { top: 75px; left: 15px; background: var(--primary); }
-    #btn-clopotel-mobil { top: 75px; right: 15px; background: var(--danger); animation: pulse-cloud 2s infinite; }
+        /* LUPA PE MOBIL */
+        .btn-mobil-toggle { display: none; } 
 
-    /* Ascundem panoul de căutare pe mobil. Îl arătăm doar când primește clasa .activ */
-    .panel { 
-        display: none; 
-        top: 130px; left: 15px; width: calc(100% - 30px); z-index: 2001; 
-    }
-    .panel.activ { display: block; }
+        @media (max-width: 768px) {
+            .btn-mobil-toggle {
+                display: flex; position: absolute; z-index: 1005;
+                width: 45px; height: 45px; border-radius: 50%;
+                align-items: center; justify-content: center;
+                font-size: 20px; color: white; cursor: pointer;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 2px solid white;
+            }
+            #btn-lupa-mobil { top: 75px; left: 15px; background: var(--primary); }
+            #btn-clopotel { top: 75px; right: 15px; } /* Ajustăm poziția clopoțelului pe mobil */
 
-    /* Ascundem panoul de alerte pe mobil. Îl arătăm doar când primește clasa .activ */
-    #alert-panel {
-        display: none;
-        top: 130px; left: 15px; width: calc(100% - 30px); right: auto !important; z-index: 2001;
-    }
-    #alert-panel.activ { display: block; }
-}
+            .panel { display: none; top: 130px; left: 15px; width: calc(100% - 30px); z-index: 2001; }
+            .panel.activ { display: block; }
+
+            #alert-panel { display: none; top: 130px; left: 15px; width: calc(100% - 30px); right: auto !important; z-index: 2001; }
+            #alert-panel.activ { display: block; }
+            .alert-hidden { display: none !important; } /* Pe mobil folosim display: none complet */
+        }
     </style>
 </head>
 <body>
@@ -227,15 +173,15 @@
         <button onclick="window.location.href='edit.html'" style="background:var(--warning); color:black;">⚙️ ADMINISTRARE</button>
         <button onclick="printeazaQR()" style="background:#8e44ad;">🖨️ QR CODE</button>
         <div class="cloud-status-view no-print">
-        <div class="dot-cloud"></div>
-        <span>CLOUD ACTIV</span>
-    </div>
+            <div class="dot-cloud"></div>
+            <span>CLOUD ACTIV</span>
+        </div>
     </div>
 </nav>
 
 <div id="btn-lupa-mobil" class="btn-mobil-toggle" onclick="document.querySelector('.panel').classList.toggle('activ')">🔍</div>
-<div id="btn-clopotel-mobil" class="btn-mobil-toggle" onclick="document.getElementById('alert-panel').classList.toggle('activ')" style="display: none;">🔔</div>
 
+<div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">🔔</div>
 
 <div class="panel">
     <label>🔍 Căutare Utilaj</label>
@@ -263,24 +209,20 @@
 <div id="reportModal" class="modal">
     <span class="close-modal-pro no-print" onclick="inchideModal('reportModal')">&times;</span>
     <div class="modal-c">
-        
         <div class="report-side">
             <h3 style="margin-top:0;">📊 Statisici Generale</h3>
             <div style="background:#2c3e50; color:white; padding:25px; border-radius:20px; text-align:center; margin-bottom:20px;">
                 <h1 id="totalInterventii" style="margin:0; color:#2ecc71; font-size:45px;">0</h1>
                 <p style="font-size:10px; font-weight:bold; opacity:0.8;">INTERVENȚII ÎNREGISTRATE</p>
             </div>
-            
             <p>✅ UTILAJE OK: <b id="statOK">0</b></p>
             <p>⚠️ ATENȚIE (>30z): <b id="statAtentie">0</b></p>
             <p>🚨 CRITIC (>90z): <b id="statCritic">0</b></p>
-            
             <div class="no-print" style="margin-top:auto; padding-top:20px; display:flex; flex-direction:column; gap:10px;">
                 <button onclick="exportaTotExcel()" style="width:100%; background:var(--excel); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">📥 DESCARCĂ EXCEL</button>
                 <button onclick="printeazaElement('reportModal')" style="width:100%; background:var(--print); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">🖨️ PRINTARE RAPORT</button>
             </div>
         </div>
-
         <div class="report-main">
             <h3 style="margin-top:0;">🕒 Ultimele Intervenții (Live)</h3>
             <div class="scroll-v">
@@ -296,7 +238,6 @@
 <div id="historyModal" class="modal">
     <span class="close-modal-pro no-print" onclick="inchideModal('historyModal')">&times;</span>
     <div class="modal-c" style="flex-direction:column; max-width:950px; background:white;">
-        
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--primary); padding-bottom:15px; margin-bottom:15px;">
             <div>
                 <h2 id="histNume" style="margin:0; color:var(--primary); font-size:28px;">-</h2>
@@ -304,17 +245,16 @@
             </div>
             <img src="logo.png" style="height:50px;" class="print-only-logo">
         </div>
-        
         <div class="no-print" style="display:flex; gap:15px; margin-bottom:20px;">
              <button id="btnExcelIndv" style="flex:1; background:var(--excel); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">📥 EXPORT EXCEL</button>
              <button onclick="printeazaElement('historyModal')" style="flex:1; background:var(--print); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">🖨️ PRINTARE FIȘĂ UTILAJ</button>
         </div>
-
         <div class="scroll-v">
             <table><thead><tr><th>Data</th><th>Mecanic</th><th>Operațiuni Efectuate</th><th>Observații</th></tr></thead><tbody id="corpIstoricIndividual"></tbody></table>
         </div>
     </div>
 </div>
+
 <div id="alert-panel" class="alert-hidden">
     <div class="alert-header">
         <span>⚠️ Alerte Mentenanță</span>
@@ -324,7 +264,6 @@
 </div>
 
 <script>
-  
     const firebaseConfig = {
         apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
         authDomain: "killer-mentenanta.firebaseapp.com",
@@ -336,40 +275,33 @@
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+    
     let dbRaw = {};
     let selectedId = null;
     let markersList = [];
+    let searchTimer = null;
+    
+    // VARIABILĂ GLOBALĂ PENTRU A ȚINE MINTE CĂ AI ÎNCHIS ALARMA
+    let alertaInchisaManual = false; 
  
     function calculeazaZile(dataString) {
-    if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
-    
-    // Curățăm orice spațiu sau caracter ciudat
-    const curat = dataString.replace(/[^0-9./-]/g, '').trim();
-    const part = curat.split(/[./-]/);
-    
-    if (part.length < 3) return 999;
-
-    let d, m, y;
-    if (part[0].length === 4) { [y, m, d] = part; } // Format YYYY-MM-DD
-    else { [d, m, y] = part; } // Format DD.MM.YYYY
-
-    const dt = new Date(y, m - 1, d);
-    const azi = new Date();
-    azi.setHours(0,0,0,0);
-    
-    const diff = Math.floor((azi - dt) / 86400000);
-    return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+        if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
+        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+        const part = curat.split(/[./-]/);
+        if (part.length < 3) return 999;
+        let d, m, y;
+        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
+        const dt = new Date(y, m - 1, d);
+        const azi = new Date(); azi.setHours(0,0,0,0);
+        const diff = Math.floor((azi - dt) / 86400000);
+        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
     }
 
-    // 4. CONFIGURARE HARTĂ
     var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3, zoomControl: false });
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
     map.setView([500, 700], 0.5);
 
-    /*dbRaw = {}, markersList = [];*/
-
-    // 5. SINCRONIZARE DATE
     database.ref('utilaje').on('value', (snap) => {
         dbRaw = snap.val() || {};
         afiseazaPuncte();
@@ -378,141 +310,94 @@
     });
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
 
-    // 6. AFIȘARE PIN-URI (Bazat strict pe ultima Revizie Bifată)
     function afiseazaPuncte() {
-    const filtru = document.getElementById('filterSectie').value;
-    markersList.forEach(m => map.removeLayer(m)); 
-    markersList = [];
+        const filtru = document.getElementById('filterSectie').value;
+        markersList.forEach(m => map.removeLayer(m)); 
+        markersList = [];
 
-    Object.keys(dbRaw).forEach(id => {
-        const u = dbRaw[id];
-        if (filtru !== "Toate" && u.sectie !== filtru) return;
-        if (!u.lat || !u.lng) return;
+        Object.keys(dbRaw).forEach(id => {
+            const u = dbRaw[id];
+            if (filtru !== "Toate" && u.sectie !== filtru) return;
+            if (!u.lat || !u.lng) return;
 
-        // --- 1. LOGICA DE SELECȚIE (AICI SE FACE MAGIA) ---
-        // Verificăm dacă ID-ul curent este cel selectat din alarma
-        const esteSelectat = (id === selectedId);
-        const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
+            const esteSelectat = (id === selectedId);
+            const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
 
-        const istArr = u.istoric ? Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)) : [];
-        const ultimaData = istArr[0] ? istArr[0].data : "-";
-        const ultimaActivitate = istArr[0] ? istArr[0].verificari : "Nicio activitate înregistrată.";
-        
-        const ultimaRevizie = istArr.find(i => i.revizie === true);
-        let z = 0;
-        let dataRevizieAfisata = "";
-        
-        if (ultimaRevizie) {
-            z = calculeazaZile(ultimaRevizie.data);
-            dataRevizieAfisata = ultimaRevizie.data;
-        } else {
-            z = 0; 
-            dataRevizieAfisata = "0 ZILE (Nicio revizie raportată)";
-        }
-        
-        let col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
+            const istArr = u.istoric ? Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)) : [];
+            const ultimaData = istArr[0] ? istArr[0].data : "-";
+            const ultimaActivitate = istArr[0] ? istArr[0].verificari : "Nicio activitate înregistrată.";
+            
+            const ultimaRevizie = istArr.find(i => i.revizie === true);
+            let z = 0; let dataRevizieAfisata = "";
+            
+            if (ultimaRevizie) { z = calculeazaZile(ultimaRevizie.data); dataRevizieAfisata = ultimaRevizie.data; } 
+            else { z = 0; dataRevizieAfisata = "0 ZILE (Nicio revizie raportată)"; }
+            
+            let col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
 
-        // --- 2. MODIFICĂM ICONIȚA (Adăugăm clasaPin) ---
-        const m = L.marker([u.lat, u.lng], { 
-            icon: L.divIcon({ 
-                className: clasaPin, // Folosim variabila care decide dacă pinul e selectat
-                html: `
-                    <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg" 
-                         style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); shape-rendering: geometricPrecision;">
-                        <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
-                        <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
-                        <circle cx="15" cy="15" r="5.5" fill="white"/>
-                    </svg>
-                `, 
-                iconSize: [30, 45],
-                iconAnchor: [15, 45], 
-                popupAnchor: [0, -45] 
-            }),
-            // --- 3. ÎL ADUCEM ÎN FAȚĂ (Z-Index) ---
-            zIndexOffset: esteSelectat ? 1000 : 0 
-        }).addTo(map);
+            const m = L.marker([u.lat, u.lng], { 
+                icon: L.divIcon({ 
+                    className: clasaPin,
+                    html: `<svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); shape-rendering: geometricPrecision;">
+                            <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
+                            <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
+                            <circle cx="15" cy="15" r="5.5" fill="white"/>
+                        </svg>`, 
+                    iconSize: [30, 45], iconAnchor: [15, 45], popupAnchor: [0, -45] 
+                }),
+                zIndexOffset: esteSelectat ? 1000 : 0 
+            }).addTo(map);
 
-        m.bindPopup(`
-            <div class="popup-header">
-                <h3>${u.nume}</h3>
-                <p style="margin: 0; font-weight: bold;">${u.marca || ''} ${u.model || ''}</p>
-                <p>ID: ${u.id} | ${u.sectie}</p>
-            </div>
-            <div class="popup-body">
-                <div class="last-info">
-                    <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
-                    <span style="color:#666; font-size:11px;">Ultima revizie oficială: ${dataRevizieAfisata}</span><br>
-                    <span style="color:#666; font-size:11px;">Ultima intervenție: ${ultimaData}</span><br>
-                    <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px;">Activitate recentă: ${ultimaActivitate}</i>
+            m.bindPopup(`
+                <div class="popup-header">
+                    <h3>${u.nume}</h3>
+                    <p style="margin: 0; font-weight: bold;">${u.marca || ''} ${u.model || ''}</p>
+                    <p>ID: ${u.id} | ${u.sectie}</p>
                 </div>
-                <button class="btn-history" onclick="deschideHist('${id}')">📜 VEZI ISTORIC COMPLET</button>
-            </div>
-        `);
-    
-    
-        m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
-        markersList.push(m);
-    });
-}
-     window.zoomSectie = function(sectie) {
-    // 1. Verificăm dacă s-a ales opțiunea "Toate"
-    if (sectie === "Toate") {
-        console.log("Resetare vedere hartă: Toate secțiile.");
-        // Resetăm harta pe centru, la zoom-ul inițial
-        map.setView([500, 700], 0.5); 
-        return; // Oprim execuția aici, nu mai căutăm utilaje
+                <div class="popup-body">
+                    <div class="last-info">
+                        <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
+                        <span style="color:#666; font-size:11px;">Ultima revizie oficială: ${dataRevizieAfisata}</span><br>
+                        <span style="color:#666; font-size:11px;">Ultima intervenție: ${ultimaData}</span><br>
+                        <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px;">Activitate recentă: ${ultimaActivitate}</i>
+                    </div>
+                    <button class="btn-history" onclick="deschideHist('${id}')">📜 VEZI ISTORIC COMPLET</button>
+                </div>
+            `);
+            m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
+            markersList.push(m);
+        });
     }
 
-    console.log("Zoom pe sectia:", sectie);
-    const bounds = [];
-    
-    if (typeof dbRaw === 'undefined' || !dbRaw) return;
+    window.zoomSectie = function(sectie) {
+        if (sectie === "Toate") { map.setView([500, 700], 0.5); return; }
+        const bounds = [];
+        if (typeof dbRaw === 'undefined' || !dbRaw) return;
+        Object.values(dbRaw).forEach(u => {
+            if (u.sectie && u.sectie.trim().toLowerCase() === sectie.toLowerCase() && u.lat && u.lng) { bounds.push([u.lat, u.lng]); }
+        });
+        if (bounds.length > 0) { map.flyToBounds(bounds, { padding: [100, 100], duration: 1.5, easeLinearity: 0.25 }); } 
+        else { alert("Nu există utilaje cu coordonate înregistrate în secția: " + sectie); }
+    };
 
-    Object.values(dbRaw).forEach(u => {
-        // Comparăm secția (ignorăm litere mari/mici și spații)
-        if (u.sectie && u.sectie.trim().toLowerCase() === sectie.toLowerCase() && u.lat && u.lng) {
-            bounds.push([u.lat, u.lng]);
-        }
-    });
-
-    if (bounds.length > 0) {
-        map.flyToBounds(bounds, { 
-    padding: [100, 100], 
-    duration: 1.5, // secunde - cât de repede să "zboare"
-    easeLinearity: 0.25 
-    });
-    } else {
-        // Această eroare va apărea doar dacă alegi o secție (ex: Abator) 
-        // și chiar nu ai niciun pin pus acolo
-        alert("Nu există utilaje cu coordonate înregistrate în secția: " + sectie);
-    }
-};
     function cautaSmart() {
-    // Resetăm cronometrul de fiecare dată când utilizatorul apasă o tastă
-    clearTimeout(searchTimer);
-    
-    // Așteptăm 300ms (0.3 secunde) de inactivitate înainte de a porni căutarea
-    searchTimer = setTimeout(() => {
-        console.log("Pornesc căutarea automată...");
-        cauta(); // Apelează funcția ta existentă de căutare
-    }, 300);
-}
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(() => { cauta(); }, 300);
+    }
+
     function inchideModal(idModal) {
         document.getElementById(idModal).style.display = 'none';
         document.getElementById(idModal).classList.remove('print-active');
     }
 
-    // 7. FUNCȚII DASHBOARD (Calculează bazat pe bifa de Revizie)
     function deschideRapoarte() {
         let ok=0, wr=0, cr=0, total=0;
         const cF = document.getElementById('corpFluxLive'); cF.innerHTML = ""; let fl = [];
 
         Object.values(dbRaw).forEach(u => {
             const ist = u.istoric ? Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)) : [];
-            
             const ultimaRevizie = ist.find(i => i.revizie === true);
-            let z = 0;
-            if(ultimaRevizie) { z = calculeazaZile(ultimaRevizie.data); }
+            let z = 0; if(ultimaRevizie) { z = calculeazaZile(ultimaRevizie.data); }
 
             if(z < 30) ok++; else if(z < 90) wr++; else cr++;
             
@@ -531,7 +416,6 @@
         fl.sort((a,b)=>calculeazaZile(a.d)-calculeazaZile(b.d)).slice(0, 50).forEach(f => {
             cF.innerHTML += `<tr><td><b>${f.d}</b></td><td><b>${f.n}</b></td><td>${f.s}</td><td>${f.m}</td><td>${f.a}</td></tr>`;
         });
-        
         document.getElementById('reportModal').style.display = "flex";
     }
 
@@ -539,33 +423,22 @@
         const u = dbRaw[id];
         document.getElementById('histNume').innerText = u.nume;
         document.getElementById('histModel').innerText = "Cod ID: " + u.id + " | Secție: " + u.sectie;
-        const c = document.getElementById('corpIstoricIndividual'); 
-        c.innerHTML = "";
+        const c = document.getElementById('corpIstoricIndividual'); c.innerHTML = "";
         
-        // Am adăugat coloana "Foto" în tabel
         document.querySelector('#historyModal table thead tr').innerHTML = `<th>Data</th><th>Mecanic</th><th>Operațiuni Efectuate</th><th>Observații</th><th>Foto</th>`;
 
         if (u.istoric) {
             Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)).forEach(i => {
                 const indicatorRev = i.revizie ? `<span style="background:#27ae60; color:white; padding:3px 6px; border-radius:5px; font-size:10px;">REVIZIE</span> ` : "";
-                
-                // Dacă există poză, punem buton. Dacă nu, punem "-"
                 const linkFoto = (i.foto && i.foto !== "") ? `<a href="${i.foto}" target="_blank" style="background:var(--primary); color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:11px; font-weight:bold;">📷 VEZI</a>` : "-";
 
-                c.innerHTML += `<tr>
-                    <td><b>${i.data}</b></td>
-                    <td>${i.mecanic || '-'}</td>
-                    <td>${indicatorRev} ${i.verificari}</td>
-                    <td>${i.obs || '-'}</td>
-                    <td>${linkFoto}</td>
-                </tr>`;
+                c.innerHTML += `<tr><td><b>${i.data}</b></td><td>${i.mecanic || '-'}</td><td>${indicatorRev} ${i.verificari}</td><td>${i.obs || '-'}</td><td>${linkFoto}</td></tr>`;
             });
         }
         document.getElementById('btnExcelIndv').onclick = () => exportaExcelUtilaj(id);
         document.getElementById('historyModal').style.display = "flex";
     }
 
-    // 8. FUNCȚII PRINTARE ȘI EXCEL
     function printeazaElement(idModal) {
         document.querySelectorAll('.modal').forEach(m => m.classList.remove('print-active'));
         document.getElementById(idModal).classList.add('print-active');
@@ -583,10 +456,8 @@
                 });
             }
         });
-        const ws = XLSX.utils.json_to_sheet(rows);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Raport");
-        XLSX.writeFile(wb, "Killer_Export_Total.xlsx");
+        const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Raport"); XLSX.writeFile(wb, "Killer_Export_Total.xlsx");
     }
 
     function exportaExcelUtilaj(id) {
@@ -599,179 +470,71 @@
         XLSX.utils.book_append_sheet(wb, ws, "Fisa"); XLSX.writeFile(wb, `Fisa_${u.id}.xlsx`);
     }
 
-function printeazaQR() {
-    let root = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
-    let win = window.open('', '_blank');
-    
-    let hContent = `
-    <html>
-    <head>
-        <style>
-            @page { size: portrait; margin: 10mm; }
-            body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; }
-            
-            /* Am pus 3 coloane pentru a lăsa etichetele să fie mai "zvelte" */
-            .grid-container { 
-                display: grid; 
-                grid-template-columns: repeat(3, 1fr); 
-                gap: 20px; 
-            }
+    function printeazaQR() {
+        let root = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
+        let win = window.open('', '_blank');
+        let hContent = `<html><head><style>@page { size: portrait; margin: 10mm; } body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; } .grid-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; } .qr-card { border: 1.5px solid #000; padding: 15px 10px; text-align: center; border-radius: 8px; page-break-inside: avoid; min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; } .qr-card img { width: 130px; height: 130px; margin-bottom: 10px; } .utilaj-nume { font-size: 8px; font-weight: bold; display: block; margin-top: 5px; border-top: 1px solid #eee; padding-top: 5px; width: 100%; } .utilaj-model { font-size: 8px; color: #000; font-weight: bold; display: block; margin: 4px 0; } .utilaj-id { font-size: 6px; color: #444; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; }</style></head><body onload="window.print()"><div class="grid-container">`;
+        Object.values(dbRaw).forEach(u => {
+            const modelAfisat = u.model ? u.model.toUpperCase() : "---";
+            hContent += `<div class="qr-card"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(root+'scan.html?id='+u.id)}"><span class="utilaj-nume">${u.nume.toUpperCase()}</span><span class="utilaj-model">${modelAfisat}</span><span class="utilaj-id">ID: ${u.id}</span></div>`;
+        });
+        hContent += '</div></body></html>'; win.document.write(hContent); win.document.close();
+    }
 
-            .qr-card { 
-                border: 1.5px solid #000; 
-                padding: 15px 10px; 
-                text-align: center; 
-                border-radius: 8px; 
-                page-break-inside: avoid;
-                /* Forțăm un aspect de portret */
-                min-height: 220px; 
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .qr-card img {
-                width: 130px;
-                height: 130px;
-                margin-bottom: 10px;
-            }
-
-            .utilaj-nume { 
-                font-size: 8px; 
-                font-weight: bold; 
-                display: block; 
-                margin-top: 5px;
-                border-top: 1px solid #eee;
-                padding-top: 5px;
-                width: 100%;
-            }
-
-            .utilaj-model { 
-                font-size: 8px; 
-                color: #000; 
-                font-weight: bold; 
-                display: block; 
-                margin: 4px 0; 
-            }
-
-            .utilaj-id { 
-                font-size: 6px; 
-                color: #444; 
-                background: #f0f0f0;
-                padding: 2px 6px;
-                border-radius: 4px;
-            }
-        </style>
-    </head>
-    <body onload="window.print()">
-        <div class="grid-container">`;
-
-    Object.values(dbRaw).forEach(u => {
-        const modelAfisat = u.model ? u.model.toUpperCase() : "---";
-        
-        hContent += `
-            <div class="qr-card">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(root+'scan.html?id='+u.id)}">
-                <span class="utilaj-nume">${u.nume.toUpperCase()}</span>
-                <span class="utilaj-model">${modelAfisat}</span>
-                <span class="utilaj-id">ID: ${u.id}</span>
-            </div>`;
-    });
-
-    hContent += '</div></body></html>';
-    win.document.write(hContent); 
-    win.document.close();
-}
     function cauta() {
         const v = document.getElementById('searchInput').value.toUpperCase().trim();
         const m = markersList.find(x => x.uData.id.includes(v) || x.uData.n.includes(v));
         if (m) { map.setView(m.getLatLng(), 2); m.openPopup(); }
     }
 
+    const configuratieAlarme = {
+        "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14
+    };
+
     function verificaAlarmeMentenanta() {
-    const alertList = document.getElementById('alert-list');
-    const alertPanel = document.getElementById('alert-panel');
-    alertList.innerHTML = ""; 
-    let areAlerte = false;
+        const alertList = document.getElementById('alert-list');
+        const alertPanel = document.getElementById('alert-panel');
+        const btnClopotel = document.getElementById('btn-clopotel');
+        alertList.innerHTML = ""; 
+        let areAlerte = false;
 
-    Object.values(dbRaw).forEach(u => {
-        // Extragem ultimele 4 cifre din ID (ex: din "K-9728" scoatem "9728")
-        const idScurt = u.id.split('-')[1]; 
-        
-        // Vedem dacă acest ID are un interval definit de noi mai sus
-        let interval = configuratieAlarme[idScurt] || 0;
+        Object.values(dbRaw).forEach(u => {
+            const idScurt = u.id.split('-')[1]; 
+            let interval = configuratieAlarme[idScurt] || 0;
 
-        if (interval > 0 && u.istoric) {
-            const istArr = Object.values(u.istoric);
-            
-            // Căutăm ultima intervenție marcată ca REVIZIE (schimb cuțite)
-            const ultimaRev = istArr
-                .filter(i => i.revizie === true)
-                .sort((a, b) => b.timestamp - a.timestamp)[0];
+            if (interval > 0 && u.istoric) {
+                const istArr = Object.values(u.istoric);
+                const ultimaRev = istArr.filter(i => i.revizie === true).sort((a, b) => b.timestamp - a.timestamp)[0];
 
-            if (ultimaRev) {
-                const zileTrecute = calculeazaZile(ultimaRev.data);
-                const zileRamase = interval - zileTrecute;
+                if (ultimaRev) {
+                    const zileTrecute = calculeazaZile(ultimaRev.data);
+                    const zileRamase = interval - zileTrecute;
 
-                // Atenționăm cu 3 zile înainte sau dacă a expirat deja
-                if (zileRamase <= 3) {
-                    areAlerte = true;
-                    const tipAlerta = zileRamase <= 0 ? 'alert-urgent' : 'alert-warning';
-                    
-                    let statusMesaj = "";
-                    if (zileRamase < 0) statusMesaj = `EXPIRAT DE ${Math.abs(zileRamase)} ZILE`;
-                    else if (zileRamase === 0) statusMesaj = `EXPIRĂ AZI!`;
-                    else statusMesaj = `Expiră în ${zileRamase} zile`;
-                    const modelAfisat = u.model ? ` | Model: ${u.model}` : '';
+                    if (zileRamase <= 3) {
+                        areAlerte = true;
+                        const tipAlerta = zileRamase <= 0 ? 'alert-urgent' : 'alert-warning';
+                        let statusMesaj = "";
+                        if (zileRamase < 0) statusMesaj = `EXPIRAT DE ${Math.abs(zileRamase)} ZILE`;
+                        else if (zileRamase === 0) statusMesaj = `EXPIRĂ AZI!`;
+                        else statusMesaj = `Expiră în ${zileRamase} zile`;
+                        
+                        const modelAfisat = u.model ? ` | Model: ${u.model}` : '';
 
-alertList.innerHTML += `
-    <div class="alert-item ${tipAlerta}">
-        <div style="font-size:11px; opacity:0.8; margin-bottom: 2px;">
-            ID: ${u.id}${modelAfisat}
-        </div>
-        <strong style="font-size: 14px;">${u.nume}</strong>
-        
-        <div style="color:${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'}; font-weight: bold; margin: 4px 0; font-size: 13px;">
-            ⚠️ ${statusMesaj}
-        </div>
-        
-        <div style="font-size: 12px; font-weight: bold; text-transform: uppercase; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px;">
-            🔪 Necesită înlocuire cuțite
-        </div>
-
-        <button class="btn-locate" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${u.id}')">
-    📍 VEZI PE HARTĂ
-</button>
-    </div>
-`;
+                        alertList.innerHTML += `
+                        <div class="alert-item ${tipAlerta}">
+                            <div style="font-size:11px; opacity:0.8; margin-bottom: 2px;">ID: ${u.id}${modelAfisat}</div>
+                            <strong style="font-size: 14px;">${u.nume}</strong>
+                            <div style="color:${zileRamase <= 0 ? '#ff7675' : '#fdcb6e'}; font-weight: bold; margin: 4px 0; font-size: 13px;">⚠️ ${statusMesaj}</div>
+                            <div style="font-size: 12px; font-weight: bold; text-transform: uppercase; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px;">🔪 Necesită înlocuire cuțite</div>
+                            <button class="btn-locate" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${u.id}')">📍 VEZI PE HARTĂ</button>
+                        </div>`;
+                    }
                 }
             }
-        }
-    });
+        });
 
-   if (areAlerte) {
-  if (!alertaInchisaManual){
-        alertPanel.classList.remove('alert-hidden');
-        btnClopotel.style.display = 'none';}
-        
-        // Dacă suntem pe mobil, afișăm butonul clopoțel
-        if (window.innerWidth <= 768) {
-            document.getElementById('btn-clopotel-mobil').style.display = 'flex';
-        }
-    } else {
-        alertPanel.classList.add('alert-hidden');
-        btnClopotel.style.display = 'flex';
-        // Ascundem butonul clopoțel dacă nu sunt alarme
-        } else {
-            alertPanel.classList.add('alert-hidden');
-            btnClopotel.style.display = 'none'; // Nu ai nicio alarmă, nu ai nevoie nici de clopoțel
-        }
-        
-       /*if (document.getElementById('btn-clopotel-mobil')) {
-            document.getElementById('btn-clopotel-mobil').style.display = 'none';
-        }
-    }*if (areAlerte) {
+        // LOGICA DE AFIȘARE/ASCUNDERE BAZATĂ PE X
+        if (areAlerte) {
             if (!alertaInchisaManual) {
                 alertPanel.classList.remove('alert-hidden');
                 btnClopotel.style.display = 'none'; // Ascundem clopoțelul dacă panoul e mare
@@ -782,18 +545,17 @@ alertList.innerHTML += `
         } else {
             alertPanel.classList.add('alert-hidden');
             btnClopotel.style.display = 'none'; // Nu ai nicio alarmă, nu ai nevoie nici de clopoțel
-        }*/
-}
-    // Definim intervalele pentru fiecare ID (ultimele 4 cifre)
-    const configuratieAlarme = {
-    "9728": 30, // K-9728 are interval de 30 zile
-    "6355": 30, // K-6355 are interval de 30 zile
-    "1111": 14, // Exemplu utilaj Tocare
-    "2222": 14, // Exemplu utilaj Tocare
-    "3333": 14, // Exemplu utilaj Tocare
-    "4444": 14  // Exemplu utilaj Tocare
-    };
-function deschideAlarmaManual() {
+        }
+    }
+
+    // Funcțiile atașate butoanelor "X" și "Clopoțel"
+    function inchideAlarmaManual() {
+        alertaInchisaManual = true; // Salvăm decizia ta
+        document.getElementById('alert-panel').classList.add('alert-hidden');
+        document.getElementById('btn-clopotel').style.display = 'flex';
+    }
+
+    function deschideAlarmaManual() {
         alertaInchisaManual = false; // Te-ai răzgândit
         document.getElementById('alert-panel').classList.remove('alert-hidden');
         document.getElementById('btn-clopotel').style.display = 'none';
@@ -803,31 +565,15 @@ function deschideAlarmaManual() {
             document.querySelector('.panel').classList.remove('activ');
         }
     }
-    function inchideAlarmaManual() {
-        alertaInchisaManual = true; // Salvăm decizia ta
-        document.getElementById('alert-panel').classList.add('alert-hidden');
-        document.getElementById('btn-clopotel').style.display = 'flex';
-    }
+
     function focalizeazaUtilaj(lat, lng, id) {
-    // 1. Setăm ID-ul selectat global (ca sistemul să știe pe cine să lumineze)
-    selectedId = id;
-
-    // 2. Redesenăm pinii (fără asta, pinul nu se va aprinde albastru)
-    afiseazaPuncte();
-
-    // 3. Zburăm către locație (flyTo este mai lin decât setView)
-    map.flyTo([lat, lng], 2, {
-        animate: true,
-        duration: 1.5
-    });
-}
-     
-    </script>
+        selectedId = id; afiseazaPuncte();
+        map.flyTo([lat, lng], 2, { animate: true, duration: 1.5 });
+    }
+</script>
 
 <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
-    }
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
 </script>
 
 </body>

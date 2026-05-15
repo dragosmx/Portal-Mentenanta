@@ -156,6 +156,38 @@
             #alert-panel { display: none; top: 130px; left: 15px; width: calc(100% - 30px); right: auto !important; z-index: 2001; }
             #alert-panel.activ { display: block; }
             .alert-hidden { display: none !important; } /* Pe mobil folosim display: none complet */
+            /* Containerul principal al modalului să permită scroll pe verticală */
+    .modal-c { 
+        flex-direction: column !important; 
+        overflow-y: auto !important; 
+        padding: 15px !important;
+    }
+
+    /* Partea de statistici să ocupe toată lățimea, nu 340px fix */
+    .report-side { 
+        width: 100% !important; 
+        flex: none !important; 
+        margin-bottom: 20px; 
+    }
+
+    /* Partea cu tabelul să nu mai aibă overflow: hidden care taie lista */
+    .report-main { 
+        width: 100% !important; 
+        flex: none !important; 
+        overflow: visible !important; 
+    }
+
+    /* Tabelul să poată fi scrollat stânga-dreapta dacă e prea lat */
+    .scroll-v { 
+        height: auto !important; 
+        max-height: 500px; /* Limităm înălțimea ca să nu fie infinită */
+        overflow-x: auto !important; 
+        border: 1px solid #eee;
+    }
+    
+    /* Micșorăm fontul în tabel pe mobil ca să încapă mai multe date */
+    table { font-size: 11px !important; }
+    th, td { padding: 8px 5px !important; }
         }
     </style>
 </head>

@@ -184,28 +184,30 @@
 </div>
 
 <div class="floating-menu">
-    <a href="index.html" class="float-btn" title="Înapoi la Portal">🏠</a>
-    <a href="view.html" class="float-btn" title="Vizualizare">👁️</a>
-    <button class="float-btn btn-add" onclick="deschideAdaugare()" title="Adaugă Utilaj">➕</button>
+    <a href="index.html" class="float-btn">🏠</a>
+    <a href="view.html" class="float-btn">👁️</a>
 </div>
 
 <div id="map"></div>
 
 <div id="sidebar">
-    
     <div id="drag-handle" class="drag-handle">
-    <div class="bar"></div>
-    <button onclick="toggleMinimize()" style="background: var(--accent); border: none; border-radius: 20px; padding: 5px 15px; font-size: 10px; font-weight: bold; margin-top: 5px; cursor: pointer;">
-        ⬇️ ASCUNDE / ⬆️ ARATĂ HARTA
-    </button>
-</div>
+        <div class="bar"></div>
+        <button onclick="toggleMinimize()" style="background:var(--accent); border:none; border-radius:20px; padding:6px 15px; font-size:10px; font-weight:bold; margin-top:5px; cursor:pointer;">
+            ⬇️ ASCUNDE / ⬆️ ARATĂ HARTA
+        </button>
+    </div>
 
     <button class="btn-inchide-pc" onclick="resetForm()">❌ ÎNCHIDE PANOUL PENTRU A VEDEA HARTA</button>
 
     <div class="logo-box">
         <img src="logo.png" alt="Logo">
     </div>
-    
+    <div style="padding: 0 15px 15px 15px;">
+        <button onclick="deschideAdaugare()" style="width: 100%; background: var(--success); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            ➕ ADĂUGARE UTILAJ NOU
+        </button>
+    </div>
     <div id="form-container">
         <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
 

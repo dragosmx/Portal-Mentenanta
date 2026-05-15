@@ -379,7 +379,8 @@
     function incarcaUtilaj(id) {
         selectedId = id; 
         const u = dbRaw[id];
-        
+
+        document.getElementById('sidebar').style.display = 'flex';
         // Afișăm formularul
         document.getElementById('form-container').style.display = 'block';
         

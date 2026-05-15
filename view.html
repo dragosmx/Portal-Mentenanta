@@ -537,13 +537,16 @@
         if (areAlerte) {
             if (!alertaInchisaManual) {
                 alertPanel.classList.remove('alert-hidden');
+                alertPanel.classList.add('activ');
                 btnClopotel.style.display = 'none'; // Ascundem clopoțelul dacă panoul e mare
             } else {
                 alertPanel.classList.add('alert-hidden');
+                alertPanel.classList.remove('activ');
                 btnClopotel.style.display = 'flex'; // Arătăm clopoțelul pentru că l-ai ascuns manual
             }
         } else {
             alertPanel.classList.add('alert-hidden');
+            alertPanel.classList.remove('activ');
             btnClopotel.style.display = 'none'; // Nu ai nicio alarmă, nu ai nevoie nici de clopoțel
         }
     }

@@ -775,7 +775,21 @@ alertList.innerHTML += `
     "3333": 14, // Exemplu utilaj Tocare
     "4444": 14  // Exemplu utilaj Tocare
     };
-
+function deschideAlarmaManual() {
+        alertaInchisaManual = false; // Te-ai răzgândit
+        document.getElementById('alert-panel').classList.remove('alert-hidden');
+        document.getElementById('btn-clopotel').style.display = 'none';
+        
+        // Închidem și celelalte panouri de pe mobil (ex: panoul de căutare) dacă sunt deschise
+        if(window.innerWidth <= 768) {
+            document.querySelector('.panel').classList.remove('activ');
+        }
+    }
+    function inchideAlarmaManual() {
+        alertaInchisaManual = true; // Salvăm decizia ta
+        document.getElementById('alert-panel').classList.add('alert-hidden');
+        document.getElementById('btn-clopotel').style.display = 'flex';
+    }
     function focalizeazaUtilaj(lat, lng, id) {
     // 1. Setăm ID-ul selectat global (ca sistemul să știe pe cine să lumineze)
     selectedId = id;
@@ -789,11 +803,7 @@ alertList.innerHTML += `
         duration: 1.5
     });
 }
-     function inchideAlarmaManual() {
-        alertaInchisaManual = true; // Salvăm decizia ta
-        document.getElementById('alert-panel').classList.add('alert-hidden');
-        document.getElementById('btn-clopotel').style.display = 'flex';
-    }
+     
     </script>
 
 <script>

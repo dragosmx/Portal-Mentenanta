@@ -750,8 +750,10 @@ alertList.innerHTML += `
         }
     });
 
-  /* if (areAlerte) {
+   if (areAlerte) {
+  if (!alertaInchisaManual){
         alertPanel.classList.remove('alert-hidden');
+        btnClopotel.style.display = 'none';}
         
         // Dacă suntem pe mobil, afișăm butonul clopoțel
         if (window.innerWidth <= 768) {
@@ -759,12 +761,17 @@ alertList.innerHTML += `
         }
     } else {
         alertPanel.classList.add('alert-hidden');
-        
+        btnClopotel.style.display = 'flex';
         // Ascundem butonul clopoțel dacă nu sunt alarme
-        if (document.getElementById('btn-clopotel-mobil')) {
+        } else {
+            alertPanel.classList.add('alert-hidden');
+            btnClopotel.style.display = 'none'; // Nu ai nicio alarmă, nu ai nevoie nici de clopoțel
+        }
+        
+       /*if (document.getElementById('btn-clopotel-mobil')) {
             document.getElementById('btn-clopotel-mobil').style.display = 'none';
         }
-    }*/if (areAlerte) {
+    }*if (areAlerte) {
             if (!alertaInchisaManual) {
                 alertPanel.classList.remove('alert-hidden');
                 btnClopotel.style.display = 'none'; // Ascundem clopoțelul dacă panoul e mare
@@ -775,7 +782,7 @@ alertList.innerHTML += `
         } else {
             alertPanel.classList.add('alert-hidden');
             btnClopotel.style.display = 'none'; // Nu ai nicio alarmă, nu ai nevoie nici de clopoțel
-        }
+        }*/
 }
     // Definim intervalele pentru fiecare ID (ultimele 4 cifre)
     const configuratieAlarme = {

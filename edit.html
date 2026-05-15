@@ -156,7 +156,7 @@
         <div class="dot"></div> CLOUD ONLINE & ACTIV
     </div>
     
-    <button class="btn-add-new" onclick="executCuProtectie(resetForm)">➕ ADĂUGARE UTILAJ NOU</button>
+    <button class="btn-add-new" onclick="executCuProtectie(Form)">➕ ADĂUGARE UTILAJ NOU</button>
     
     <div id="form-container">
         <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
@@ -645,7 +645,8 @@
         document.getElementById('fotoUtilaj').value = "";
         
         if (activeMarker) map.removeLayer(activeMarker); 
-        
+
+        refreshPini();
         toggleExtra(); 
         checkReady();
     }

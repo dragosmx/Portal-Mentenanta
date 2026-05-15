@@ -43,6 +43,7 @@
         }
 
         #sidebar {
+            display: none;
             width: 420px;
             min-width: 420px;
             height: 100vh;
@@ -50,7 +51,7 @@
             padding: 25px;
             overflow-y: auto;
             box-sizing: border-box;
-            display: flex;
+            /*display: flex;*/
             flex-direction: column;
             z-index: 10;
             border-right: 1px solid rgba(255,255,255,0.1);
@@ -363,6 +364,7 @@
         activeMarker = L.marker(e.latlng).addTo(map); 
         
         // Afișăm formularul
+        document.getElementById('sidebar').style.display = 'flex';
         document.getElementById('form-container').style.display = 'block';
         document.getElementById('data-punere').disabled = false;
         
@@ -632,6 +634,7 @@
         selectedId = null; 
         currentCoords = null;
         
+        document.getElementById('sidebar').style.display = 'none';
         document.getElementById('form-container').style.display = 'none';
         
         document.getElementById('nume').value = ""; 

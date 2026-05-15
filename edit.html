@@ -158,7 +158,7 @@
     
     <button class="btn-add-new" onclick="executCuProtectie(Form)">➕ ADĂUGARE UTILAJ NOU</button>
     
-    <div id="form-container">
+    <div id="form-container" style="display: none;">
         <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
 
         <div class="group" id="grup-punere-functiune">
@@ -409,6 +409,7 @@
         if(window.innerWidth <= 768) {
             document.getElementById('sidebar').scrollIntoView({ behavior: 'smooth' });
         }
+        document.getElementById('form-container').style.display = 'none';
     }
 
     function toggleExtra() {

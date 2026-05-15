@@ -28,17 +28,17 @@
             --text-dim: #bdc3c7;
         }
 
-        /* Setări generale Body */
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            height: 100vh;
-            background: #1a1a1a;
-            color: var(--text);
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
-        }
+        /* --- STILURI DE BAZĂ (DESKTOP / PC) --- */
+body { 
+    display: flex; 
+    flex-direction: row; /* Forțăm stânga-dreapta pe PC */
+    height: 100vh; 
+    margin: 0; 
+    overflow: hidden; 
+    font-family: sans-serif; 
+    background: #1a1a1a; 
+    color: #fff; 
+}
             /* Permite tabelelor să facă scroll orizontal pe ecrane mici fără să strice modalul */
 .scroll-v {
     overflow-x: auto;
@@ -48,19 +48,20 @@ table {
     min-width: 500px; /* Forțează tabelul să păstreze proporțiile */
 }
         /* Bara laterală stânga */
-        #sidebar {
-            width: 420px;
-            height: 100vh;
-            background: var(--primary);
-            padding: 25px;
-            overflow-y: auto;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
-            border-right: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-        }
+        #sidebar { 
+    width: 380px; 
+    min-width: 380px; /* Nu lăsăm sidebar-ul să se micșoreze pe PC */
+    height: 100vh; 
+    background: #2c3e50; 
+    overflow-y: auto; 
+    padding: 20px; 
+    box-sizing: border-box; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+    border-right: 1px solid rgba(255,255,255,0.1); 
+    z-index: 10;
+}
 
         /* Logo */
         .logo-box {
@@ -255,11 +256,11 @@ table {
         }
 
         /* Harta Leaflet */
-        #map {
-            flex: 1;
-            background: #222;
-            cursor: crosshair;
-        }
+       #map { 
+    flex: 1; 
+    height: 100vh; 
+    z-index: 1; 
+}
 
         .existing-pin {
             filter: hue-rotate(150deg) brightness(1.2);
@@ -295,33 +296,63 @@ table {
     z-index: 1;
 }
 
+/* --- STILURI PENTRU MOBIL (Se activează DOAR sub 768px lățime) --- */
 @media (max-width: 768px) {
-    #map {
-        height: 50vh; /* Pe mobil ocupă jumătate din ecran */
-    }
-    .sidebar {
-        width: 100%;
-        position: relative;
+    body { 
+        flex-direction: column !important; /* Forțăm sus-jos pe mobil */
+        overflow-y: auto !important; 
         height: auto;
+    }
+    
+    #sidebar { 
+        width: 100% !important; 
+        min-width: 100% !important;
+        height: auto !important; 
+        overflow: visible !important; 
+        order: 2; /* Sidebar-ul (formularul) trece JOS */
+    }
+    
+    #map { 
+        width: 100% !important; 
+        height: 50vh !important; /* Harta ocupă jumătate din ecranul mobilului */
+        order: 1; /* Harta trece SUS */
+        flex: none;
     }
 }
 
-/* Stil pentru textarea (să nu mai meargă textul la infinit) */
+/* Reparăm Textarea să arate bine */
 textarea {
     width: 100%;
+    background: rgba(0,0,0,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: vertical; /* Permite mărirea doar pe înălțime */
-    font-family: inherit;
+    resize: vertical;
 }
 
 /* Ascundem formularul până la selecție */
 #form-container {
-    display: none;
-    padding: 15px;
-    background: #f9f9f9;
-    border-top: 2px solid #2c3e50;
+    display: none; /* Rămâne ascuns inițial */
+    padding: 0; /* L-am pus pe zero ca să se alinieze perfect cu restul */
+    background: transparent; 
+    border: none;
+}
+     /* --- CULORILE CÂMPURILOR DE EDITARE (Albastru/Negru transparent) --- */
+input, select, textarea {
+    width: 100%;
+    box-sizing: border-box; /* Foarte important ca să nu iasă din ecran */
+    padding: 10px;
+    margin-top: 5px;
+    background: rgba(0, 0, 0, 0.2); /* Fundalul întunecat (acel "albastru/negru" de care ziceai) */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* O bordură fină albă */
+    color: white; /* Textul pe care îl scrii va fi alb */
+    border-radius: 8px;
+    font-family: inherit;
+}
+     select option {
+    background: #2c3e50; /* Fundalul listei când o deschizi */
+    color: white;
 }
     </style>
 </head>

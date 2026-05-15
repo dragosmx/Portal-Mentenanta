@@ -18,6 +18,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
     
  <style>
         :root {
@@ -211,6 +212,26 @@
     <div id="form-container">
         <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
 
+
+        <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px dashed #ccc;">
+    <label style="display: block; font-weight: bold; margin-bottom: 8px;">📸 FOTOGRAFIE UTILAJ</label>
+    
+    <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="previewImagine(this)">
+    
+    <button type="button" onclick="document.getElementById('fileInput').click()" style="width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+        📷 FĂ POZĂ SAU ALEGE DIN TELEFON
+    </button>
+
+    <div id="containerPreview" style="display: none; margin-top: 10px; text-align: center;">
+        <img id="imgPreview" src="" style="max-width: 100%; height: 120px; border-radius: 8px; object-fit: cover; border: 2px solid var(--accent);">
+        <p id="uploadStatus" style="font-size: 11px; color: var(--accent); margin-top: 5px; font-weight: bold;"></p>
+    </div>
+    
+    <input type="hidden" id="imagineUrl">
+</div>
+
+
+        
         <div class="group" id="grup-punere-functiune">
             <label>Data Punere în Funcțiune (Fixă)</label>
             <input type="date" id="data-punere">
@@ -471,66 +492,132 @@
     }
 
     async function salveaza() {
-        const btn = document.getElementById('saveBtn'); const msg = document.getElementById('feedbackMsg');
-        const file = document.getElementById('fotoUtilaj').files[0]; const esteOnline = navigator.onLine;
+    const btn = document.getElementById('saveBtn'); 
+    const msg = document.getElementById('feedbackMsg');
+    const file = document.getElementById('fotoUtilaj').files[0]; 
+    const esteOnline = navigator.onLine;
 
-        btn.disabled = true; btn.innerText = (file && esteOnline) ? "⏳ SE ÎNCARCĂ POZA..." : "⏳ SE SALVEAZĂ...";
+    // Blocăm butonul pentru a evita dubla salvare
+    btn.disabled = true; 
+    btn.innerText = (file && esteOnline) ? "⏳ SE ÎNCARCĂ POZA..." : "⏳ SE SALVEAZĂ...";
 
-        try {
-            const bifeValues = Array.from(document.querySelectorAll('.task:checked')).map(c => c.value);
-            let verificariFinale = bifeValues.join(", ");
-            const manual = document.getElementById('extraCheck') ? document.getElementById('extraCheck').value : "";
-            if (manual !== "") verificariFinale = verificariFinale ? verificariFinale + " | " + manual : manual;
+    try {
+        // 1. Colectare date din bife
+        const bifeValues = Array.from(document.querySelectorAll('.task:checked')).map(c => c.value);
+        let verificariFinale = bifeValues.join(", ");
+        const manual = document.getElementById('extraCheck') ? document.getElementById('extraCheck').value : "";
+        if (manual !== "") verificariFinale = verificariFinale ? verificariFinale + " | " + manual : manual;
 
-            const finalId = selectedId ? selectedId : "K-" + Math.floor(1000 + Math.random() * 9000);
-            let fortamOffline = false; 
+        // 2. Stabilire ID (utilaj existent sau nou)
+        const finalId = selectedId ? selectedId : "K-" + Math.floor(1000 + Math.random() * 9000);
+        let fortamOffline = false; 
 
-            const entry = {
-                data: document.getElementById('data').value, tip: document.getElementById('tipInterventie').value,
-                mecanic: document.getElementById('mecanic').value, verificari: verificariFinale,
-                obs: document.getElementById('obs').value, timestamp: Date.now(),
-                revizie: document.getElementById('esteRevizie').checked, foto: "" 
-            };
+        // 3. Creare obiect intrare istoric
+        const entry = {
+            data: document.getElementById('data').value, 
+            tip: document.getElementById('tipInterventie').value,
+            mecanic: document.getElementById('mecanic').value, 
+            verificari: verificariFinale,
+            obs: document.getElementById('obs').value, 
+            timestamp: Date.now(),
+            revizie: document.getElementById('esteRevizie').checked, 
+            foto: "" // URL-ul va fi pus aici dacă se încarcă
+        };
 
-            if (esteOnline) {
-                const ruleazaFirebase = (promisiune) => Promise.race([ promisiune, new Promise((_, r) => setTimeout(() => r(new Error("TIMEOUT")), 8000)) ]);
-                try {
-                    if (file) {
-                        const snap = await ruleazaFirebase(firebase.storage().ref('mentenanta/' + Date.now() + "_" + file.name).put(file));
-                        entry.foto = await snap.ref.getDownloadURL();
+        if (esteOnline) {
+            const ruleazaFirebase = (promisiune) => Promise.race([ 
+                promisiune, 
+                new Promise((_, r) => setTimeout(() => r(new Error("TIMEOUT")), 10000)) 
+            ]);
+
+            try {
+                // 4. Încărcare Foto în Firebase Storage (dacă există fișier)
+                if (file) {
+                    // Salvăm poza într-un folder numit 'utilaje' folosind ID-ul utilajului pentru organizare
+                    const storageRef = firebase.storage().ref('utilaje/' + finalId + '/' + Date.now() + "_" + file.name);
+                    const snap = await ruleazaFirebase(storageRef.put(file));
+                    entry.foto = await snap.ref.getDownloadURL();
+                }
+
+                if (selectedId) {
+                    // --- UPDATE UTILAJ EXISTENT ---
+                    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
+                    
+                    // Actualizăm și datele generale (dacă s-au schimbat în formular)
+                    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
+                    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
+                    
+                    const d = document.getElementById('data-punere').value;
+                    if(d) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/dataPunere').set(d));
+
+                    // IMPORTANT: Dacă am urcat o poză nouă, o setăm ca imagine principală a utilajului
+                    if(entry.foto) {
+                        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/imagine').set(entry.foto));
                     }
-                    if (selectedId) {
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
-                        const d = document.getElementById('data-punere').value;
-                        if(d) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/dataPunere').set(d));
-                        if(entry.foto) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/imagine').set(entry.foto));
-                    } else {
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId).set({
-                            id: finalId, nume: document.getElementById('nume').value, model: document.getElementById('model').value, sectie: document.getElementById('sectie').value,
-                            lat: parseFloat(currentCoords[0]), lng: parseFloat(currentCoords[1]), dataPunere: document.getElementById('data-punere').value, imagine: entry.foto, istoric: { "init": entry }
-                        }));
-                    }
-                    msg.innerText = "✅ SALVAT CU SUCCES!"; msg.className = "msg-popup msg-success";
-                } catch (err) { if (err.message === "TIMEOUT") fortamOffline = true; else throw err; }
+                } else {
+                    // --- CREARE UTILAJ NOU ---
+                    await ruleazaFirebase(database.ref('utilaje/' + finalId).set({
+                        id: finalId, 
+                        nume: document.getElementById('nume').value, 
+                        model: document.getElementById('model').value, 
+                        sectie: document.getElementById('sectie').value,
+                        lat: currentCoords ? parseFloat(currentCoords[0]) : 0, 
+                        lng: currentCoords ? parseFloat(currentCoords[1]) : 0, 
+                        dataPunere: document.getElementById('data-punere').value, 
+                        imagine: entry.foto, // Prima poză devine poza de profil
+                        istoric: { "init": entry }
+                    }));
+                }
+                
+                msg.innerText = "✅ SALVAT CU SUCCES!"; 
+                msg.className = "msg-popup msg-success";
+
+            } catch (err) { 
+                if (err.message === "TIMEOUT") fortamOffline = true; 
+                else throw err; 
             }
-
-            if (!esteOnline || fortamOffline) {
-                let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
-                coada.push({ isNew: !selectedId, id: finalId, nume: document.getElementById('nume').value, model: document.getElementById('model').value, sectie: document.getElementById('sectie').value, lat: currentCoords ? parseFloat(currentCoords[0]) : null, lng: currentCoords ? parseFloat(currentCoords[1]) : null, entryData: entry });
-                localStorage.setItem('coada_sincronizare', JSON.stringify(coada));
-                msg.innerText = "⚠️ SALVAT PE TELEFON (OFFLINE)!"; msg.className = "msg-popup msg-error"; msg.style.borderColor = "#f39c12"; msg.style.color = "#f39c12";
-            }
-
-            msg.style.display = "block";
-            setTimeout(() => { resetForm(); btn.innerText = "💾 SALVEAZĂ FIȘA"; btn.disabled = false; msg.style.display = "none"; }, 3000);
-
-        } catch (e) {
-            msg.innerText = "❌ EROARE: " + e.message; msg.className = "msg-popup msg-error"; msg.style.display = "block";
-            btn.disabled = false; btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
         }
+
+        // 5. Logică OFFLINE (dacă nu e net sau e timeout)
+        if (!esteOnline || fortamOffline) {
+            let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
+            coada.push({ 
+                isNew: !selectedId, 
+                id: finalId, 
+                nume: document.getElementById('nume').value, 
+                model: document.getElementById('model').value, 
+                sectie: document.getElementById('sectie').value, 
+                lat: currentCoords ? parseFloat(currentCoords[0]) : null, 
+                lng: currentCoords ? parseFloat(currentCoords[1]) : null, 
+                entryData: entry 
+            });
+            localStorage.setItem('coada_sincronizare', JSON.stringify(coada));
+            
+            msg.innerText = "⚠️ SALVAT PE TELEFON (OFFLINE)!"; 
+            msg.className = "msg-popup msg-warning"; // Schimbat în warning pentru claritate
+            msg.style.borderColor = "#f39c12"; 
+            msg.style.color = "#f39c12";
+        }
+
+        msg.style.display = "block";
+        
+        // Resetare formular și UI
+        setTimeout(() => { 
+            if (typeof resetForm === "function") resetForm(); 
+            btn.innerText = "💾 SALVEAZĂ FIȘA"; 
+            btn.disabled = false; 
+            msg.style.display = "none"; 
+        }, 3000);
+
+    } catch (e) {
+        console.error(e);
+        msg.innerText = "❌ EROARE: " + e.message; 
+        msg.className = "msg-popup msg-error"; 
+        msg.style.display = "block";
+        btn.disabled = false; 
+        btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
     }
+}
 
     function resetForm() {
         selectedId = null; 
@@ -629,6 +716,43 @@
     sidebar.classList.toggle('minimizat');
     // Forțăm harta să se repare imediat ce mutăm panoul
     setTimeout(() => { map.invalidateSize(); }, 300);
+}
+    // 1. Funcția pentru previzualizare rapidă înainte de urcare
+function previewImagine(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imgPreview').src = e.target.result;
+            document.getElementById('containerPreview').style.display = 'block';
+            document.getElementById('uploadStatus').innerText = "📍 Poză selectată (se va urca la Salvare)";
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// 2. Funcția care urcă poza efectiv în Firebase Storage
+async function urcaImagineInStorage(file, utilajId) {
+    if (!file) return null;
+    
+    const status = document.getElementById('uploadStatus');
+    status.innerText = "⏳ Se încarcă în Cloud...";
+
+    try {
+        // Creăm o referință unică: poze_utilaje/K-9728.jpg
+        const storageRef = firebase.storage().ref('poze_utilaje/' + utilajId + '.jpg');
+        
+        // Executăm urcarea
+        const snapshot = await storageRef.put(file);
+        
+        // Luăm link-ul final de acces
+        const url = await snapshot.ref.getDownloadURL();
+        status.innerText = "✅ Imagine urcată!";
+        return url;
+    } catch (error) {
+        console.error("Eroare la upload:", error);
+        status.innerText = "❌ Eroare la urcare!";
+        return null;
+    }
 }
 </script>
 </body>

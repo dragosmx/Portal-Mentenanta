@@ -789,6 +789,11 @@ alertList.innerHTML += `
         duration: 1.5
     });
 }
+     function inchideAlarmaManual() {
+        alertaInchisaManual = true; // Salvăm decizia ta
+        document.getElementById('alert-panel').classList.add('alert-hidden');
+        document.getElementById('btn-clopotel').style.display = 'flex';
+    }
     </script>
 
 <script>

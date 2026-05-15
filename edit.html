@@ -810,10 +810,44 @@
         localStorage.removeItem('coada_sincronizare');
         alert("✅ Datele salvate offline au fost sincronizate cu succes în Cloud!");
     }
-
+    
     window.addEventListener('online', updateConnectionStatus);
     window.addEventListener('offline', updateConnectionStatus);
     updateConnectionStatus(); 
+// ====== LOGICĂ PENTRU GLISAREA FORMULARULUI PE MOBIL ======
+const dragHandle = document.getElementById('drag-handle');
+const sidebar = document.getElementById('sidebar');
+let touchStartY = 0;
+
+if (dragHandle && sidebar) {
+    // Când pui degetul pe el
+    dragHandle.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+    }, {passive: true});
+
+    // Când ridici degetul (calculăm dacă ai tras în jos sau în sus)
+    dragHandle.addEventListener('touchend', (e) => {
+        const touchEndY = e.changedTouches[0].clientY;
+        const diferenta = touchEndY - touchStartY;
+        
+        if (diferenta > 30) {
+            // Dacă ai tras degetul în JOS -> Minimizează
+            sidebar.classList.add('minimizat');
+        } else if (diferenta < -30) {
+            // Dacă ai tras degetul în SUS -> Maximizează (Adu la loc)
+            sidebar.classList.remove('minimizat');
+        } else {
+            // Dacă doar ai apăsat scurt (click/tap) -> Schimbă starea (Toggle)
+            sidebar.classList.toggle('minimizat');
+        }
+    });
+
+    // Pentru click-uri de pe mouse (dacă testezi pe PC din emulator)
+    dragHandle.addEventListener('click', () => {
+        sidebar.classList.toggle('minimizat');
+    });
+}
+    
 </script>
 </body>
 </html>

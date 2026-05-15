@@ -31,85 +31,80 @@
 
         /* --- STILURI DE BAZĂ (PC) --- */
         body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: row; /* Pe PC stau stânga-dreapta */
+            margin: 0; padding: 0;
+            display: flex; flex-direction: row;
             height: 100vh;
-            background: #1a1a1a;
-            color: var(--text);
+            background: #1a1a1a; color: var(--text);
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
         }
 
         #sidebar {
-            display: none;
-            width: 420px;
-            min-width: 420px;
+            width: 420px; min-width: 420px;
             height: 100vh;
             background: var(--primary);
             padding: 25px;
             overflow-y: auto;
             box-sizing: border-box;
-            /*display: flex;*/
-            flex-direction: column;
+            display: flex; flex-direction: column;
             z-index: 10;
             border-right: 1px solid rgba(255,255,255,0.1);
             box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
 
         #map {
-            flex: 1;
-            height: 100vh;
-            background: #222;
+            flex: 1; height: 100vh; background: #222;
         }
         
-        /* Pentru a asigura cruciulița pe hartă pe desktop */
-        .leaflet-container {
-            cursor: crosshair !important;
-        }
+        .leaflet-container { cursor: crosshair !important; }
+
+        .drag-handle { display: none; }
 
         /* --- STILURI PENTRU MOBIL (Sub 768px) --- */
-       @media (max-width: 768px) {
-    body { overflow: hidden; } /* Oprim scroll-ul paginii intregi */
-    
-    #map { 
-        position: absolute !important;
-        top: 0; left: 0;
-        width: 100vw !important; 
-        height: 100vh !important; /* Harta ocupă TOT ecranul */
-        z-index: 1; 
-    }
+        @media (max-width: 768px) {
+            body { overflow: hidden; } 
+            
+            #map { 
+                position: absolute !important;
+                top: 0; left: 0;
+                width: 100vw !important; 
+                height: 100vh !important;
+                z-index: 1; 
+            }
 
-    #sidebar {
-        position: fixed !important;
-        bottom: -150%; /* Ascuns sub ecran la început */
-        left: 0;
-        width: 100% !important;
-        min-width: 100% !important;
-        height: auto !important;
-        max-height: 80vh; /* Se va ridica până la max 80% din ecran */
-        z-index: 1000;
-        border-radius: 20px 20px 0 0; /* Colțuri rotunjite sus */
-        box-shadow: 0 -5px 25px rgba(0,0,0,0.6);
-        transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex !important;
-    }
+            #sidebar {
+                position: fixed !important;
+                bottom: 0 !important; 
+                transform: translateY(150%); /* Ascuns sub ecran */
+                left: 0; width: 100% !important; max-height: 85vh;
+                z-index: 1000;
+                border-radius: 20px 20px 0 0;
+                box-shadow: 0 -5px 25px rgba(0,0,0,0.6);
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                display: flex !important;
+                padding: 10px 20px 20px 20px !important;
+            }
 
-    /* Clasa care face magia și ridică panoul */
-    #sidebar.panou-deschis {
-        bottom: 0 !important;
-    }
-}
+            #sidebar.panou-deschis { transform: translateY(0); }
+            #sidebar.panou-deschis.minimizat { transform: translateY(calc(100% - 50px)); }
 
-        .scroll-v { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { min-width: 500px; }
+            .drag-handle {
+                display: flex; flex-direction: column; align-items: center;
+                width: 100%; padding-bottom: 10px; cursor: pointer;
+            }
+            .drag-handle .bar {
+                width: 50px; height: 5px;
+                background: rgba(255,255,255,0.4);
+                border-radius: 5px; margin-bottom: 5px;
+            }
+            .drag-handle span { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+        }
 
+        /* Alte elemente UI */
         .logo-box { text-align: center; margin-bottom: 20px; }
         .logo-box img { max-width: 120px; }
-
         .nav-header { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn-nav { padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; text-align: center; text-decoration: none; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .btn-nav { padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; text-align: center; text-decoration: none; font-size: 11px; font-weight: bold; }
         
         .cloud-status { background: rgba(39, 174, 96, 0.1); padding: 10px; border-radius: 8px; font-size: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--success); margin-bottom: 20px; border: 1px solid var(--success); }
         .cloud-status.offline { background: rgba(231, 76, 60, 0.1); border-color: var(--danger); color: var(--danger); }
@@ -119,11 +114,7 @@
 
         .btn-add-new { background: var(--accent); color: #000; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 15px; font-size: 13px; }
 
-        /* --- ASCUNDEREA FORMULARULUI --- */
-        #form-container {
-            display: none;
-            background: transparent;
-        }
+        #form-container { display: none; background: transparent; }
 
         .status-badge { padding: 12px; border-radius: 8px; font-size: 11px; font-weight: bold; margin-bottom: 15px; text-align: center; border-left: 5px solid var(--accent); background: rgba(0,0,0,0.2); }
         .status-edit { border-left-color: #3498db; color: #3498db; }
@@ -132,7 +123,7 @@
         label { display: block; font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; font-weight: bold; }
 
         input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-size: 13px; box-sizing: border-box; outline: none; font-family: inherit; }
-        textarea { resize: vertical; } /* Permite redimensionarea doar pe inaltime */
+        textarea { resize: vertical; }
         select option { background: #2c3e50; color: white; }
 
         .checklist { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-top: 5px; border: 1px dashed rgba(255,255,255,0.1); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -150,61 +141,17 @@
         .custom-pin svg { filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); shape-rendering: geometricPrecision; }
         .pin-selectat svg { filter: drop-shadow(0 0 10px #3498db) drop-shadow(0 0 15px #3498db) !important; transform: scale(1.2); transition: all 0.3s ease; }
         .pin-selectat path { stroke: #3498db !important; stroke-width: 2.5px !important; }
-
-         .drag-handle { display: none; }
-
-         @media (max-width: 768px) {
-    /* Mânerul pe mobil */
-    .drag-handle {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        padding-bottom: 10px;
-        cursor: pointer;
-    }
-    .drag-handle .bar {
-        width: 50px; height: 5px;
-        background: rgba(255,255,255,0.4);
-        border-radius: 5px; margin-bottom: 5px;
-    }
-    .drag-handle span { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
-
-    /* Modificăm felul în care se ridică panoul pentru a permite minimizarea */
-    #sidebar {
-        position: fixed !important;
-        bottom: 0 !important; /* Îl ancorăm mereu de fund */
-        transform: translateY(150%); /* La început e ascuns complet SUB ecran */
-        left: 0; width: 100% !important; max-height: 80vh;
-        z-index: 1000;
-        border-radius: 20px 20px 0 0;
-        box-shadow: 0 -5px 25px rgba(0,0,0,0.6);
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Animație super fluidă */
-        display: flex !important;
-        padding: 10px 20px 20px 20px !important; /* Reducem spațiul sus pentru mâner */
-    }
-
-    /* Clasa când e vizibil */
-    #sidebar.panou-deschis {
-        transform: translateY(0); /* Se ridică la loc */
-    }
-
-    /* Clasa când e "tras în jos" (minimizat) */
-    #sidebar.panou-deschis.minimizat {
-        transform: translateY(calc(100% - 50px)); /* Coboară tot, lăsând doar mânerul vizibil (50px) */
-    }
     </style>
 </head>
 
 <body>
 
 <div id="sidebar">
-    /*<div id="drag-handle" class="drag-handle">
+    <div id="drag-handle" class="drag-handle">
         <div class="bar"></div>
         <span>trage în jos pentru hartă</span>
-    </div>*/
+    </div>
 
-    <div class="logo-box">
     <div class="logo-box">
         <img src="logo.png" alt="Logo">
     </div>
@@ -217,9 +164,9 @@
         <div class="dot"></div> CLOUD ONLINE & ACTIV
     </div>
     
-    <button class="btn-add-new" onclick="executCuProtectie(Form)">➕ ADĂUGARE UTILAJ NOU</button>
+    <button class="btn-add-new" onclick="deschideAdaugare()">➕ ADĂUGARE UTILAJ NOU</button>
     
-    <div id="form-container" style="display: none;">
+    <div id="form-container">
         <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
 
         <div class="group" id="grup-punere-functiune">
@@ -289,17 +236,15 @@
         </div>
         
         <div class="group">
-            <label>📸 FOTOGRAFIE DEFECT / REPARAȚIE (OPȚIONAL)</label>
+            <label>📸 FOTOGRAFIE DEFECT / REPARAȚIE</label>
             <input type="file" id="fotoUtilaj" accept="image/*" capture="environment" style="padding: 10px;">
-            <p style="font-size: 9px; color: #888;">* Poza se va încărca automat la salvare.</p>
         </div>
         
         <button class="btn-save" id="saveBtn" onclick="verificareSalvare()" disabled>💾 SALVEAZĂ FIȘA</button>
-        
         <div id="feedbackMsg" class="msg-popup"></div>
-        
         <div id="deleteZone"></div>
-    </div> </div>
+    </div>
+</div>
 
 <div id="map"></div>
 
@@ -318,17 +263,10 @@
     const database = firebase.database();
 
     firebase.auth().onAuthStateChanged((user) => {
-        if (!user) { 
-            window.location.href = "index.html"; 
-        }
+        if (!user) { window.location.href = "index.html"; }
     });
 
-    var map = L.map('map', { 
-        crs: L.CRS.Simple, 
-        minZoom: 0, 
-        maxZoom: 3 
-    });
-    
+    var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3 });
     L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
     map.setView([500, 700], 1); 
 
@@ -345,8 +283,7 @@
             const p = dataString.split(/[./-]/);
             if (p.length === 3) dt = new Date(p[2], p[1]-1, p[0]);
         }
-        const azi = new Date();
-        azi.setHours(0,0,0,0);
+        const azi = new Date(); azi.setHours(0,0,0,0);
         const diff = Math.floor((azi - dt) / 86400000);
         return diff < 0 ? 0 : diff;
     }
@@ -359,10 +296,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const qrId = urlParams.get('id');
-        
-        if (qrId && dbRaw[qrId] && selectedId !== qrId) {
-            incarcaUtilaj(qrId);
-        }
+        if (qrId && dbRaw[qrId] && selectedId !== qrId) { incarcaUtilaj(qrId); }
     });
 
     function refreshPini() {
@@ -382,7 +316,6 @@
 
                 const esteSelectat = (id === selectedId);
                 const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
-
                 const customIcon = L.divIcon({ 
                     className: clasaPin, 
                     html: `
@@ -390,74 +323,45 @@
                             <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
                             <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
                             <circle cx="15" cy="15" r="5.5" fill="white"/>
-                        </svg>
-                    `,
-                    iconSize: [30, 45], 
-                    iconAnchor: [15, 45],
-                    popupAnchor: [0, -45]
+                        </svg>`,
+                    iconSize: [30, 45], iconAnchor: [15, 45], popupAnchor: [0, -45]
                 });
                 
-                const m = L.marker([u.lat, u.lng], { 
-                    icon: customIcon,
-                    zIndexOffset: esteSelectat ? 1000 : 0 
-                }).addTo(markersGroup);
-                
-                m.on('click', (e) => { 
-                    L.DomEvent.stopPropagation(e); 
-                    incarcaUtilaj(id); 
-                });
+                const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(markersGroup);
+                m.on('click', (e) => { L.DomEvent.stopPropagation(e); incarcaUtilaj(id); });
             }
         });
     }
    
     map.on('click', (e) => {
-        // Dacă avem un utilaj selectat și dăm click pe hartă, închidem totul (ne-am răzgândit)
-        /*if (selectedId) {
-            resetForm();
-            return;
-        }*/
         resetForm();
-        // Dacă nu avem nimic selectat, procedăm la adăugarea unui utilaj nou
         currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
         
         if (activeMarker) map.removeLayer(activeMarker);
         activeMarker = L.marker(e.latlng).addTo(map); 
         
-        // Afișăm formularul
-        document.getElementById('sidebar').style.display = 'flex';
         document.getElementById('form-container').style.display = 'block';
         document.getElementById('data-punere').disabled = false;
-
-        document.getElementById('sidebar').classList.add('panou-deschis');
-        setTimeout(() => { map.invalidateSize(); }, 400);
-        // Scroll pe mobil direct la formular
-        if(window.innerWidth <= 768) {
-            document.getElementById('sidebar').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        checkReady();
-    });
-
-    function incarcaUtilaj(id) {
-        selectedId = id; 
-        const u = dbRaw[id];
-
-        document.getElementById('sidebar').style.display = 'flex';
-        // Afișăm formularul
-        document.getElementById('form-container').style.display = 'block';
 
         document.getElementById('sidebar').classList.add('panou-deschis');
         document.getElementById('sidebar').classList.remove('minimizat');
         setTimeout(() => { map.invalidateSize(); }, 400);
         
+        if(window.innerWidth <= 768) { document.getElementById('sidebar').scrollIntoView({ behavior: 'smooth' }); }
+        checkReady();
+    });
+
+    function incarcaUtilaj(id) {
+        selectedId = id; const u = dbRaw[id];
+
+        document.getElementById('form-container').style.display = 'block';
+        document.getElementById('sidebar').classList.add('panou-deschis');
+        document.getElementById('sidebar').classList.remove('minimizat');
+        setTimeout(() => { map.invalidateSize(); }, 400);
+        
         const campPunere = document.getElementById('data-punere');
-        if (u.dataPunere) {
-            campPunere.value = u.dataPunere;
-            campPunere.disabled = true;
-        } else {
-            campPunere.value = "";
-            campPunere.disabled = false;
-        }
+        if (u.dataPunere) { campPunere.value = u.dataPunere; campPunere.disabled = true; } 
+        else { campPunere.value = ""; campPunere.disabled = false; }
 
         document.getElementById('nume').value = u.nume; 
         document.getElementById('model').value = u.model || ""; 
@@ -470,384 +374,193 @@
         
         if (activeMarker) map.removeLayer(activeMarker);
         
-        toggleExtra(); 
-        checkReady();
-        refreshPini();
-
-        // Scroll pe mobil direct la formular
-        if(window.innerWidth <= 768) {
-            document.getElementById('sidebar').scrollIntoView({ behavior: 'smooth' });
-        }
-        
+        toggleExtra(); checkReady(); refreshPini();
     }
 
     function toggleExtra() {
         const s = document.getElementById('sectie').value;
         const extraFieldsDiv = document.getElementById('extraFields');
-        
         let html = '<label>Operațiuni Plan Mentenanță 2026:</label><div class="checklist">';
 
         if (s === 'Tocare' || s === 'Injectare' || s === 'Fabricație') {
-            html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Hidraulic"> Schimb Ulei Hidraulic</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Vacuum"> Schimb Ulei Pompă Vacuum</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Filtre Aer/Ulei"> Verificare/Schimb Filtre</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Gresare Lagare/Rulmenti"> Gresare Lagăre/Rulmenți</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Verificare Cutite/Ace"> Verificare Cuțite/Ace</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Motor principal"> Motor principal & Curele</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Verificare Generală"> Verificare Generală</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Înlocuire Cuțite/Site"> Înlocuire Cuțite/Site</label>
-            `;
+            html += `<label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Hidraulic"> Schimb Ulei Hidraulic</label>
+                     <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Vacuum"> Schimb Ulei Pompă Vacuum</label>
+                     <label class="check-item"><input type="checkbox" class="task" value="Filtre Aer/Ulei"> Verificare/Schimb Filtre</label>`;
         } else if (s === 'Tratament Termic') {
-            html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Curatare Tubulatura"> Curățare Tubulatură</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Clapeti"> Clapete </label>
-                <label class="check-item"><input type="checkbox" class="task" value="Verificare Ventilatoare"> Motoare Ventilație</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Sonda Temp"> Calibrare Sondă</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Sonda Temperatură"> Înlocuire Sonde Temperatură </label>
-                <label class="check-item"><input type="checkbox" class="task" value="Gresare Balamale/Garnituri"> Gresare Balamale & Garnituri</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Generator Fum"> Mentenanță Generator Fum</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
-            `;
-        } else if (s === 'Ambalare Vid') {
-            html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Ulei Pompa Vid"> Schimb Ulei Pompă Vid</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Filtre Separatoare"> Filtre Separatoare Ulei</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Rezistente/Teflon"> Rezistențe Lipire & Teflon</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Membrane/Garnituri"> Verificare Membrane/Garnituri</label>
-            `;
-        } else if (s === 'Depozitare') {
-            html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Nivel Freon"> Verificare Nivel Freon</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Curatare Condensatoare"> Curățare Condensatoare</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Motoare Ventilatoare"> Ventilatoare Vaporizator</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Garnituri Usi"> Verificare Etanșeitate Uși</label>
-            `;
-        } else if (s === 'Spălare') {
-            html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Pompa"> Schimb Ulei Pompă</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Etansare Pompa/Presetupe"> Etanșare Pompă (Presetupe/Garnituri)</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Verificare Furtunuri/Cuplaje"> Verificare Furtunuri & Cuplaje</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Motor si Curele"> Motor Electric & Curele Transmisie</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Curatare Duze/Accesorii"> Curățare Duze & Accesorii</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Filtre Apa"> Verificare Filtre/Decantoare Apă</label>
-            `;
-        } else if (s === 'Tranșare') {
-            html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Gresare Ghidaje"> Gresare Ghidaje/Liniar</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Ascutire Lama"> Ascuțire/Verificare Lamă</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Curatare Benzi"> Verificare Stare Benzi</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Senzori Prezenta"> Curățare/Reglare Fotocelule</label>
-            `;
+            html += `<label class="check-item"><input type="checkbox" class="task" value="Curatare Tubulatura"> Curățare Tubulatură</label>
+                     <label class="check-item"><input type="checkbox" class="task" value="Sonda Temp"> Calibrare Sondă</label>`;
         } else {
-            html += `
-                <label class="check-item"><input type="checkbox" class="task" value="Inspectie Vizuala"> Inspecție Vizuală Generală</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Gresare Generala"> Gresare Componente Mobile</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Verificare Suruburi"> Strângere Șuruburi/Fixări</label>
-                <label class="check-item"><input type="checkbox" class="task" value="Tablou Electric"> Suflare/Strângere Tablou El.</label>
-            `;
+            html += `<label class="check-item"><input type="checkbox" class="task" value="Inspectie Vizuala"> Inspecție Vizuală Generală</label>
+                     <label class="check-item"><input type="checkbox" class="task" value="Gresare Generala"> Gresare Componente</label>`;
         }
         
-        html += `</div>`;
-        html += `<div class="group" style="margin-top:10px;">`;
-        html += `<label>Altă operațiune manuală (Piese înlocuite):</label>`;
-        html += `<textarea id="extraCheck" rows="3" placeholder="Ex: Înlocuit rulment 6205..."></textarea>`;
-        html += `</div>`;
-        
+        html += `</div><div class="group" style="margin-top:10px;">
+                 <label>Altă operațiune manuală (Piese înlocuite):</label>
+                 <textarea id="extraCheck" rows="3" placeholder="Ex: Înlocuit rulment 6205..."></textarea></div>`;
         extraFieldsDiv.innerHTML = html;
     }
 
     function checkReady() {
         const numeValid = document.getElementById('nume').value.trim().length > 2;
         const areLocatie = (selectedId !== null) || (currentCoords !== null);
-        
-        const saveBtn = document.getElementById('saveBtn');
-        
-        if (areLocatie && numeValid) {
-            saveBtn.disabled = false;
-        } else {
-            saveBtn.disabled = true;
-        }
+        document.getElementById('saveBtn').disabled = !(areLocatie && numeValid);
+    }
+
+    function deschideAdaugare() {
+        executCuProtectie(() => {
+            resetForm();
+            document.getElementById('form-container').style.display = 'block';
+            document.getElementById('data-punere').disabled = false;
+            document.getElementById('sidebar').classList.add('panou-deschis');
+            document.getElementById('sidebar').classList.remove('minimizat');
+            setTimeout(() => { map.invalidateSize(); }, 400);
+        });
     }
 
     async function stergeUtilaj(id) { 
-        const confirmare = confirm("Ești sigur că vrei să ștergi acest utilaj și întregul său istoric?");
-        if (confirmare) { 
-            await database.ref('utilaje/' + id).remove(); 
-            resetForm(); 
+        if (confirm("Ești sigur că vrei să ștergi acest utilaj și întregul său istoric?")) { 
+            await database.ref('utilaje/' + id).remove(); resetForm(); 
         } 
     }
 
     async function salveaza() {
-        const btn = document.getElementById('saveBtn');
-        const msg = document.getElementById('feedbackMsg');
-        const fileInput = document.getElementById('fotoUtilaj');
-        const file = fileInput.files[0];
-        const esteOnline = navigator.onLine;
+        const btn = document.getElementById('saveBtn'); const msg = document.getElementById('feedbackMsg');
+        const file = document.getElementById('fotoUtilaj').files[0]; const esteOnline = navigator.onLine;
 
-        btn.disabled = true;
-        btn.innerText = (file && esteOnline) ? "⏳ SE ÎNCARCĂ POZA..." : "⏳ SE SALVEAZĂ...";
+        btn.disabled = true; btn.innerText = (file && esteOnline) ? "⏳ SE ÎNCARCĂ POZA..." : "⏳ SE SALVEAZĂ...";
 
         try {
-            const bifeList = document.querySelectorAll('.task:checked');
-            const bifeValues = Array.from(bifeList).map(c => c.value);
+            const bifeValues = Array.from(document.querySelectorAll('.task:checked')).map(c => c.value);
             let verificariFinale = bifeValues.join(", ");
+            const manual = document.getElementById('extraCheck') ? document.getElementById('extraCheck').value : "";
+            if (manual !== "") verificariFinale = verificariFinale ? verificariFinale + " | " + manual : manual;
 
-            const extraCheckElement = document.getElementById('extraCheck');
-            let manual = extraCheckElement ? extraCheckElement.value : "";
-            if (manual !== "") {
-                verificariFinale = verificariFinale !== "" ? verificariFinale + " | " + manual : manual;
-            }
-
-            const isRevizie = document.getElementById('esteRevizie').checked;
             const finalId = selectedId ? selectedId : "K-" + Math.floor(1000 + Math.random() * 9000);
-
             let fortamOffline = false; 
 
             const entry = {
                 data: document.getElementById('data').value, tip: document.getElementById('tipInterventie').value,
                 mecanic: document.getElementById('mecanic').value, verificari: verificariFinale,
                 obs: document.getElementById('obs').value, timestamp: Date.now(),
-                revizie: isRevizie, foto: "" 
+                revizie: document.getElementById('esteRevizie').checked, foto: "" 
             };
 
             if (esteOnline) {
-                const ruleazaFirebase = (promisiune) => Promise.race([
-                    promisiune,
-                    new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT_FIREBASE")), 8000))
-                ]);
-
+                const ruleazaFirebase = (promisiune) => Promise.race([ promisiune, new Promise((_, r) => setTimeout(() => r(new Error("TIMEOUT")), 8000)) ]);
                 try {
                     if (file) {
-                        const storageRef = firebase.storage().ref('mentenanta/' + Date.now() + "_" + file.name);
-                        const snapshot = await ruleazaFirebase(storageRef.put(file));
-                        entry.foto = await snapshot.ref.getDownloadURL();
+                        const snap = await ruleazaFirebase(firebase.storage().ref('mentenanta/' + Date.now() + "_" + file.name).put(file));
+                        entry.foto = await snap.ref.getDownloadURL();
                     }
-
                     if (selectedId) {
                         await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
                         await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
                         await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
-                        
-                        const dataPunereVal = document.getElementById('data-punere').value;
-                        if(dataPunereVal) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/dataPunere').set(dataPunereVal));
+                        const d = document.getElementById('data-punere').value;
+                        if(d) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/dataPunere').set(d));
                         if(entry.foto) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/imagine').set(entry.foto));
-
                     } else {
-                        const utilajNouObject = {
-                            id: finalId, nume: document.getElementById('nume').value,
-                            model: document.getElementById('model').value, sectie: document.getElementById('sectie').value,
-                            lat: parseFloat(currentCoords[0]), lng: parseFloat(currentCoords[1]),
-                            dataPunere: document.getElementById('data-punere').value,
-                            imagine: entry.foto,
-                            istoric: { "init": entry }
-                        };
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId).set(utilajNouObject));
+                        await ruleazaFirebase(database.ref('utilaje/' + finalId).set({
+                            id: finalId, nume: document.getElementById('nume').value, model: document.getElementById('model').value, sectie: document.getElementById('sectie').value,
+                            lat: parseFloat(currentCoords[0]), lng: parseFloat(currentCoords[1]), dataPunere: document.getElementById('data-punere').value, imagine: entry.foto, istoric: { "init": entry }
+                        }));
                     }
-
-                    msg.innerText = "✅ SALVAT CU SUCCES ÎN CLOUD!";
-                    msg.className = "msg-popup msg-success";
-
-                } catch (err) {
-                    if (err.message === "TIMEOUT_FIREBASE") {
-                        console.warn("Conexiune înceată! Forțăm salvarea pe dispozitiv.");
-                        fortamOffline = true; 
-                    } else {
-                        throw err; 
-                    }
-                }
+                    msg.innerText = "✅ SALVAT CU SUCCES!"; msg.className = "msg-popup msg-success";
+                } catch (err) { if (err.message === "TIMEOUT") fortamOffline = true; else throw err; }
             }
 
             if (!esteOnline || fortamOffline) {
                 let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
-                
-                coada.push({
-                    isNew: !selectedId,
-                    id: finalId,
-                    nume: document.getElementById('nume').value,
-                    model: document.getElementById('model').value,
-                    sectie: document.getElementById('sectie').value,
-                    lat: currentCoords ? parseFloat(currentCoords[0]) : null,
-                    lng: currentCoords ? parseFloat(currentCoords[1]) : null,
-                    entryData: entry
-                });
-                
+                coada.push({ isNew: !selectedId, id: finalId, nume: document.getElementById('nume').value, model: document.getElementById('model').value, sectie: document.getElementById('sectie').value, lat: currentCoords ? parseFloat(currentCoords[0]) : null, lng: currentCoords ? parseFloat(currentCoords[1]) : null, entryData: entry });
                 localStorage.setItem('coada_sincronizare', JSON.stringify(coada));
-
-                msg.innerText = fortamOffline ? "⚠️ REȚEA LENTĂ! Salvat local." : "⚠️ SALVAT PE TELEFON!";
-                msg.className = "msg-popup msg-error";
-                msg.style.borderColor = "#f39c12"; msg.style.color = "#f39c12";
+                msg.innerText = "⚠️ SALVAT PE TELEFON (OFFLINE)!"; msg.className = "msg-popup msg-error"; msg.style.borderColor = "#f39c12"; msg.style.color = "#f39c12";
             }
 
             msg.style.display = "block";
-
-            setTimeout(() => {
-                resetForm();
-                btn.innerText = "💾 SALVEAZĂ FIȘA";
-                btn.disabled = false;
-                msg.style.display = "none";
-            }, 3000);
+            setTimeout(() => { resetForm(); btn.innerText = "💾 SALVEAZĂ FIȘA"; btn.disabled = false; msg.style.display = "none"; }, 3000);
 
         } catch (e) {
-            msg.innerText = "❌ EROARE: " + e.message;
-            msg.className = "msg-popup msg-error";
-            msg.style.display = "block";
-            btn.disabled = false;
-            btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
+            msg.innerText = "❌ EROARE: " + e.message; msg.className = "msg-popup msg-error"; msg.style.display = "block";
+            btn.disabled = false; btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
         }
     }
 
     function resetForm() {
-        selectedId = null; 
-        currentCoords = null;
-        
-        document.getElementById('sidebar').style.display = 'none';
+        selectedId = null; currentCoords = null;
         document.getElementById('form-container').style.display = 'none';
-
+        
         document.getElementById('sidebar').classList.remove('panou-deschis');
+        document.getElementById('sidebar').classList.remove('minimizat');
         setTimeout(() => { map.invalidateSize(); }, 400);
         
-        document.getElementById('nume').value = ""; 
-        document.getElementById('model').value = ""; 
-        document.getElementById('obs').value = ""; 
-        document.getElementById('mecanic').value = "";
-        document.getElementById('data-punere').value = "";
-        document.getElementById('data-punere').disabled = false;
-        document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; 
-        document.getElementById('status').className = "status-badge"; 
-        document.getElementById('deleteZone').innerHTML = "";
-        document.getElementById('fotoUtilaj').value = "";
+        document.getElementById('nume').value = ""; document.getElementById('model').value = ""; 
+        document.getElementById('obs').value = ""; document.getElementById('mecanic').value = "";
+        document.getElementById('data-punere').value = ""; document.getElementById('data-punere').disabled = false;
+        document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; document.getElementById('status').className = "status-badge"; 
+        document.getElementById('deleteZone').innerHTML = ""; document.getElementById('fotoUtilaj').value = "";
         
         if (activeMarker) map.removeLayer(activeMarker); 
-
-        refreshPini();
-        toggleExtra(); 
-        checkReady();
+        refreshPini(); toggleExtra(); checkReady();
     }
 
     toggleExtra(); 
-    
-    window.onload = () => { 
-        setTimeout(() => {
-            map.invalidateSize();
-        }, 500); 
-    };
+    window.onload = () => { setTimeout(() => { map.invalidateSize(); }, 500); };
 
     function executCuProtectie(functieDeExecutat) {
-        if (!navigator.onLine) {
-            functieDeExecutat();
-            return;
-        }
-
-        const parolaConfirmare = prompt("Acțiune restricționată! Introdu parola de Administrator:");
+        if (!navigator.onLine) { functieDeExecutat(); return; }
+        const parolaConfirmare = prompt("Introdu parola de Administrator:");
         if (!parolaConfirmare) return; 
-
         const user = firebase.auth().currentUser;
-        if (!user) {
-            alert("❌ Eroare: Nu ești logat în sistem.");
-            return;
-        }
-
-        const btn = document.getElementById('saveBtn');
-        if (btn) btn.innerText = "⏳ VERIFICARE PAROLĂ...";
-
-        const credential = firebase.auth.EmailAuthProvider.credential(user.email, parolaConfirmare);
-
-        user.reauthenticateWithCredential(credential).then(() => {
-            functieDeExecutat();
-        }).catch((error) => {
-            alert("❌ Acces refuzat! Parolă incorectă sau rețea blocată.");
-            if (btn) {
-                btn.innerText = "💾 SALVEAZĂ FIȘA";
-                btn.disabled = false;
-            }
-        });
+        if (!user) return alert("❌ Nu ești logat.");
+        
+        const btn = document.getElementById('saveBtn'); if (btn) btn.innerText = "⏳ VERIFICARE...";
+        user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email, parolaConfirmare))
+            .then(() => functieDeExecutat())
+            .catch(() => { alert("❌ Parolă incorectă!"); if (btn) { btn.innerText = "💾 SALVEAZĂ FIȘA"; btn.disabled = false; } });
     }
 
-    function verificareSalvare() {
-        if (!selectedId) executCuProtectie(salveaza);
-        else salveaza();
-    }
+    function verificareSalvare() { if (!selectedId) executCuProtectie(salveaza); else salveaza(); }
 
     function updateConnectionStatus() {
         const cloudBanner = document.querySelector('.cloud-status');
         if (navigator.onLine) {
-            cloudBanner.classList.remove('offline');
-            cloudBanner.innerHTML = '<div class="dot"></div> CLOUD ONLINE & ACTIV';
-            sincronizeazaDatele(); 
+            cloudBanner.classList.remove('offline'); cloudBanner.innerHTML = '<div class="dot"></div> CLOUD ONLINE & ACTIV'; sincronizeazaDatele(); 
         } else {
-            cloudBanner.classList.add('offline');
-            cloudBanner.innerHTML = '<div class="dot" style="background:#e74c3c; animation:none;"></div> OFFLINE - SALVĂM PE TELEFON';
+            cloudBanner.classList.add('offline'); cloudBanner.innerHTML = '<div class="dot" style="background:#e74c3c; animation:none;"></div> OFFLINE - SALVĂM PE TELEFON';
         }
     }
 
     async function sincronizeazaDatele() {
         let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
         if (coada.length === 0) return; 
-
-        console.log(`Încep sincronizarea a ${coada.length} fișe...`);
-        
-        for (let i = 0; i < coada.length; i++) {
-            const item = coada[i];
+        for (let item of coada) {
             try {
-                if (item.isNew) {
-                    const utilajNouObject = { 
-                        id: item.id, nume: item.nume, model: item.model, sectie: item.sectie, 
-                        lat: item.lat, lng: item.lng, istoric: { "init": item.entryData } 
-                    };
-                    await database.ref('utilaje/' + item.id).set(utilajNouObject);
-                } else {
+                if (item.isNew) await database.ref('utilaje/' + item.id).set({ id: item.id, nume: item.nume, model: item.model, sectie: item.sectie, lat: item.lat, lng: item.lng, istoric: { "init": item.entryData } });
+                else {
                     await database.ref('utilaje/' + item.id + '/istoric').push(item.entryData);
                     await database.ref('utilaje/' + item.id + '/model').set(item.model);
                     await database.ref('utilaje/' + item.id + '/sectie').set(item.sectie);
                 }
-            } catch (error) {
-                console.error("Eroare sync:", error);
-                return; 
-            }
+            } catch (error) { return; }
         }
-
-        localStorage.removeItem('coada_sincronizare');
-        alert("✅ Datele salvate offline au fost sincronizate cu succes în Cloud!");
+        localStorage.removeItem('coada_sincronizare'); alert("✅ Sincronizat în Cloud!");
     }
     
-    window.addEventListener('online', updateConnectionStatus);
-    window.addEventListener('offline', updateConnectionStatus);
-    updateConnectionStatus(); 
-// ====== LOGICĂ PENTRU GLISAREA FORMULARULUI PE MOBIL ======
-const dragHandle = document.getElementById('drag-handle');
-const sidebar = document.getElementById('sidebar');
-let touchStartY = 0;
+    window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus); updateConnectionStatus(); 
 
-if (dragHandle && sidebar) {
-    // Când pui degetul pe el
-    dragHandle.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-    }, {passive: true});
-
-    // Când ridici degetul (calculăm dacă ai tras în jos sau în sus)
-    dragHandle.addEventListener('touchend', (e) => {
-        const touchEndY = e.changedTouches[0].clientY;
-        const diferenta = touchEndY - touchStartY;
-        
-        if (diferenta > 30) {
-            // Dacă ai tras degetul în JOS -> Minimizează
-            sidebar.classList.add('minimizat');
-        } else if (diferenta < -30) {
-            // Dacă ai tras degetul în SUS -> Maximizează (Adu la loc)
-            sidebar.classList.remove('minimizat');
-        } else {
-            // Dacă doar ai apăsat scurt (click/tap) -> Schimbă starea (Toggle)
-            sidebar.classList.toggle('minimizat');
-        }
-    });
-
-    // Pentru click-uri de pe mouse (dacă testezi pe PC din emulator)
-    dragHandle.addEventListener('click', () => {
-        sidebar.classList.toggle('minimizat');
-    });
-}
-    
+    // ====== LOGICĂ GLISARE MOBIL ======
+    const dragHandle = document.getElementById('drag-handle'); const sidebar = document.getElementById('sidebar');
+    let touchStartY = 0;
+    if (dragHandle && sidebar) {
+        dragHandle.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, {passive: true});
+        dragHandle.addEventListener('touchend', (e) => {
+            const dif = e.changedTouches[0].clientY - touchStartY;
+            if (dif > 30) sidebar.classList.add('minimizat');
+            else if (dif < -30) sidebar.classList.remove('minimizat');
+            else sidebar.classList.toggle('minimizat');
+        });
+        dragHandle.addEventListener('click', () => sidebar.classList.toggle('minimizat'));
+    }
 </script>
 </body>
 </html>

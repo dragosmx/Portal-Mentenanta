@@ -268,7 +268,6 @@
 </div>
 
 <div id="historyModal" class="modal">
-    <button onclick="printeazaQRIndividual()" style="background:#8e44ad; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">🖨️ DOAR ACEST QR</button>
     <span class="close-modal-pro no-print" onclick="inchideModal('historyModal')">&times;</span>
     <div class="modal-c" style="flex-direction:column; max-width:950px; background:white;">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--primary); padding-bottom:15px; margin-bottom:15px;">
@@ -281,6 +280,7 @@
         <div class="no-print" style="display:flex; gap:15px; margin-bottom:20px;">
              <button id="btnExcelIndv" style="flex:1; background:var(--excel); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">📥 EXPORT EXCEL</button>
              <button onclick="printeazaElement('historyModal')" style="flex:1; background:var(--print); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">🖨️ PRINTARE FIȘĂ UTILAJ</button>
+              <button onclick="printeazaQRIndividual()" style="background:#8e44ad; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">🖨️ DOAR ACEST QR</button>
         </div>
         <div class="scroll-v">
             <table><thead><tr><th>Data</th><th>Mecanic</th><th>Operațiuni Efectuate</th><th>Observații</th></tr></thead><tbody id="corpIstoricIndividual"></tbody></table>

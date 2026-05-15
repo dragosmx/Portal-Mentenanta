@@ -316,9 +316,13 @@
     </div>
 </div>
 <div id="alert-panel" class="alert-hidden">
-    <div class="alert-header">⚠️ Alerte Mentenanță Planificată</div>
+    <div class="alert-header">
+        <span>⚠️ Alerte Mentenanță</span>
+        <span onclick="inchideAlarmaManual()" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:4px; font-size:10px;">❌ ÎNCHIDE</span>
+    </div>
     <div id="alert-list"></div>
 </div>
+
 <script>
   
     const firebaseConfig = {

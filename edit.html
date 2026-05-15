@@ -288,6 +288,41 @@ table {
     stroke: #3498db !important; /* Margine albastră */
     stroke-width: 2.5px !important;
 }
+     /* Asigurăm vizibilitatea hărții pe orice ecran */
+#map {
+    height: 400px; /* Înălțime fixă pe desktop */
+    width: 100%;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    #map {
+        height: 50vh; /* Pe mobil ocupă jumătate din ecran */
+    }
+    .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+    }
+}
+
+/* Stil pentru textarea (să nu mai meargă textul la infinit) */
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical; /* Permite mărirea doar pe înălțime */
+    font-family: inherit;
+}
+
+/* Ascundem formularul până la selecție */
+#form-container {
+    display: none;
+    padding: 15px;
+    background: #f9f9f9;
+    border-top: 2px solid #2c3e50;
+}
     </style>
 </head>
 
@@ -307,7 +342,13 @@ table {
     </div>
     <button class="btn-add-new" onclick="executCuProtectie(resetForm)">➕ ADĂUGARE UTILAJ NOU</button>
     
+   <div id="form-container" style="display: none;">
     <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
+
+    <div class="group" id="grup-punere-functiune">
+        <label>Data Punere în Funcțiune (Fixă)</label>
+        <input type="date" id="data-punere">
+    </div>
 
     <div class="group">
         <label>Denumire Utilaj</label>
@@ -348,6 +389,7 @@ table {
             </select>
         </div>
     </div>
+    
     <div class="group" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 12px; border-radius: 8px;">
         <label class="check-item" style="color: #2ecc71; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
             <input type="checkbox" id="esteRevizie" style="width: 18px; height: 18px; cursor: pointer;">
@@ -360,7 +402,6 @@ table {
             <label>Efectuat de (Mecanic):</label>
             <input type="text" id="mecanic" placeholder="Nume mecanic...">
         </div>
-        
     </div>
 
     <div id="extraFields"></div>
@@ -369,11 +410,13 @@ table {
         <label>Observații / Piese înlocuite</label>
         <textarea id="obs" rows="3" placeholder="Ex: Înlocuit ulei Shell Tellus 90..."></textarea>
     </div>
+    
     <div class="group">
-    <label>📸 FOTOGRAFIE DEFECT / REPARAȚIE (OPȚIONAL)</label>
-    <input type="file" id="fotoUtilaj" accept="image/*" capture="environment" style="padding: 10px;">
-    <p style="font-size: 9px; color: #888;">* Poza se va încărca automat la salvare.</p>
-</div>
+        <label>📸 FOTOGRAFIE DEFECT / REPARAȚIE (OPȚIONAL)</label>
+        <input type="file" id="fotoUtilaj" accept="image/*" capture="environment" style="padding: 10px;">
+        <p style="font-size: 9px; color: #888;">* Poza se va încărca automat la salvare.</p>
+    </div>
+    
     <button class="btn-save" id="saveBtn" onclick="verificareSalvare()" disabled>💾 SALVEAZĂ FIȘA</button>
     
     <div id="feedbackMsg" class="msg-popup"></div>
@@ -553,7 +596,7 @@ function refreshPini() {
 }*/
    
       // 6. Funcția de click pe hartă pentru a adăuga un pin nou
-    map.on('click', (e) => {
+   /* map.on('click', (e) => {
         // Dacă edităm deja un utilaj existent, nu putem adăuga unul nou din greșeală
         if (selectedId) {
             return; 
@@ -569,30 +612,58 @@ function refreshPini() {
         activeMarker = L.marker(e.latlng).addTo(map); 
         
         checkReady();
+    });*/
+    // 6. Funcția de click pe hartă pentru a adăuga un pin nou
+    map.on('click', (e) => {
+        if (selectedId) return; 
+        
+        currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
+        if (activeMarker) map.removeLayer(activeMarker);
+        activeMarker = L.marker(e.latlng).addTo(map); 
+        
+        // --- NOU: Arătăm formularul și permitem data ---
+        document.getElementById('form-container').style.display = 'block';
+        document.getElementById('data-punere').disabled = false;
+        document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+        
+        checkReady();
     });
-
+    // 7. Funcția de încărcare a datelor când dăm click pe un utilaj existent
     // 7. Funcția de încărcare a datelor când dăm click pe un utilaj existent
     function incarcaUtilaj(id) {
         selectedId = id; 
         const u = dbRaw[id];
         
+        // --- NOU: Arătăm formularul ---
+        document.getElementById('form-container').style.display = 'block';
+        
+        // --- NOU: Logica pentru Data Punere în Funcțiune ---
+        const campPunere = document.getElementById('data-punere');
+        if (u.dataPunere) {
+            campPunere.value = u.dataPunere;
+            campPunere.disabled = true; // Blocăm dacă are deja
+        } else {
+            campPunere.value = "";
+            campPunere.disabled = false; // Lăsăm liber să completeze
+        }
+
         document.getElementById('nume').value = u.nume; 
         document.getElementById('model').value = u.model || ""; 
         document.getElementById('sectie').value = u.sectie;
         document.getElementById('status').innerHTML = `MOD: EDITARE UTILAJ (ID: ${id})`; 
         document.getElementById('status').className = "status-badge status-edit";
         
-        // Creăm butonul de ștergere definitivă
         const deleteBtnHtml = `<button class="btn-del" onclick="executCuProtectie(() => stergeUtilaj('${id}'))">⚠️ ȘTERGE UTILAJ DEFINITIV</button>`;
         document.getElementById('deleteZone').innerHTML = deleteBtnHtml;
         
-        if (activeMarker) {
-            map.removeLayer(activeMarker);
-        }
+        if (activeMarker) map.removeLayer(activeMarker);
         
         toggleExtra(); 
         checkReady();
         refreshPini();
+        
+        // Face scroll automat în jos la formular pe mobil
+        document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
     }
 
     // 8. BIFE DINAMICE CONFORM PLANULUI 2026
@@ -760,11 +831,19 @@ async function salveaza() {
                     await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
                     await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
                     await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
+                    
+                    // NOU: Salvăm data și poza de profil (dacă a pus una)
+                    const valDataPunere = document.getElementById('data-punere').value;
+                    if (valDataPunere) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/dataPunere').set(valDataPunere));
+                    if (entry.foto) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/imagine').set(entry.foto));
+
                 } else {
                     const utilajNouObject = {
                         id: finalId, nume: document.getElementById('nume').value,
                         model: document.getElementById('model').value, sectie: document.getElementById('sectie').value,
                         lat: parseFloat(currentCoords[0]), lng: parseFloat(currentCoords[1]),
+                        dataPunere: document.getElementById('data-punere').value, // NOU
+                        imagine: entry.foto || "", // NOU: Poza de profil
                         istoric: { "init": entry }
                     };
                     await ruleazaFirebase(database.ref('utilaje/' + finalId).set(utilajNouObject));
@@ -934,24 +1013,27 @@ async function salveaza() {
     }
 }*/
 
-    // 12. Resetare formular pentru acțiuni noi
+   
+   // 12. Resetare formular pentru acțiuni noi
     function resetForm() {
         selectedId = null; 
         currentCoords = null;
+        
+        // --- NOU: Ascundem formularul la reset ---
+        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('data-punere').value = "";
+        document.getElementById('data-punere').disabled = false;
         
         document.getElementById('nume').value = ""; 
         document.getElementById('model').value = ""; 
         document.getElementById('obs').value = ""; 
         document.getElementById('mecanic').value = "";
-        //document.getElementById('cost').value = "";
         document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; 
         document.getElementById('status').className = "status-badge"; 
         document.getElementById('deleteZone').innerHTML = "";
         document.getElementById('fotoUtilaj').value = "";
         
-        if (activeMarker) {
-            map.removeLayer(activeMarker); 
-        }
+        if (activeMarker) map.removeLayer(activeMarker); 
         
         toggleExtra(); 
         checkReady();

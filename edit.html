@@ -39,39 +39,75 @@
             overflow: hidden;
         }
 
+        /* Harta ocupă acum mereu fundalul */
+        #map {
+            position: absolute; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #222; z-index: 1;
+        }
+        .leaflet-container { cursor: crosshair !important; }
+
+        /* Panoul din stânga - ASCUNS INIȚIAL PE PC */
         #sidebar {
+            display: none; /* Aici este magia: e ascuns din start */
+            position: relative;
             width: 420px; min-width: 420px;
             height: 100vh;
             background: var(--primary);
             padding: 25px;
             overflow-y: auto;
             box-sizing: border-box;
-            display: flex; flex-direction: column;
+            flex-direction: column;
             z-index: 10;
             border-right: 1px solid rgba(255,255,255,0.1);
             box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
 
-        #map {
-            flex: 1; height: 100vh; background: #222;
-        }
-        
-        .leaflet-container { cursor: crosshair !important; }
-
         .drag-handle { display: none; }
+
+        /* --- MENIU PLUTITOR PE HARTĂ (NOU) --- */
+        .floating-menu {
+            position: absolute; top: 20px; right: 20px;
+            z-index: 1000;
+            display: flex; gap: 15px;
+        }
+        .float-btn {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(44, 62, 80, 0.9); color: white; 
+            border: 2px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 22px; cursor: pointer;
+            backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+        .float-btn:hover { transform: scale(1.1); background: var(--primary); }
+        .float-btn.btn-add { background: var(--accent); color: black; border-color: var(--accent); }
+
+        /* Status Cloud Plutitor */
+        .cloud-status {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(39, 174, 96, 0.9); color: white;
+            padding: 10px 20px; border-radius: 20px; font-size: 11px;
+            display: flex; align-items: center; gap: 8px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .cloud-status.offline { background: rgba(231, 76, 60, 0.9); }
+        .dot { width: 7px; height: 7px; background: white; border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        /* Buton de închidere panou pe PC */
+        .btn-inchide-pc {
+            background: rgba(231, 76, 60, 0.1); color: #e74c3c;
+            border: 1px solid #e74c3c; padding: 15px; border-radius: 8px;
+            cursor: pointer; font-weight: bold; margin-bottom: 20px;
+            width: 100%; transition: 0.3s; font-size: 12px;
+        }
+        .btn-inchide-pc:hover { background: #e74c3c; color: white; }
 
         /* --- STILURI PENTRU MOBIL (Sub 768px) --- */
         @media (max-width: 768px) {
             body { overflow: hidden; } 
             
-            #map { 
-                position: absolute !important;
-                top: 0; left: 0;
-                width: 100vw !important; 
-                height: 100vh !important;
-                z-index: 1; 
-            }
-
             #sidebar {
                 position: fixed !important;
                 bottom: 0 !important; 
@@ -93,27 +129,24 @@
                 width: 100%; padding-bottom: 10px; cursor: pointer;
             }
             .drag-handle .bar {
-                width: 50px; height: 5px;
-                background: rgba(255,255,255,0.4);
+                width: 50px; height: 5px; background: rgba(255,255,255,0.4);
                 border-radius: 5px; margin-bottom: 5px;
             }
             .drag-handle span { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+
+            .btn-inchide-pc { display: none; } /* Ascundem butonul roșu pe mobil */
+            
+            .floating-menu {
+                top: auto; bottom: 30px; right: 15px;
+                flex-direction: column; /* Le punem una sub alta în colț */
+            }
+            .cloud-status { top: 15px; padding: 8px 15px; }
         }
 
-        /* Alte elemente UI */
+        /* Restul elementelor UI din formular */
         .logo-box { text-align: center; margin-bottom: 20px; }
         .logo-box img { max-width: 120px; }
-        .nav-header { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn-nav { padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; text-align: center; text-decoration: none; font-size: 11px; font-weight: bold; }
         
-        .cloud-status { background: rgba(39, 174, 96, 0.1); padding: 10px; border-radius: 8px; font-size: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--success); margin-bottom: 20px; border: 1px solid var(--success); }
-        .cloud-status.offline { background: rgba(231, 76, 60, 0.1); border-color: var(--danger); color: var(--danger); }
-        .dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
-        .cloud-status.offline .dot { background: var(--danger); animation: none; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-        .btn-add-new { background: var(--accent); color: #000; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 15px; font-size: 13px; }
-
         #form-container { display: none; background: transparent; }
 
         .status-badge { padding: 12px; border-radius: 8px; font-size: 11px; font-weight: bold; margin-bottom: 15px; text-align: center; border-left: 5px solid var(--accent); background: rgba(0,0,0,0.2); }
@@ -146,25 +179,30 @@
 
 <body>
 
+<div class="cloud-status">
+    <div class="dot"></div> CLOUD ONLINE
+</div>
+
+<div class="floating-menu">
+    <a href="index.html" class="float-btn" title="Înapoi la Portal">🏠</a>
+    <a href="view.html" class="float-btn" title="Vizualizare">👁️</a>
+    <button class="float-btn btn-add" onclick="deschideAdaugare()" title="Adaugă Utilaj">➕</button>
+</div>
+
+<div id="map"></div>
+
 <div id="sidebar">
+    
     <div id="drag-handle" class="drag-handle">
         <div class="bar"></div>
         <span>trage în jos pentru hartă</span>
     </div>
 
+    <button class="btn-inchide-pc" onclick="resetForm()">❌ ÎNCHIDE PANOUL PENTRU A VEDEA HARTA</button>
+
     <div class="logo-box">
         <img src="logo.png" alt="Logo">
     </div>
-    
-    <div class="nav-header">
-        <a href="index.html" class="btn-nav">🏠 PORTAL</a>
-        <a href="view.html" class="btn-nav">👁️ VIZUALIZARE</a>
-    </div>
-    <div class="cloud-status">
-        <div class="dot"></div> CLOUD ONLINE & ACTIV
-    </div>
-    
-    <button class="btn-add-new" onclick="deschideAdaugare()">➕ ADĂUGARE UTILAJ NOU</button>
     
     <div id="form-container">
         <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
@@ -187,9 +225,9 @@
         <div class="group">
             <label>Secție</label>
             <select id="sectie" onchange="toggleExtra()">
-                <option value="Tranșare">Tranșare </option>
+                <option value="Tranșare">Tranșare</option>
                 <option value="Injectare">Injectare</option>
-                <option value="Tocare">Tocare </option>
+                <option value="Tocare">Tocare</option>
                 <option value="Fabricație">Fabricație</option>
                 <option value="Tratament Termic">Tratament Termic (Celule)</option>
                 <option value="Secție Crude">Secție Crude</option>
@@ -246,8 +284,6 @@
     </div>
 </div>
 
-<div id="map"></div>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
@@ -266,7 +302,10 @@
         if (!user) { window.location.href = "index.html"; }
     });
 
-    var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3 });
+    var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3, zoomControl: false });
+    // Adaugăm butoanele de zoom jos în stânga (ca să nu se bată cu meniul nostru)
+    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+
     L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
     map.setView([500, 700], 1); 
 
@@ -334,29 +373,32 @@
     }
    
     map.on('click', (e) => {
-        resetForm();
-        currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
+        resetForm(); // Ascunde ce era înainte
         
+        currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
         if (activeMarker) map.removeLayer(activeMarker);
         activeMarker = L.marker(e.latlng).addTo(map); 
         
+        // AFIȘEAZĂ PANOUL
+        document.getElementById('sidebar').style.display = 'flex'; // Pentru PC
         document.getElementById('form-container').style.display = 'block';
-        document.getElementById('data-punere').disabled = false;
-
-        document.getElementById('sidebar').classList.add('panou-deschis');
+        document.getElementById('sidebar').classList.add('panou-deschis'); // Pentru Mobil
         document.getElementById('sidebar').classList.remove('minimizat');
-        setTimeout(() => { map.invalidateSize(); }, 400);
+        document.getElementById('data-punere').disabled = false;
         
-        if(window.innerWidth <= 768) { document.getElementById('sidebar').scrollIntoView({ behavior: 'smooth' }); }
+        setTimeout(() => { map.invalidateSize(); }, 400);
         checkReady();
     });
 
     function incarcaUtilaj(id) {
         selectedId = id; const u = dbRaw[id];
 
+        // AFIȘEAZĂ PANOUL
+        document.getElementById('sidebar').style.display = 'flex'; // Pentru PC
         document.getElementById('form-container').style.display = 'block';
-        document.getElementById('sidebar').classList.add('panou-deschis');
+        document.getElementById('sidebar').classList.add('panou-deschis'); // Pentru Mobil
         document.getElementById('sidebar').classList.remove('minimizat');
+        
         setTimeout(() => { map.invalidateSize(); }, 400);
         
         const campPunere = document.getElementById('data-punere');
@@ -375,6 +417,18 @@
         if (activeMarker) map.removeLayer(activeMarker);
         
         toggleExtra(); checkReady(); refreshPini();
+    }
+
+    function deschideAdaugare() {
+        executCuProtectie(() => {
+            resetForm();
+            document.getElementById('sidebar').style.display = 'flex'; // Deschide pe PC
+            document.getElementById('form-container').style.display = 'block';
+            document.getElementById('sidebar').classList.add('panou-deschis'); // Deschide pe mobil
+            document.getElementById('sidebar').classList.remove('minimizat');
+            document.getElementById('data-punere').disabled = false;
+            setTimeout(() => { map.invalidateSize(); }, 400);
+        });
     }
 
     function toggleExtra() {
@@ -404,17 +458,6 @@
         const numeValid = document.getElementById('nume').value.trim().length > 2;
         const areLocatie = (selectedId !== null) || (currentCoords !== null);
         document.getElementById('saveBtn').disabled = !(areLocatie && numeValid);
-    }
-
-    function deschideAdaugare() {
-        executCuProtectie(() => {
-            resetForm();
-            document.getElementById('form-container').style.display = 'block';
-            document.getElementById('data-punere').disabled = false;
-            document.getElementById('sidebar').classList.add('panou-deschis');
-            document.getElementById('sidebar').classList.remove('minimizat');
-            setTimeout(() => { map.invalidateSize(); }, 400);
-        });
     }
 
     async function stergeUtilaj(id) { 
@@ -486,24 +529,34 @@
     }
 
     function resetForm() {
-        selectedId = null; currentCoords = null;
-        document.getElementById('form-container').style.display = 'none';
+        selectedId = null; 
+        currentCoords = null;
         
-        document.getElementById('sidebar').classList.remove('panou-deschis');
+        // ASCUNDE TOT
+        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('sidebar').style.display = 'none'; // Pe PC
+        document.getElementById('sidebar').classList.remove('panou-deschis'); // Pe Mobil
         document.getElementById('sidebar').classList.remove('minimizat');
+        
         setTimeout(() => { map.invalidateSize(); }, 400);
         
-        document.getElementById('nume').value = ""; document.getElementById('model').value = ""; 
-        document.getElementById('obs').value = ""; document.getElementById('mecanic').value = "";
-        document.getElementById('data-punere').value = ""; document.getElementById('data-punere').disabled = false;
-        document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; document.getElementById('status').className = "status-badge"; 
-        document.getElementById('deleteZone').innerHTML = ""; document.getElementById('fotoUtilaj').value = "";
+        document.getElementById('nume').value = ""; 
+        document.getElementById('model').value = ""; 
+        document.getElementById('obs').value = ""; 
+        document.getElementById('mecanic').value = "";
+        document.getElementById('data-punere').value = ""; 
+        document.getElementById('data-punere').disabled = false;
+        document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; 
+        document.getElementById('status').className = "status-badge"; 
+        document.getElementById('deleteZone').innerHTML = ""; 
+        document.getElementById('fotoUtilaj').value = "";
         
         if (activeMarker) map.removeLayer(activeMarker); 
-        refreshPini(); toggleExtra(); checkReady();
+        refreshPini(); 
+        toggleExtra(); 
+        checkReady();
     }
 
-    toggleExtra(); 
     window.onload = () => { setTimeout(() => { map.invalidateSize(); }, 500); };
 
     function executCuProtectie(functieDeExecutat) {
@@ -524,9 +577,12 @@
     function updateConnectionStatus() {
         const cloudBanner = document.querySelector('.cloud-status');
         if (navigator.onLine) {
-            cloudBanner.classList.remove('offline'); cloudBanner.innerHTML = '<div class="dot"></div> CLOUD ONLINE & ACTIV'; sincronizeazaDatele(); 
+            cloudBanner.classList.remove('offline'); 
+            cloudBanner.innerHTML = '<div class="dot"></div> CLOUD ONLINE'; 
+            sincronizeazaDatele(); 
         } else {
-            cloudBanner.classList.add('offline'); cloudBanner.innerHTML = '<div class="dot" style="background:#e74c3c; animation:none;"></div> OFFLINE - SALVĂM PE TELEFON';
+            cloudBanner.classList.add('offline'); 
+            cloudBanner.innerHTML = '⚠️ OFFLINE - SALVĂM LOCAL';
         }
     }
 
@@ -546,10 +602,13 @@
         localStorage.removeItem('coada_sincronizare'); alert("✅ Sincronizat în Cloud!");
     }
     
-    window.addEventListener('online', updateConnectionStatus); window.addEventListener('offline', updateConnectionStatus); updateConnectionStatus(); 
+    window.addEventListener('online', updateConnectionStatus); 
+    window.addEventListener('offline', updateConnectionStatus); 
+    updateConnectionStatus(); 
 
     // ====== LOGICĂ GLISARE MOBIL ======
-    const dragHandle = document.getElementById('drag-handle'); const sidebar = document.getElementById('sidebar');
+    const dragHandle = document.getElementById('drag-handle'); 
+    const sidebar = document.getElementById('sidebar');
     let touchStartY = 0;
     if (dragHandle && sidebar) {
         dragHandle.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, {passive: true});

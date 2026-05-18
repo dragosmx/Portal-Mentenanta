@@ -381,11 +381,30 @@
     L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
     map.setView([500, 700], 0.5);
 
+   /* database.ref('utilaje').on('value', (snap) => {
+        dbRaw = snap.val() || {};
+        afiseazaPuncte();
+        verificaAlarmeMentenanta();
+        document.getElementById('loading-screen').style.display = 'none';
+    });*/ 
     database.ref('utilaje').on('value', (snap) => {
         dbRaw = snap.val() || {};
         afiseazaPuncte();
         verificaAlarmeMentenanta();
         document.getElementById('loading-screen').style.display = 'none';
+
+        // 🚀 DETECTARE AUTOMATĂ ID DIN URL (VENIT DIN INDEX)
+        const urlParams = new URLSearchParams(window.location.search);
+        const idParam = urlParams.get('id');
+        if (idParam && dbRaw[idParam]) {
+            const u = dbRaw[idParam];
+            if (u.lat && u.lng) {
+                // Întârziem 600ms ca harta Leaflet să apuce să se randeze complet pe ecran înainte de zoom
+                setTimeout(() => {
+                    focalizeazaUtilaj(u.lat, u.lng, idParam);
+                }, 600);
+            }
+        }
     });
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
 

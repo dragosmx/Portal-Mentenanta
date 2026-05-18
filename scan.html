@@ -127,11 +127,24 @@
 </div>
 
 <script>
-    // Inițializare Firebase
-    const firebaseConfig = { 
-        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app/" 
+    if (sessionStorage.getItem('access_granted') !== 'true') {
+              window.location.href = "index.html?target=scan.html&ref=" + encodeURIComponent(window.location.search);
+    }
+
+ 
+    const firebaseConfig = {
+        apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
+        authDomain: "killer-mentenanta.firebaseapp.com",
+        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "killer-mentenanta",
+        storageBucket: "killer-mentenanta.firebasestorage.app",
+        messagingSenderId: "434460062600",
+        appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
     };
-    firebase.initializeApp(firebaseConfig);
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const database = firebase.database();
 
     // Citire parametru din URL

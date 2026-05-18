@@ -295,14 +295,14 @@
         };
 
         firebase.database().ref('utilaje').on('value', (snapshot) => {
-            const dbRaw = snapshot.val() || {};
+            const dateLive = snapshot.val() || {};
             const container = document.getElementById('indexAlertContainer');
             if (!container) return;
             
-            container.innerHTML = ""; // Curățăm containerul la actualizare
+            container.innerHTML = ""; // Curățăm containerul la fiecare actualizare live
             
-            Object.keys(dbRaw).forEach(id => {
-                const u = dbRaw[id];
+            Object.keys(dateLive).forEach(id => {
+                const u = dateLive[id];
                 if (u.istoric) {
                     const istArr = Object.values(u.istoric);
                     const ultimaRev = istArr.find(i => i.revizie === true);
@@ -314,12 +314,12 @@
                         const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
                         
                         if (z >= limitaZile) {
-                            const esteCritic = z >= (limitaZile * 3); // Critic dacă depășește de 3 ori limita
+                            const esteCritic = z >= (limitaZile * 3); // Critic dacă depășește de 3 ori limita standard
                             const clasaAlerta = esteCritic ? 'index-alert-item alert-urgent' : 'index-alert-item';
                             const statusMesaj = esteCritic ? `🚨 CRITIC: Revizie depășită de ${z} zile!` : `⚠️ ATENȚIE: Au trecut ${z} zile de la revizie!`;
                             const culoareText = esteCritic ? 'var(--danger)' : 'var(--warning)';
 
-                            // 🚀 CELE DOUĂ BUTOANE ACOMODATE PERFECT PE UN SINGUR RÂND
+                            // 🚀 CONSTRUCȚIA DIRECTĂ A CASETEI (Self-contained, fără funcții externe)
                             container.innerHTML += `
                                 <div class="${clasaAlerta}">
                                     <span class="index-alert-title">⚠️ ${u.nume}</span>
@@ -327,8 +327,8 @@
                                     <div class="index-alert-msg" style="color: ${culoareText};">${statusMesaj}</div>
                                     
                                     <div style="display:flex; gap:8px; margin-top:12px;">
-                                        <a href="view.html?id=${id}" class="index-alert-link" style="margin-top:0; background:#3498db; flex:1;">📍 HARTĂ</a>
-                                        <a href="edit.html?id=${id}" class="index-alert-link" style="margin-top:0; background:#8e44ad; flex:1;">🔧 REPARĂ</a>
+                                        <a href="view.html?id=${id}" class="index-alert-link" style="margin-top:0; background:#3498db; flex:1; width:auto;">📍 HARTĂ</a>
+                                        <a href="edit.html?id=${id}" class="index-alert-link" style="margin-top:0; background:#8e44ad; flex:1; width:auto;">🔧 REPARĂ</a>
                                     </div>
                                 </div>
                             `;

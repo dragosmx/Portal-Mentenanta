@@ -92,81 +92,50 @@
         .footer-dev { position: absolute; bottom: 20px; font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
 
         /* ---------------------------------------------------
-           🛠️ STIL PENTRU POPUP-UL DE ALARME (TEMA LUMINOASĂ)
+           ⚠️ STILURI DE ALERTE COPIATE 1:1 DIN VIEW.HTML
            --------------------------------------------------- */
-        .index-alert-container {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            z-index: 9999;
-            width: 320px;
-            max-height: 70vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .index-alert-item {
-            background: white;
-            color: #2c3e50;
-            padding: 16px;
-            border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border-left: 5px solid var(--warning);
-            animation: slideInIndex 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-sizing: border-box;
+        #alert-panel {
+            position: fixed; top: 80px; right: 20px;
+            width: 280px; background: rgba(44, 62, 80, 0.95);
+            border-left: 5px solid #f39c12; border-radius: 8px;
+            z-index: 2000; color: white; padding: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transition: all 0.5s ease;
             text-align: left;
         }
-        .index-alert-item.alert-urgent {
-            border-left-color: var(--danger);
+        .alert-hidden { right: -350px !important; opacity: 0; pointer-events: none; }
+        .alert-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
+        .alert-item { font-size: 12px; margin-bottom: 8px; padding: 5px; border-radius: 4px; color: white; }
+        .alert-urgent { background: rgba(231, 76, 60, 0.2); border-left: 3px solid #e74c3c; }
+        .alert-warning { background: rgba(243, 156, 18, 0.2); border-left: 3px solid #f39c12; }
+        
+        .btn-locate { 
+            display: inline-block; margin-top: 10px; padding: 6px 12px; background: #3498db; 
+            color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: bold; 
+            cursor: pointer; text-transform: uppercase; transition: background 0.2s; 
         }
-        .index-alert-title {
-            font-size: 15px;
-            font-weight: bold;
-            display: block;
-            margin-bottom: 2px;
-            color: #2c3e50;
-        }
-        .index-alert-meta {
-            font-size: 11px;
-            color: #7f8c8d;
-            display: block;
-        }
-        .index-alert-msg {
-            font-size: 12px;
-            font-weight: bold;
-            margin-top: 6px;
-        }
-        .index-alert-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            background: #8e44ad;
-            color: white;
-            text-decoration: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 12px;
-            box-sizing: border-box;
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-        .index-alert-link:hover { background: #732d91; }
+        .btn-locate:hover { background: #2980b9; }
 
-        @keyframes slideInIndex {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        /* CLOPOȚEL UNIVERSAL CU ANIMAȚIE PULSE */
+        #btn-clopotel {
+            display: none; 
+            position: fixed; z-index: 1500;
+            top: 80px; right: 20px;
+            width: 45px; height: 45px; border-radius: 50%;
+            background: var(--danger); color: white;
+            align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 2px solid white;
+            animation: pulse-cloud 1.5s infinite;
         }
+        @keyframes pulse-cloud { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        @media (max-width: 480px) {
-            .index-alert-container {
-                width: calc(100% - 30px);
-                left: 15px;
-                bottom: 15px;
-            }
+        /* ADAPTARE MOBIL IDENTICĂ */
+        @media (max-width: 768px) {
+            #alert-panel { display: none; top: 130px; left: 15px; width: calc(100% - 30px); right: auto !important; z-index: 2001; }
+            #alert-panel.activ { display: block; }
+            .alert-hidden { display: none !important; }
+            #btn-clopotel { top: 75px; right: 15px; position: fixed; }
         }
     </style>
 </head>
@@ -204,7 +173,14 @@
     <div id="reader" style="width: 100%; max-width: 500px; margin: 20px auto; display: none; border-radius: 15px; overflow: hidden;"></div>
 </div>
 
-<div id="indexAlertContainer" class="index-alert-container"></div>
+<div id="alert-panel" class="alert-hidden">
+    <div class="alert-header">
+        <span>⚠️ Alerte Mentenanță</span>
+        <span onclick="inchideAlarmaManual()" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:4px; font-size:10px;">❌ ÎNCHIDE</span>
+    </div>
+    <div id="alert-list"></div>
+</div>
+<div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">🔔</div>
 
 <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
 
@@ -224,6 +200,13 @@
     }
 
     const _u = "ZHJhZ29zLm11bnRlYW51QGtpbGxlcnNybC5ybw==";
+    let dbRaw = {};
+    let alertaInchisaManual = false;
+
+    // Tabelul fix de intervale preluat complet din view.html
+    const configuratieAlarme = {
+        "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14
+    };
 
     window.onload = function() {
         if (sessionStorage.getItem('access_granted') === 'true') {
@@ -267,7 +250,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('menu-screen').style.display = 'block';
             
-            // 🚨 CONECTĂM BAZA DE DATE PENTRU ALERTE DOAR DUPĂ LOGIN REUȘIT
+            // 🚀 ASCULTĂM EVENIMENTELE DIN FIREBASE DOAR DUPĂ AUTENTIFICARE
             pornesteAscultareAlarme();
         }
     }
@@ -275,7 +258,8 @@
     function logout() {
         firebase.auth().signOut().then(() => {
             sessionStorage.removeItem('access_granted');
-            document.getElementById('indexAlertContainer').innerHTML = "";
+            document.getElementById('alert-panel').className = "alert-hidden";
+            document.getElementById('btn-clopotel').style.display = "none";
             location.reload();
         });
     }
@@ -294,9 +278,9 @@
     }
 
     // ---------------------------------------------------
-    // 🚨 ALGORITMUL DE SCANARE ALERTE PE PAGINA PRINCIPALĂ
+    // ⚙️ LOGICA DE ALERTE COPIATĂ ȘI UNIFICATĂ DIN VIEW.HTML
     // ---------------------------------------------------
-    function calculeazaZileIndex(dataInstalare) {
+    function calculeazaZile(dataInstalare) {
         if (!dataInstalare) return 999;
         const oZi = 24 * 60 * 60 * 1000;
         const azi = new Date();
@@ -306,40 +290,82 @@
 
     function pornesteAscultareAlarme() {
         firebase.database().ref('utilaje').on('value', (snapshot) => {
-            const dbRaw = snapshot.val() || {};
-            const container = document.getElementById('indexAlertContainer');
-            if (!container) return;
-            
-            container.innerHTML = ""; // Curățăm alerte vechi la actualizare
-            
-            Object.keys(dbRaw).forEach(id => {
-                const u = dbRaw[id];
-                if (u.istoric) {
-                    const istArr = Object.values(u.istoric);
-                    const ultimaRev = istArr.find(i => i.revizie === true);
-                    
-                    if (ultimaRev) {
-                        const z = calculeazaZileIndex(ultimaRev.data);
-                        
-                        if (z >= 30) {
-                            const esteCritic = z >= 90;
-                            const clasaAlerta = esteCritic ? 'index-alert-item alert-urgent' : 'index-alert-item';
-                            const statusMesaj = esteCritic ? `🚨 CRITIC: Revizie depășită de ${z} zile!` : `⚠️ ATENȚIE: Au trecut ${z} zile de la revizie!`;
-                            const culoareText = esteCritic ? 'var(--danger)' : 'var(--warning)';
+            dbRaw = snapshot.val() || {};
+            verificaAlarmeMentenanta();
+        });
+    }
 
-                            container.innerHTML += `
-                                <div class="${clasaAlerta}">
-                                    <span class="index-alert-title">⚠️ ${u.nume}</span>
-                                    <span class="index-alert-meta">Secția: ${u.sectie} | ID: ${id}</span>
-                                    <div class="index-alert-msg" style="color: ${culoareText};">${statusMesaj}</div>
-                                    <a href="edit.html?id=${id}" class="index-alert-link">🔧 REPARĂ ACUM</a>
-                                </div>
-                            `;
-                        }
+    function verificaAlarmeMentenanta() {
+        const alertPanel = document.getElementById('alert-panel');
+        const container = document.getElementById('alert-list');
+        const btnClopotel = document.getElementById('btn-clopotel');
+        
+        if (!alertPanel || !container) return;
+        
+        container.innerHTML = ""; 
+        let areAlerte = false;
+
+        Object.keys(dbRaw).forEach(id => {
+            const u = dbRaw[id];
+            if (u.istoric) {
+                const istArr = Object.values(u.istoric);
+                const ultimaRev = istArr.find(i => i.revizie === true);
+                
+                if (ultimaRev) {
+                    const z = calculeazaZile(ultimaRev.data);
+                    const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+                    
+                    if (z >= limitaZile) {
+                        areAlerte = true;
+                        const esteCritic = z >= (limitaZile * 3);
+                        const clasaAlerta = esteCritic ? 'alert-urgent' : 'alert-warning';
+                        const statusMesaj = esteCritic ? `CRITIC: Revizie depășită de ${z} zile!` : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
+
+                        container.innerHTML += `
+                        <div class="alert-item ${clasaAlerta}">
+                            <b style="font-size: 14px; display:block;">${u.nume}</b>
+                            <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
+                            <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
+                            
+                            <div style="display:flex; gap:5px; margin-top:10px;">
+                                <a href="view.html" class="btn-locate" style="flex:1; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">📍 HARTĂ</a>
+                                <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">🔧 REPARĂ</a>
+                            </div>
+                        </div>`;
                     }
                 }
-            });
+            }
         });
+
+        if (areAlerte) {
+            if (!alertaInchisaManual) {
+                alertPanel.classList.remove('alert-hidden');
+                alertPanel.classList.add('activ');
+                if(btnClopotel) btnClopotel.style.display = 'none'; 
+            } else {
+                alertPanel.classList.add('alert-hidden');
+                alertPanel.classList.remove('activ');
+                if(btnClopotel) btnClopotel.style.display = 'flex'; 
+            }
+        } else {
+            alertPanel.classList.add('alert-hidden');
+            alertPanel.classList.remove('activ');
+            if(btnClopotel) btnClopotel.style.display = 'none'; 
+        }
+    }
+
+    function inchideAlarmaManual() {
+        alertaInchisaManual = true;
+        document.getElementById('alert-panel').classList.add('alert-hidden');
+        const btn = document.getElementById('btn-clopotel');
+        if(btn) btn.style.display = 'flex';
+    }
+
+    function deschideAlarmaManual() {
+        alertaInchisaManual = false;
+        document.getElementById('alert-panel').classList.remove('alert-hidden');
+        const btn = document.getElementById('btn-clopotel');
+        if(btn) btn.style.display = 'none';
     }
 </script>
 </body>

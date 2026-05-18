@@ -280,9 +280,18 @@
 
     // 🚀 REPARATĂ: Conectează Firebase direct la funcția de procesare
     function pornesteAscultareAlarme() {
-        firebase.database().ref('utilaje').on('value', (snapshot) => {
-            dbRaw = snapshot.val() || {};
-            verificaAlarmeMentenanta();
+        const configuratieAlarme = {
+            "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14
+        };
+
+        // 🛡️ Așteptăm aprobarea serverului înainte de a cere alarmele live
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                firebase.database().ref('utilaje').on('value', (snapshot) => {
+                    dbRaw = snapshot.val() || {};
+                    verificaAlarmeMentenanta();
+                });
+            }
         });
     }
 

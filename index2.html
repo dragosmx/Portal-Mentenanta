@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Mentenanță - Killer SRL</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mentenanță">
+    <link rel="apple-touch-icon" href="logo.png">
+    
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60; 
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --bg-dark: #1a1a1a;
+            --text: #ecf0f1;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-dark);
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text);
+        }
+
+        .container {
+            background: var(--primary);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            border-top: 6px solid var(--accent); 
+        }
+
+        .logo-box img { max-width: 160px; margin-bottom: 20px; }
+        h2 { margin: 0 0 5px 0; font-size: 22px; }
+        p { margin: 0 0 25px 0; font-size: 13px; color: #bdc3c7; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 11px; margin-bottom: 5px; font-weight: bold; color: #bdc3c7; text-transform: uppercase; }
+        
+        input[type="password"] {
+            width: 100%; padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3); color: white; font-size: 16px; box-sizing: border-box;
+            outline: none; text-align: center; letter-spacing: 3px; transition: 0.3s;
+        }
+        input[type="password"]:focus { border-color: var(--accent); }
+
+        /* DESIGN UNIFORM PENTRU TOATE BUTOANELE DIN MENIU */
+        .btn {
+            width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 14px;
+            font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 12px; display: block;
+            text-decoration: none; box-sizing: border-box; text-align: center;
+        }
+
+        .btn-login { background: var(--accent); color: white; } 
+        .btn-login:hover { background: #219653; }
+        
+        /* BUTOANELE PRINCIPALE AU FUNDAL ȘI HOVER IDENTIC */
+        .btn-menu { 
+            background: #34495e; 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.1); 
+        }
+        .btn-menu:hover { 
+            background: #2c3e50; 
+        }
+
+        .error-msg {
+            color: var(--danger); font-size: 12px; margin-bottom: 15px; font-weight: bold; display: none;
+        }
+
+        #menu-screen { display: none; }
+        .footer-dev { position: absolute; bottom: 20px; font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+
+        /* ---------------------------------------------------
+           🛠️ STIL PENTRU POPUP-UL DE ALARME (TEMA LUMINOASĂ)
+           --------------------------------------------------- */
+        .index-alert-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999;
+            width: 320px;
+            max-height: 70vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .index-alert-item {
+            background: white;
+            color: #2c3e50;
+            padding: 16px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-left: 5px solid var(--warning);
+            animation: slideInIndex 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
+            text-align: left;
+        }
+        .index-alert-item.alert-urgent {
+            border-left-color: var(--danger);
+        }
+        .index-alert-title {
+            font-size: 15px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 2px;
+            color: #2c3e50;
+        }
+        .index-alert-meta {
+            font-size: 11px;
+            color: #7f8c8d;
+            display: block;
+        }
+        .index-alert-msg {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+        .index-alert-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: #8e44ad;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 12px;
+            box-sizing: border-box;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .index-alert-link:hover { background: #732d91; }
+
+        @keyframes slideInIndex {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 480px) {
+            .index-alert-container {
+                width: calc(100% - 30px);
+                left: 15px;
+                bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-box">
+        <img src="logo.png" alt="Logo Killer SRL">
+    </div>
+
+    <div id="login-screen">
+        <h2>Sistem Mentenanță</h2>
+        <p>Acces securizat pentru echipa tehnică</p>
+        
+        <div class="input-group">
+            <input type="password" id="passInput" placeholder="••••••••" onkeyup="if(event.key==='Enter') verificaParola()">
+        </div>
+        
+        <div id="errorMsg" class="error-msg">❌ Parolă incorectă!</div>
+        
+        <button class="btn btn-login" id="loginBtn" onclick="verificaParola()">🔐 INTRĂ ÎN SISTEM</button>
+    </div>
+
+    <div id="menu-screen">
+        <h2>Salut!</h2>
+        <p>Alege secțiunea dorită:</p>
+        
+        <a href="edit.html" class="btn btn-menu" style="border-left: 5px solid var(--success);">🛠️ Administrare Mentenanță</a>
+        <a href="view.html" class="btn btn-menu" style="border-left: 5px solid #3498db;">👁️ Centru de Control Mentenanță</a>
+        <button onclick="pornesteScanner()" class="btn btn-menu" style="border-left: 5px solid var(--warning);">📷 Scanează Cod QR Utilaj</button>
+        
+        <button class="btn" style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:20px;" onclick="logout()">Ieșire</button>
+    </div>
+    
+    <div id="reader" style="width: 100%; max-width: 500px; margin: 20px auto; display: none; border-radius: 15px; overflow: hidden;"></div>
+</div>
+
+<div id="indexAlertContainer" class="index-alert-container"></div>
+
+<div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
+        authDomain: "killer-mentenanta.firebaseapp.com",
+        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "killer-mentenanta",
+        storageBucket: "killer-mentenanta.firebasestorage.app",
+        messagingSenderId: "434460062600",
+        appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    const _u = "ZHJhZ29zLm11bnRlYW51QGtpbGxlcnNybC5ybw==";
+
+    window.onload = function() {
+        if (sessionStorage.getItem('access_granted') === 'true') {
+            afiseazaMeniuSauRedirectioneaza();
+        }
+    };
+
+    function verificaParola() {
+        const pass = document.getElementById('passInput').value;
+        const btn = document.getElementById('loginBtn');
+        const msg = document.getElementById('errorMsg');
+        
+        if (!pass) return;
+
+        btn.innerText = "⏳ Se verifică...";
+        btn.disabled = true;
+
+        const email = atob(_u);
+
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then(() => {
+                sessionStorage.setItem('access_granted', 'true');
+                msg.style.display = 'none';
+                afiseazaMeniuSauRedirectioneaza();
+            })
+            .catch((error) => {
+                msg.innerText = "❌ Parolă incorectă!";
+                msg.style.display = 'block';
+                document.getElementById('passInput').value = "";
+                btn.innerText = "🔐 INTRĂ ÎN SISTEM";
+                btn.disabled = false;
+            });
+    }
+
+    function afiseazaMeniuSauRedirectioneaza() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refParams = urlParams.get('ref');
+        if (refParams) {
+            window.location.href = "edit.html" + refParams;
+        } else {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'block';
+            
+            // 🚨 CONECTĂM BAZA DE DATE PENTRU ALERTE DOAR DUPĂ LOGIN REUȘIT
+            pornesteAscultareAlarme();
+        }
+    }
+
+    function logout() {
+        firebase.auth().signOut().then(() => {
+            sessionStorage.removeItem('access_granted');
+            document.getElementById('indexAlertContainer').innerHTML = "";
+            location.reload();
+        });
+    }
+
+    function pornesteScanner() {
+        document.getElementById('reader').style.display = 'block';
+        const html5QrCode = new Html5Qrcode("reader");
+        
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            window.location.href = decodedText; 
+            html5QrCode.stop();
+        };
+        
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+    }
+
+    // ---------------------------------------------------
+    // 🚨 ALGORITMUL DE SCANARE ALERTE PE PAGINA PRINCIPALĂ
+    // ---------------------------------------------------
+    function calculeazaZileIndex(dataInstalare) {
+        if (!dataInstalare) return 999;
+        const oZi = 24 * 60 * 60 * 1000;
+        const azi = new Date();
+        const dataR = new Date(dataInstalare);
+        return Math.floor(Math.abs(azi - dataR) / oZi);
+    }
+
+    function pornesteAscultareAlarme() {
+        firebase.database().ref('utilaje').on('value', (snapshot) => {
+            const dbRaw = snapshot.val() || {};
+            const container = document.getElementById('indexAlertContainer');
+            if (!container) return;
+            
+            container.innerHTML = ""; // Curățăm alerte vechi la actualizare
+            
+            Object.keys(dbRaw).forEach(id => {
+                const u = dbRaw[id];
+                if (u.istoric) {
+                    const istArr = Object.values(u.istoric);
+                    const ultimaRev = istArr.find(i => i.revizie === true);
+                    
+                    if (ultimaRev) {
+                        const z = calculeazaZileIndex(ultimaRev.data);
+                        
+                        if (z >= 30) {
+                            const esteCritic = z >= 90;
+                            const clasaAlerta = esteCritic ? 'index-alert-item alert-urgent' : 'index-alert-item';
+                            const statusMesaj = esteCritic ? `🚨 CRITIC: Revizie depășită de ${z} zile!` : `⚠️ ATENȚIE: Au trecut ${z} zile de la revizie!`;
+                            const culoareText = esteCritic ? 'var(--danger)' : 'var(--warning)';
+
+                            container.innerHTML += `
+                                <div class="${clasaAlerta}">
+                                    <span class="index-alert-title">⚠️ ${u.nume}</span>
+                                    <span class="index-alert-meta">Secția: ${u.sectie} | ID: ${id}</span>
+                                    <div class="index-alert-msg" style="color: ${culoareText};">${statusMesaj}</div>
+                                    <a href="edit.html?id=${id}" class="index-alert-link">🔧 REPARĂ ACUM</a>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>

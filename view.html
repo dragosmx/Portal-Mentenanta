@@ -202,6 +202,7 @@
     <div class="nav-left"><img src="logo.png" onclick="window.location.href='index.html'"></div>
     <div class="nav-scroll">
         <button onclick="deschideRapoarte()" style="background:var(--success);">📊 DASHBOARD GLOBAL</button>
+        <button onclick="deschideModulMecanici()" class="btn-top" style="background:#8e44ad; font-size:12px; white-space:nowrap;">👥 TRASABILITATE PERSONAL</button>
         <button onclick="window.location.href='edit.html'" style="background:var(--warning); color:black;">⚙️ ADMINISTRARE</button>
         <button onclick="printeazaQR()" style="background:#8e44ad;">🖨️ QR CODE</button>
         <div class="cloud-status-view no-print">
@@ -303,6 +304,21 @@
         <span onclick="inchideAlarmaManual()" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:4px; font-size:10px;">❌ ÎNCHIDE</span>
     </div>
     <div id="alert-list"></div>
+</div>
+    <div id="mecaniciModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10000;">
+    <div style="background: var(--primary); width: 95%; max-width: 900px; height: 85vh; border-radius: 15px; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; border-top: 5px solid #8e44ad; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+        <button onclick="document.getElementById('mecaniciModal').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 8px; font-weight:bold; cursor: pointer; transition:0.2s;">❌ ÎNCHIDE</button>
+        <h2 style="margin-top: 0; color: #cbb4d4; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; text-transform: uppercase;">👥 Registru Activitate Utilizatori & Personal (Audit)</h2>
+
+        <div style="display: flex; gap: 20px; height: 100%; overflow: hidden; margin-top: 10px;">
+            <div style="flex: 1; max-width: 250px; border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; padding-right: 10px;" id="listaMecaniciNume">
+            </div>
+
+            <div style="flex: 2; overflow-y: auto; padding-left: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px;" id="detaliiMecanicSelectat">
+                <div style="text-align:center; color:var(--text-dim); margin-top:100px; font-weight:bold;">"👈 Selectează o persoană din listă pentru a-i vedea istoricul complet."</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -717,6 +733,85 @@
         </body></html>
     `);
     win.document.close();
+}
+    // ====== ALGORITM TRASABILITATE MECANICI ======
+let istoricGlobalMecanici = {};
+
+function deschideModulMecanici() {
+    istoricGlobalMecanici = {};
+
+    // Scanăm absolut toată baza de date și extragem fiecare semnătură
+    Object.values(dbRaw).forEach(u => {
+        if (u.istoric) {
+            Object.values(u.istoric).forEach(i => {
+                let numeRaw = i.mecanic ? i.mecanic.trim() : "";
+                if (!numeRaw || numeRaw === "-") numeRaw = "Necunoscut / Necompletat";
+                
+                // Capitalizăm inteligent pentru a combina automat "ion" cu "Ion" și a repara unele erori de scriere
+                let numeFormata = numeRaw.charAt(0).toUpperCase() + numeRaw.slice(1).toLowerCase();
+
+                if (!istoricGlobalMecanici[numeFormata]) istoricGlobalMecanici[numeFormata] = [];
+                
+                istoricGlobalMecanici[numeFormata].push({
+                    data: i.data,
+                    ts: i.timestamp || new Date(i.data).getTime(),
+                    utilaj: u.nume,
+                    idUtilaj: u.id,
+                    sectie: u.sectie,
+                    op: i.verificari || i.tip || '-',
+                    revizie: i.revizie
+                });
+            });
+        }
+    });
+
+    const containerStanga = document.getElementById('listaMecaniciNume');
+    containerStanga.innerHTML = "";
+    
+    let sortatMecanici = Object.keys(istoricGlobalMecanici).sort();
+
+    sortatMecanici.forEach(nume => {
+        const nrInterventii = istoricGlobalMecanici[nume].length;
+        containerStanga.innerHTML += `
+            <div onclick="incarcaFisaMecanic('${nume}')" style="background: rgba(0,0,0,0.3); padding: 12px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; border-left: 4px solid #8e44ad; transition: 0.2s;">
+                <b style="color: white; font-size: 13px;">${nume}</b>
+                <div style="font-size: 10px; color: #aaa; margin-top:4px;">Lucrări efectuate: <b style="color:#3498db; font-size:12px;">${nrInterventii}</b></div>
+            </div>
+        `;
+    });
+
+    document.getElementById('detaliiMecanicSelectat').innerHTML = "<div style='text-align:center; color:var(--text-dim); margin-top:100px; font-weight:bold;'>👈 Selectează un mecanic din listă pentru a-i vedea istoricul complet.</div>";
+    document.getElementById('mecaniciModal').style.display = 'flex';
+}
+
+function incarcaFisaMecanic(nume) {
+    const panou = document.getElementById('detaliiMecanicSelectat');
+    // Sortăm invers cronologic (cele mai recente intervenții primele)
+    const actiuni = istoricGlobalMecanici[nume].sort((a,b) => b.ts - a.ts); 
+
+    let html = `<h3 style="margin-top:0; color: white; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">Fișă Intervenții: <span style="color:#cbb4d4;">${nume}</span></h3>`;
+    html += `<table style="width:100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                    <tr style="background: rgba(0,0,0,0.5); color: var(--accent);">
+                        <th style="padding: 10px; text-align: left;">Dată</th>
+                        <th style="padding: 10px; text-align: left;">Utilaj Intervenit</th>
+                        <th style="padding: 10px; text-align: left;">Raport Operațiuni</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+    
+    actiuni.forEach(a => {
+        let badgeRevizie = a.revizie ? `<span style="background:#27ae60; color:white; padding:2px 4px; border-radius:4px; font-size:9px;">REVIZIE</span> ` : "";
+        
+        html += `<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 10px; white-space:nowrap;"><b>${a.data}</b></td>
+                    <td style="padding: 10px;"><b>${a.utilaj}</b><br><span style="font-size:9px; color:#aaa;">${a.sectie} | ID: <a href="#" onclick="deschideHist('${a.idUtilaj}'); document.getElementById('mecaniciModal').style.display='none'; return false;" style="color:#3498db; text-decoration:none; font-weight:bold;">${a.idUtilaj}</a></span></td>
+                    <td style="padding: 10px;">${badgeRevizie}${a.op}</td>
+                 </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    panou.innerHTML = html;
 }
 </script>
 

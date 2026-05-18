@@ -376,7 +376,7 @@
         return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
     }
 
-    // 🗺️ INITIALIZARE HARTĂ (Lăsată la nivel global pentru a fi accesibilă peste tot)
+   // 🗺️ INITIALIZARE HARTĂ (Lăsată la nivel global pentru a fi accesibilă peste tot)
     var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3, zoomControl: false });
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
@@ -411,21 +411,6 @@
     });
 
     // Siguranță pentru ecranul de loading
-    setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
-
-        // 🚀 DETECTARE AUTOMATĂ ID DIN URL (VENIT DIN INDEX)
-        const urlParams = new URLSearchParams(window.location.search);
-        const idParam = urlParams.get('id');
-        if (idParam && dbRaw[idParam]) {
-            const u = dbRaw[idParam];
-            if (u.lat && u.lng) {
-                // Întârziem 600ms ca harta Leaflet să apuce să se randeze complet pe ecran înainte de zoom
-                setTimeout(() => {
-                    focalizeazaUtilaj(u.lat, u.lng, idParam);
-                }, 600);
-            }
-        }
-    });
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
 
     function afiseazaPuncte() {

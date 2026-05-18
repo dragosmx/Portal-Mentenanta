@@ -376,33 +376,23 @@
         return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
     }
 
+    // 🗺️ INITIALIZARE HARTĂ (Lăsată la nivel global pentru a fi accesibilă peste tot)
     var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3, zoomControl: false });
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
     map.setView([500, 700], 0.5);
 
-   /* database.ref('utilaje').on('value', (snap) => {
-        dbRaw = snap.val() || {};
-        afiseazaPuncte();
-        verificaAlarmeMentenanta();
-        document.getElementById('loading-screen').style.display = 'none';
-    });*/ 
-   /* database.ref('utilaje').on('value', (snap) => {
-        dbRaw = snap.val() || {};
-        afiseazaPuncte();
-        verificaAlarmeMentenanta();
-        document.getElementById('loading-screen').style.display = 'none';*/
-    // 🛡️ REPARARE SECURE-READ: Așteptăm ca Firebase Auth să restabilească sesiunea securizată înainte de a interoga baza de date
+    // 🛡️ REPARARE SECURE-READ: Așteptăm ca serverul să valideze sesiunea înainte de a cere pinii
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-            // Utilizatorul este validat! Acum pornim descărcarea pinilor pe hartă
+            // Utilizatorul este logat sigur! Acum tragem datele din Cloud în siguranță
             database.ref('utilaje').on('value', (snap) => {
                 dbRaw = snap.val() || {};
                 afiseazaPuncte();
                 verificaAlarmeMentenanta();
                 document.getElementById('loading-screen').style.display = 'none';
 
-                // 🚀 DETECTARE AUTOMATĂ ID DIN URL (VENIT DIN INDEX PENTRU AUTO-ZOOM)
+                // 🚀 AUTO-ZOOM INTELIGENT LA APĂSAREA ALERTEI DIN INDEX
                 const urlParams = new URLSearchParams(window.location.search);
                 const idParam = urlParams.get('id');
                 if (idParam && dbRaw[idParam]) {
@@ -415,10 +405,13 @@
                 }
             });
         } else {
-            // Scut de siguranță: dacă cineva neautorizat accesează direct view.html, îl aruncăm în ecranul de login
+            // Dacă cineva încearcă să spioneze direct view.html fără login, este aruncat înapoi
             window.location.href = "index.html";
         }
     });
+
+    // Siguranță pentru ecranul de loading
+    setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
 
         // 🚀 DETECTARE AUTOMATĂ ID DIN URL (VENIT DIN INDEX)
         const urlParams = new URLSearchParams(window.location.search);

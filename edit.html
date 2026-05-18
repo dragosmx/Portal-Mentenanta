@@ -85,13 +85,58 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer;
             transition: all 0.3s ease;
         }
+        .admin-status-btn {
+            color: white; border-radius: 20px; font-size: 11px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+            white-space: nowrap; backdrop-filter: blur(5px);
+            background: rgba(231, 76, 60, 0.8); cursor: pointer; 
+            
+            /* Pornim de la formă de cerc (perfect pentru mobil) */
+            width: 34px; height: 34px; padding: 0; 
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; box-sizing: border-box;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+        }
 
-        .cloud-status {
+        /* Textul din interior este ascuns implicit */
+        .admin-text {
+            max-width: 0; opacity: 0; display: inline-block;
+            transition: max-width 0.3s ease, opacity 0.2s ease, margin 0.3s;
+            overflow: hidden; vertical-align: middle;
+        }
+
+        /* 💻 EFECTUL DE MOUSE OVER (DOAR PE DISPOZITIVELE CU MOUSE) */
+        @media (hover: hover) {
+            .admin-status-btn:hover {
+                width: 115px; /* Se extinde lung pentru a face loc textului */
+                justify-content: flex-start; padding-left: 11px;
+            }
+            .admin-status-btn:hover .admin-text {
+                max-width: 80px; opacity: 1; margin-left: 5px; /* Textul alunecă afară */
+            }
+        }
+
+        /* 📱 DESIGNUL CURAT PE MOBIL (FĂRĂ HOVER LIPICIOS) */
+        @media (max-width: 768px) {
+            .top-status-container { top: 15px; width: 95%; justify-content: center; gap: 5px; }
+            .cloud-status { font-size: 10px; padding: 6px 12px; }
+            .admin-status-btn { width: 30px; height: 30px; }
+            .admin-text { display: none; } /* Pe mobil eliminăm textul complet, lăsând doar lăcățelul tactil */
+        }
+      /*  .cloud-status {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
             z-index: 1000; background: rgba(39, 174, 96, 0.9); color: white;
             padding: 10px 20px; border-radius: 20px; font-size: 11px;
             display: flex; align-items: center; gap: 8px; font-weight: bold;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .cloud-status.offline { background: rgba(231, 76, 60, 0.9); }*/
+     /* BANNER CLOUD */
+        .cloud-status {
+            color: white; padding: 8px 15px; border-radius: 20px; font-size: 11px;
+            display: flex; align-items: center; gap: 6px; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+            white-space: nowrap; backdrop-filter: blur(5px); background: rgba(39, 174, 96, 0.9);
         }
         .cloud-status.offline { background: rgba(231, 76, 60, 0.9); }
         .dot { width: 7px; height: 7px; background: white; border-radius: 50%; animation: pulse 1.5s infinite; }
@@ -179,8 +224,14 @@
 
 <body>
 
-<div class="cloud-status">
-    <div class="dot"></div> CLOUD ONLINE
+<div class="top-status-container">
+    <div class="cloud-status">
+        <div class="dot"></div> CLOUD ONLINE
+    </div>
+    
+    <button onclick="comutaModAdmin()" id="btnModAdmin" class="admin-status-btn">
+        <span id="adminLockIcon">🔒</span><span class="admin-text">ADMIN OFF</span>
+    </button>
 </div>
 
 <div class="floating-menu">
@@ -606,13 +657,18 @@
 
     function actualizeazaButonAdmin() {
         const btn = document.getElementById('btnModAdmin');
+        const icon = document.getElementById('adminLockIcon');
+        const text = btn ? btn.querySelector('.admin-text') : null;
         if (!btn) return;
+        
         if (sessionStorage.getItem('is_admin') === 'true') {
-            btn.innerText = "🔓 ADMIN ACTIV";
-            btn.style.background = "var(--success)";
+            if (icon) icon.innerText = "🔓";
+            if (text) text.innerText = "ADMIN ON";
+            btn.style.background = "rgba(46, 204, 113, 0.9)"; // Se face verde când e deblocat
         } else {
-            btn.innerText = "🔒 DEBLOCARE ADMIN";
-            btn.style.background = "var(--danger)";
+            if (icon) icon.innerText = "🔒";
+            if (text) text.innerText = "ADMIN OFF";
+            btn.style.background = "rgba(231, 76, 60, 0.8)"; // Rămâne roșu când e blocat
         }
     }
 

@@ -424,53 +424,92 @@
     }
 
     function deschideRapoarte() {
-        let ok=0, wr=0, cr=0, total=0;
-        const cF = document.getElementById('corpFluxLive'); cF.innerHTML = ""; let fl = [];
+    let ok=0, wr=0, cr=0, total=0;
+    const cF = document.getElementById('corpFluxLive'); cF.innerHTML = ""; let fl = [];
 
-        Object.values(dbRaw).forEach(u => {
-            const ist = u.istoric ? Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)) : [];
-            const ultimaRevizie = ist.find(i => i.revizie === true);
-            let z = 0; if(ultimaRevizie) { z = calculeazaZile(ultimaRevizie.data); }
+    Object.values(dbRaw).forEach(u => {
+        const ist = u.istoric ? Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)) : [];
+        const ultimaRevizie = ist.find(i => i.revizie === true);
+        let z = 0; if(ultimaRevizie) { z = calculeazaZile(ultimaRevizie.data); }
 
-            if(z < 30) ok++; else if(z < 90) wr++; else cr++;
-            
-            if(u.istoric) Object.values(u.istoric).forEach(i => {
-                total++; 
-                const indicatorRev = i.revizie ? `<span style="color:#27ae60; font-weight:bold;">[REVIZIE]</span> ` : "";
-                fl.push({d:i.data, n:u.nume, s:u.sectie, m:i.mecanic || "-", a: indicatorRev + (i.verificari || "")});
-            });
-        });
-
-        document.getElementById('statOK').innerText = ok;
-        document.getElementById('statAtentie').innerText = wr;
-        document.getElementById('statCritic').innerText = cr;
-        document.getElementById('totalInterventii').innerText = total;
-
-        fl.sort((a,b)=>calculeazaZile(a.d)-calculeazaZile(b.d)).slice(0, 50).forEach(f => {
-            cF.innerHTML += `<tr><td><b>${f.d}</b></td><td><b>${f.n}</b></td><td>${f.s}</td><td>${f.m}</td><td>${f.a}</td></tr>`;
-        });
-        document.getElementById('reportModal').style.display = "flex";
-    }
-
-    function deschideHist(id) {
-        const u = dbRaw[id];
-        document.getElementById('histNume').innerText = u.nume;
-        document.getElementById('histModel').innerText = "Cod ID: " + u.id + " | Secție: " + u.sectie;
-        const c = document.getElementById('corpIstoricIndividual'); c.innerHTML = "";
+        if(z < 30) ok++; else if(z < 90) wr++; else cr++;
         
-        document.querySelector('#historyModal table thead tr').innerHTML = `<th>Data</th><th>Mecanic</th><th>Operațiuni Efectuate</th><th>Observații</th><th>Foto</th>`;
-
-        if (u.istoric) {
-            Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)).forEach(i => {
-                const indicatorRev = i.revizie ? `<span style="background:#27ae60; color:white; padding:3px 6px; border-radius:5px; font-size:10px;">REVIZIE</span> ` : "";
-                const linkFoto = (i.foto && i.foto !== "") ? `<a href="${i.foto}" target="_blank" style="background:var(--primary); color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:11px; font-weight:bold;">📷 VEZI</a>` : "-";
-
-                c.innerHTML += `<tr><td><b>${i.data}</b></td><td>${i.mecanic || '-'}</td><td>${indicatorRev} ${i.verificari}</td><td>${i.obs || '-'}</td><td>${linkFoto}</td></tr>`;
+        if(u.istoric) Object.values(u.istoric).forEach(i => {
+            total++; 
+            const indicatorRev = i.revizie ? `<span style="color:#27ae60; font-weight:bold;">[REVIZIE]</span> ` : "";
+            
+            // 📌 SUGESTIA 3: Salvăm și ID-ul unic (u.id) în obiectul pe care îl punem în listă
+            fl.push({
+                d: i.data, 
+                n: u.nume, 
+                id: u.id || "Fără ID", // <-- Păstrăm codul utilajului (ex: K-9728)
+                s: u.sectie, 
+                m: i.mecanic || "-", 
+                a: indicatorRev + (i.verificari || ""),
+                ts: i.timestamp
             });
+        });
+    });
+
+    document.getElementById('statOK').innerText = ok;
+    document.getElementById('statAtentie').innerText = wr;
+    document.getElementById('statCritic').innerText = cr;
+    document.getElementById('totalInterventii').innerText = total;
+
+    // Sortare inteligentă după timp (cele mai noi intervenții apar primele)
+    fl.sort((a, b) => {
+        if (a.ts && b.ts) return b.ts - a.ts; 
+        return calculeazaZile(a.d) - calculeazaZile(b.d); 
+    }).slice(0, 50).forEach(f => {
+        
+        // SUGESTIA 2: Convertim timestamp-ul în format text (ex: 14:30)
+        let afisareOra = "";
+        if (f.ts) {
+            const d = new Date(f.ts);
+            const ore = String(d.getHours()).padStart(2, '0');
+            const minute = String(d.getMinutes()).padStart(2, '0');
+            afisareOra = ` <span style="color:#7f8c8d; font-size:11px; font-weight:normal; margin-left:6px;">🕒 ${ore}:${minute}</span>`;
         }
-        document.getElementById('btnExcelIndv').onclick = () => exportaExcelUtilaj(id);
-        document.getElementById('historyModal').style.display = "flex";
+
+        // 📌 SUGESTIA 3: Construim o etichetă gri, mică și elegantă pentru Codul Utilajului
+        const etichetaId = ` <span style="background:#e1e8ed; color:#2c3e50; padding:2px 6px; border-radius:4px; font-size:11px; margin-left:6px; font-weight:6px; font-family:monospace;">${f.id}</span>`;
+
+        // Am injectat ${etichetaId} imediat după numele utilajului (f.n)
+        cF.innerHTML += `<tr><td><b>${f.d}</b>${afisareOra}</td><td><b>${f.n}</b>${etichetaId}</td><td>${f.s}</td><td>${f.m}</td><td>${f.a}</td></tr>`;
+    });
+    
+    document.getElementById('reportModal').style.display = "flex";
+}
+    function deschideHist(id) {
+    const u = dbRaw[id];
+    document.getElementById('histNume').innerText = u.nume;
+    document.getElementById('histModel').innerText = "Cod ID: " + u.id + " | Secție: " + u.sectie;
+    const c = document.getElementById('corpIstoricIndividual'); c.innerHTML = "";
+    
+    document.querySelector('#historyModal table thead tr').innerHTML = `<th>Data</th><th>Mecanic</th><th>Operațiuni Efectuate</th><th>Observații</th><th>Foto</th>`;
+
+    if (u.istoric) {
+        Object.values(u.istoric).sort((a,b)=>calculeazaZile(a.data)-calculeazaZile(b.data)).forEach(i => {
+            const indicatorRev = i.revizie ? `<span style="background:#27ae60; color:white; padding:3px 6px; border-radius:5px; font-size:10px;">REVIZIE</span> ` : "";
+            const linkFoto = (i.foto && i.foto !== "") ? `<a href="${i.foto}" target="_blank" style="background:var(--primary); color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:11px; font-weight:bold;">📷 VEZI</a>` : "-";
+
+            // 🕒 --- LOGICĂ NOUĂ: CONVERTIRE TIMESTAMP ÎN ORĂ EXACTĂ ---
+            let afisareOra = "";
+            if (i.timestamp) {
+                const d = new Date(i.timestamp);
+                const ore = String(d.getHours()).padStart(2, '0');
+                const minute = String(d.getMinutes()).padStart(2, '0');
+                // Formatăm ceasul mic și gri deschis lângă dată
+                afisareOra = ` <span style="color:#7f8c8d; font-size:11px; font-weight:normal; margin-left:6px;" title="Ora salvării">🕒 ${ore}:${minute}</span>`;
+            }
+
+            // Am adăugat ${afisareOra} imediat după textul îngroșat al datei
+            c.innerHTML += `<tr><td><b>${i.data}</b>${afisareOra}</td><td>${i.mecanic || '-'}</td><td>${indicatorRev} ${i.verificari}</td><td>${i.obs || '-'}</td><td>${linkFoto}</td></tr>`;
+        });
     }
+    document.getElementById('btnExcelIndv').onclick = () => exportaExcelUtilaj(id);
+    document.getElementById('historyModal').style.display = "flex";
+}
 
     function printeazaElement(idModal) {
         document.querySelectorAll('.modal').forEach(m => m.classList.remove('print-active'));

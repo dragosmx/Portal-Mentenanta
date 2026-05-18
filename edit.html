@@ -180,7 +180,7 @@
         .check-item { display: flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer; }
         .check-item input { width: auto; margin: 0; }
 
-        .btn-save { background: var(--success); color: white; padding: 14px; border: none; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
+        .btn-save { background: var(--success); color: white; padding: 18px; border: none; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
         .btn-save:disabled { opacity: 0.2; cursor: not-allowed; }
         .btn-del { background: none; color: var(--danger); border: 1px solid var(--danger); padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 15px; }
 
@@ -326,9 +326,10 @@
             <input type="file" id="fotoUtilaj" accept="image/*" capture="environment" style="padding: 10px;">
         </div>
         
-        <div style="display: flex; gap: 10px; margin-top: 10px;">
-            <button class="btn-save" id="saveBtn" onclick="verificareSalvare()" disabled style="margin-top: 0; flex: 2; transition: background 0.3s ease;">💾 SALVEAZĂ FIȘA</button>
-            <button type="button" id="cancelBtn" onclick="resetForm()" style="display: none; flex: 1; background: var(--danger); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px; padding: 10px; text-transform: uppercase;">❌ Anulează</button>
+       <div style="display: flex; gap: 10px; margin-top: 15px; width: 100%;">
+            <button class="btn-save" id="saveBtn" onclick="verificareSalvare()" disabled style="margin-top: 0; flex: 2; padding: 15px 5px; display: flex; align-items: center; justify-content: center; white-space: nowrap; box-sizing: border-box; font-size: 12px; transition: background 0.3s ease;">💾 SALVEAZĂ FIȘA</button>
+            
+            <button type="button" id="cancelBtn" onclick="resetForm()" style="display: none; flex: 1; padding: 15px 5px; display: flex; align-items: center; justify-content: center; white-space: nowrap; box-sizing: border-box; background: var(--danger); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px; text-transform: uppercase; margin: 0;">❌ ANULEAZĂ</button>
         </div>
 
         <div id="feedbackMsg" class="msg-popup"></div>

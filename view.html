@@ -472,7 +472,13 @@
         // 🚀 AICI TRANSFORMĂM ETICHETA ÎN LINK DIRECT CĂTRE ISTORIC
         const etichetaId = ` <a href="#" onclick="deschideHist('${f.id}'); return false;" style="background:#3498db; color:white; padding:2px 8px; border-radius:4px; font-size:11px; margin-left:6px; font-weight:bold; font-family:monospace; text-decoration:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); transition:0.2s;">🔍 ${f.id}</a>`;
         
-        cF.innerHTML += `<tr><td><b>${f.d}</b>${afisareOra}</td><td><b>${f.n}</b>${etichetaId}</td><td>${f.s}</td><td>${f.m}</td><td>${f.a}</td></tr>`;
+        cF.innerHTML += `<tr>
+            <td style="white-space: nowrap; min-width: 120px;"><b>${f.d}</b>${afisareOra}</td>
+            <td style="white-space: nowrap; min-width: 200px;"><b>${f.n}</b>${etichetaId}</td>
+            <td style="white-space: nowrap;">${f.s}</td>
+            <td style="white-space: nowrap;">${f.m}</td>
+            <td style="min-width: 150px;">${f.a}</td>
+        </tr>`;
     });
     
     document.getElementById('reportModal').style.display = "flex";

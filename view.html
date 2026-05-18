@@ -202,7 +202,7 @@
     <div class="nav-left"><img src="logo.png" onclick="window.location.href='index.html'"></div>
     <div class="nav-scroll">
         <button onclick="deschideRapoarte()" style="background:var(--success);">📊 DASHBOARD GLOBAL</button>
-        <button onclick="deschideModulMecanici()" class="btn-top" style="background:#8e44ad; font-size:12px; white-space:nowrap;">👥 PERSONAL</button>
+        <button onclick="deschideModulPersonal()" class="btn-top" style="background:#8e44ad; font-size:12px; white-space:nowrap;">👥 PERSONAL</button>
         <button onclick="window.location.href='edit.html'" style="background:var(--warning); color:black;">⚙️ ADMINISTRARE</button>
         <button onclick="printeazaQR()" style="background:#8e44ad;">🖨️ QR CODE</button>
         <div class="cloud-status-view no-print">
@@ -305,17 +305,38 @@
     </div>
     <div id="alert-list"></div>
 </div>
-    <div id="mecaniciModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10000;">
-    <div style="background: var(--primary); width: 95%; max-width: 900px; height: 85vh; border-radius: 15px; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; position: relative; border-top: 5px solid #8e44ad; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-        <button onclick="document.getElementById('mecaniciModal').style.display='none'" style="position: absolute; top: 15px; right: 20px; background: rgba(255,255,255,0.1); border: none; color: white; padding: 8px 12px; border-radius: 8px; font-weight:bold; cursor: pointer; transition:0.2s;">❌ ÎNCHIDE</button>
-        <h2 style="margin-top: 0; color: #cbb4d4; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; text-transform: uppercase;">👥 Activitate Personal </h2>
-
-        <div style="display: flex; gap: 20px; height: 100%; overflow: hidden; margin-top: 10px;">
-            <div style="flex: 1; max-width: 250px; border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; padding-right: 10px;" id="listaMecaniciNume">
+    <div id="personalModal" class="modal">
+    <span class="close-modal-pro no-print" onclick="inchideModal('personalModal')">&times;</span>
+    <div class="modal-c">
+        <div class="report-side" style="background: white;">
+            <h3 style="margin-top:0; color: var(--primary);">👥 Personal Intervenții</h3>
+            <p style="font-size: 11px; color:#7f8c8d; font-weight: bold; margin-top: -5px; text-transform: uppercase;">Selectează utilizatorul:</p>
+            
+            <div id="listaPersonalNume" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                </div>
+            
+            <div class="no-print" style="margin-top:auto; padding-top:15px;">
+                <button id="btnExcelPersonal" onclick="exportaExcelPersonal()" style="width:100%; background:var(--excel); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; display:none; transition: 0.2s;">📥 EXPORT EXCEL PERSOANĂ</button>
             </div>
-
-            <div style="flex: 2; overflow-y: auto; padding-left: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px;" id="detaliiMecanicSelectat">
-                <div style="text-align:center; color:var(--text-dim); margin-top:100px; font-weight:bold;">"👈 Selectează o persoană din listă pentru a-i vedea activitatea"</div>
+        </div>
+        
+        <div class="report-main" style="background: white;">
+            <h3 id="titluAuditPersonal" style="margin-top:0; color: var(--primary);">🕒 Istoric Intervenții</h3>
+            <div class="scroll-v">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 12px;">Data / Ora</th>
+                            <th style="text-align: left; padding: 12px;">Cod ID</th>
+                            <th style="text-align: left; padding: 12px;">Denumire Utilaj</th>
+                            <th style="text-align: left; padding: 12px;">Secție</th>
+                            <th style="text-align: left; padding: 12px;">Operațiuni Efectuate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpAuditPersonal">
+                        <tr><td colspan="5" style="text-align:center; color:#999; padding:60px; font-weight:bold;">👈 Selectează o persoană din stânga pentru a-i deschide raportul de activitate.</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -734,6 +755,7 @@
     `);
     win.document.close();
 }
+    /*
     // ====== ALGORITM TRASABILITATE MECANICI ======
 let istoricGlobalMecanici = {};
 
@@ -812,6 +834,130 @@ function incarcaFisaMecanic(nume) {
 
     html += `</tbody></table>`;
     panou.innerHTML = html;
+}*/
+    // ===================================================
+// 🧠 LOGICA DE AUDIT ȘI EXPORT EXCEL PENTRU PERSONAL
+// ===================================================
+let istoricGlobalPersonal = {};
+let persoanaCurentaSelectata = null;
+
+function deschideModulPersonal() {
+    istoricGlobalPersonal = {};
+    persoanaCurentaSelectata = null;
+    document.getElementById('btnExcelPersonal').style.display = 'none';
+
+    // Scanăm întreaga bază de date și grupăm fișele după persoană
+    Object.values(dbRaw).forEach(u => {
+        if (u.istoric) {
+            Object.values(u.istoric).forEach(i => {
+                let numeRaw = i.mecanic ? i.mecanic.trim() : "";
+                if (!numeRaw || numeRaw === "-") numeRaw = "Necunoscut / Necompletat";
+                
+                // Formatăm curat numele (Ex: Cristi)
+                let numeFormata = numeRaw.charAt(0).toUpperCase() + numeRaw.slice(1);
+
+                if (!istoricGlobalPersonal[numeFormata]) istoricGlobalPersonal[numeFormata] = [];
+                
+                istoricGlobalPersonal[numeFormata].push({
+                    data: i.data,
+                    ts: i.timestamp || new Date(i.data).getTime(),
+                    utilaj: u.nume,
+                    idUtilaj: u.id || "Fără ID",
+                    sectie: u.sectie || "-",
+                    op: (i.revizie ? `<span style="color:#27ae60; font-weight:bold;">[REVIZIE]</span> ` : "") + (i.verificari || i.tip || '-')
+                });
+            });
+        }
+    });
+
+    const containerStanga = document.getElementById('listaPersonalNume');
+    containerStanga.innerHTML = "";
+    
+    let sortatPersonal = Object.keys(istoricGlobalPersonal).sort();
+
+    sortatPersonal.forEach(nume => {
+        const nrInterventii = istoricGlobalPersonal[nume].length;
+        containerStanga.innerHTML += `
+            <div class="item-selectie-personal" id="card-p-${nume}" onclick="incarcaFisaPersonal('${nume}')" style="background: #f8f9fa; padding: 12px; border-radius: 10px; cursor: pointer; border: 1px solid #eee; border-left: 4px solid #8e44ad; transition: 0.2s;">
+                <b style="color: #2c3e50; font-size: 13px; display:block;">${nume}</b>
+                <div style="font-size: 11px; color: #7f8c8d; margin-top:3px;">Lucrări înregistrate: <b style="color:#3498db;">${nrInterventii}</b></div>
+            </div>
+        `;
+    });
+
+    document.getElementById('titluAuditPersonal').innerHTML = "🕒 Istoric Intervenții";
+    document.getElementById('corpAuditPersonal').innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999; padding:60px; font-weight:bold;">👈 Selectează o persoană din stânga pentru a-i deschide raportul de activitate.</td></tr>`;
+    document.getElementById('personalModal').style.display = 'flex';
+}
+
+function incarcaFisaPersonal(nume) {
+    persoanaCurentaSelectata = nume;
+    document.getElementById('btnExcelPersonal').style.display = 'block';
+    
+    // Evidențiem vizual doar persoana selectată din listă
+    document.querySelectorAll('.item-selectie-personal').forEach(el => {
+        el.style.background = '#f8f9fa';
+        el.style.borderColor = '#eee';
+    });
+    const cardSelectat = document.getElementById(`card-p-${nume}`);
+    if(cardSelectat) {
+        cardSelectat.style.background = 'rgba(142, 68, 173, 0.08)';
+        cardSelectat.style.borderColor = '#8e44ad';
+    }
+    
+    document.getElementById('titluAuditPersonal').innerHTML = `👥 Registru Activitate Personal: <span style="color:#8e44ad; font-weight:bold;">${nume}</span>`;
+    
+    const corpTabel = document.getElementById('corpAuditPersonal');
+    corpTabel.innerHTML = "";
+    
+    // Sortăm descrescător (reparațiile cele mai noi apar primele)
+    const actiuni = istoricGlobalPersonal[nume].sort((a,b) => b.ts - a.ts);
+    
+    actiuni.forEach(a => {
+        let afisareOra = "";
+        if (a.ts) {
+            const d = new Date(a.ts);
+            const ore = String(d.getHours()).padStart(2, '0');
+            const minute = String(d.getMinutes()).padStart(2, '0');
+            afisareOra = ` <span style="color:#7f8c8d; font-size:11px; font-weight:normal; margin-left:6px;">🕒 ${ore}:${minute}</span>`;
+        }
+        
+        // ID-ul ca text link simplu, fără stil insignă greoi
+        const etichetaId = `<a href="#" onclick="deschideHist('${a.idUtilaj}'); inchideModal('personalModal'); return false;" style="color:#3498db; font-size:12px; font-weight:bold; font-family:monospace; text-decoration:underline;">${a.idUtilaj}</a>`;
+        
+        corpTabel.innerHTML += `<tr>
+            <td style="white-space: nowrap;"><b>${a.data}</b>${afisareOra}</td>
+            <td style="white-space: nowrap;">${etichetaId}</td>
+            <td style="white-space: nowrap;"><b>${a.utilaj}</b></td>
+            <td style="white-space: nowrap;">${a.sectie}</td>
+            <td style="min-width:200px;">${a.op}</td>
+        </tr>`;
+    });
+}
+
+function exportaExcelPersonal() {
+    if (!persoanaCurentaSelectata || !istoricGlobalPersonal[persoanaCurentaSelectata]) return;
+    
+    let rows = [];
+    const actiuni = istoricGlobalPersonal[persoanaCurentaSelectata].sort((a,b) => b.ts - a.ts);
+    
+    actiuni.forEach(a => {
+        // Curățăm codul HTML (precum span-ul de la [REVIZIE]) ca textul în Excel să fie 100% curat
+        let operatiuneText = a.op.replace(/<[^>]*>/g, '');
+        
+        rows.push({
+            "Dată Intervenție": a.data,
+            "Cod ID Utilaj": a.idUtilaj,
+            "Denumire Utilaj": a.utilaj,
+            "Secție Fabrică": a.sectie,
+            "Activitate / Operațiuni": operatiuneText
+        });
+    });
+    
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Audit Personal");
+    XLSX.writeFile(wb, `Fisa_Activitate_${persoanaCurentaSelectata}.xlsx`);
 }
 </script>
 

@@ -177,15 +177,17 @@
     }
 
     function afiseazaMeniuSauRedirectioneaza() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refParams = urlParams.get('ref');
-        if (refParams) {
-            window.location.href = "edit.html" + refParams;
-        } else {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('menu-screen').style.display = 'block';
-        }
+    const urlParams = new URLSearchParams(window.location.search);
+    const refParams = urlParams.get('ref');
+    const paginaTinta = urlParams.get('target') || "edit.html"; 
+    if (refParams) {
+        // Redirecționăm dinamic către pagina de unde a plecat, păstrând ID-ul utilajului (?id=K-XXXX)
+        window.location.href = paginaTinta + refParams;
+    } else {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('menu-screen').style.display = 'block';
     }
+}
 
     function logout() {
         firebase.auth().signOut().then(() => {

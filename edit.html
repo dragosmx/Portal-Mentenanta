@@ -194,7 +194,7 @@
 <div id="sidebar">
     <div id="drag-handle" class="drag-handle">
         
-        <button onclick="toggleMinimize()" style="background:var(--accent); border:none; border-radius:20px; padding:6px 15px; font-size:10px; font-weight:bold; margin-top:5px; cursor:pointer;">
+       <button onclick="toggleMinimize()" style="background:var(--accent); border:none; border-radius:20px; padding:6px 15px; font-size:10px; font-weight:bold; margin-top:5px; cursor:pointer;">
             ⬇️ ASCUNDE / ⬆️ ARATĂ HARTA
         </button>
     </div>
@@ -204,11 +204,11 @@
     <div class="logo-box">
         <img src="logo.png" alt="Logo">
     </div>
-    <div style="padding: 0 15px 15px 15px;">
+   /* <div style="padding: 0 15px 15px 15px;">
         <button onclick="deschideAdaugare()" style="width: 100%; background: var(--success); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             ➕ ADĂUGARE UTILAJ NOU
         </button>
-    </div>
+    </div>*/
     <div id="form-container">
         <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
 
@@ -459,23 +459,88 @@
     function toggleExtra() {
         const s = document.getElementById('sectie').value;
         const extraFieldsDiv = document.getElementById('extraFields');
+        
         let html = '<label>Operațiuni Plan Mentenanță 2026:</label><div class="checklist">';
 
+        // 1. TOCARE ȘI INJECTARE (Cuter, Injectoare, Malaxoare)
         if (s === 'Tocare' || s === 'Injectare' || s === 'Fabricație') {
-            html += `<label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Hidraulic"> Schimb Ulei Hidraulic</label>
-                     <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Vacuum"> Schimb Ulei Pompă Vacuum</label>
-                     <label class="check-item"><input type="checkbox" class="task" value="Filtre Aer/Ulei"> Verificare/Schimb Filtre</label>`;
-        } else if (s === 'Tratament Termic') {
-            html += `<label class="check-item"><input type="checkbox" class="task" value="Curatare Tubulatura"> Curățare Tubulatură</label>
-                     <label class="check-item"><input type="checkbox" class="task" value="Sonda Temp"> Calibrare Sondă</label>`;
-        } else {
-            html += `<label class="check-item"><input type="checkbox" class="task" value="Inspectie Vizuala"> Inspecție Vizuală Generală</label>
-                     <label class="check-item"><input type="checkbox" class="task" value="Gresare Generala"> Gresare Componente</label>`;
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Hidraulic"> Schimb Ulei Hidraulic</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Vacuum"> Schimb Ulei Pompă Vacuum</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Filtre Aer/Ulei"> Verificare/Schimb Filtre</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Gresare Lagare/Rulmenti"> Gresare Lagăre/Rulmenți</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Cutite/Ace"> Verificare Cuțite/Ace</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Motor principal"> Motor principal & Curele</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Generală"> Verificare Generală</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Înlocuire Cuțite/Site"> Înlocuire Cuțite/Site</label>
+            `;
+        } 
+        // 2. TRATAMENT TERMIC (Celule Afumare)
+        else if (s === 'Tratament Termic') {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Curatare Tubulatura"> Curățare Tubulatură</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Clapeti"> Clapete </label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Ventilatoare"> Motoare Ventilație</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Sonda Temp"> Calibrare Sondă</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Sonda Temperatură"> Înlocuire Sonde Temperatură </label>
+                <label class="check-item"><input type="checkbox" class="task" value="Gresare Balamale/Garnituri"> Gresare Balamale & Garnituri</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Generator Fum"> Mentenanță Generator Fum</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
+            `;
+        }
+        // 3. AMBALARE VID
+        else if (s === 'Ambalare Vid') {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Ulei Pompa Vid"> Schimb Ulei Pompă Vid</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Filtre Separatoare"> Filtre Separatoare Ulei</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Rezistente/Teflon"> Rezistențe Lipire & Teflon</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Membrane/Garnituri"> Verificare Membrane/Garnituri</label>
+            `;
+        }
+        // 4. DEPOZITARE (Frig / Compresoare)
+        else if (s === 'Depozitare') {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Nivel Freon"> Verificare Nivel Freon</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Curatare Condensatoare"> Curățare Condensatoare</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Motoare Ventilatoare"> Ventilatoare Vaporizator</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Garnituri Usi"> Verificare Etanșeitate Uși</label>
+            `;
+        }
+        else if (s === 'Spălare') {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Pompa"> Schimb Ulei Pompă</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Etansare Pompa/Presetupe"> Etanșare Pompă (Presetupe/Garnituri)</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Furtunuri/Cuplaje"> Verificare Furtunuri & Cuplaje</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Motor si Curele"> Motor Electric & Curele Transmisie</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Curatare Duze/Accesorii"> Curățare Duze & Accesorii</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Filtre Apa"> Verificare Filtre/Decantoare Apă</label>
+            `;
+        }
+        // 5. TRANȘARE (Feliatoare / Benzi)
+        else if (s === 'Tranșare') {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Gresare Ghidaje"> Gresare Ghidaje/Liniar</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Ascutire Lama"> Ascuțire/Verificare Lamă</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Curatare Benzi"> Verificare Stare Benzi</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Senzori Prezenta"> Curățare/Reglare Fotocelule</label>
+            `;
+        }
+        // 6. DEFAULT (Restul secțiilor)
+        else {
+            html += `
+                <label class="check-item"><input type="checkbox" class="task" value="Inspectie Vizuala"> Inspecție Vizuală Generală</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Gresare Generala"> Gresare Componente Mobile</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Verificare Suruburi"> Strângere Șuruburi/Fixări</label>
+                <label class="check-item"><input type="checkbox" class="task" value="Tablou Electric"> Suflare/Strângere Tablou El.</label>
+            `;
         }
         
-        html += `</div><div class="group" style="margin-top:10px;">
-                 <label>Altă operațiune manuală (Piese înlocuite):</label>
-                 <textarea id="extraCheck" rows="3" placeholder="Ex: Înlocuit rulment 6205..."></textarea></div>`;
+        html += `</div>`;
+        html += `<div class="group" style="margin-top:10px;">`;
+        html += `<label>Altă operațiune manuală (Piese înlocuite):</label>`;
+        html += `<input type="text" id="extraCheck" placeholder="Ex: Înlocuit rulment 6205...">`;
+        html += `</div>`;
+        
         extraFieldsDiv.innerHTML = html;
     }
 

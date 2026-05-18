@@ -19,7 +19,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
     
- <style>
+<style>
         :root {
             --primary: #2c3e50;
             --accent: #f39c12;
@@ -62,6 +62,9 @@
 
         .drag-handle { display: none; }
 
+        /* ---------------------------------------------------
+           MENIU PLUTITOR (DREAPTA JOS/SUS)
+           --------------------------------------------------- */
         .floating-menu {
             position: absolute; top: 20px; right: 20px;
             z-index: 1000;
@@ -78,67 +81,27 @@
         }
         .float-btn:hover { transform: scale(1.1); background: var(--primary); }
 
-        #btnModAdmin {
-            width: auto; height: 50px; padding: 0 20px; border-radius: 25px;
-            font-size: 12px; font-weight: bold; background: var(--danger);
-            color: white; border: 2px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer;
-            transition: all 0.3s ease;
+        /* ---------------------------------------------------
+           BUTOANE CENTRALE SUS (CLOUD + ADMIN)
+           --------------------------------------------------- */
+        .top-status-container {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; gap: 10px; align-items: center;
         }
-        .admin-status-btn {
-            color: white; border-radius: 20px; font-size: 11px; font-weight: bold;
+
+        .cloud-status, .admin-status-btn {
+            color: white; padding: 8px 15px; border-radius: 20px; font-size: 11px;
+            display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: bold;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
             white-space: nowrap; backdrop-filter: blur(5px);
-            background: rgba(231, 76, 60, 0.8); cursor: pointer; 
-            
-            /* Pornim de la formă de cerc (perfect pentru mobil) */
-            width: 34px; height: 34px; padding: 0; 
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; box-sizing: border-box;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
         }
 
-        /* Textul din interior este ascuns implicit */
-        .admin-text {
-            max-width: 0; opacity: 0; display: inline-block;
-            transition: max-width 0.3s ease, opacity 0.2s ease, margin 0.3s;
-            overflow: hidden; vertical-align: middle;
-        }
-
-        /* 💻 EFECTUL DE MOUSE OVER (DOAR PE DISPOZITIVELE CU MOUSE) */
-        @media (hover: hover) {
-            .admin-status-btn:hover {
-                width: 115px; /* Se extinde lung pentru a face loc textului */
-                justify-content: flex-start; padding-left: 11px;
-            }
-            .admin-status-btn:hover .admin-text {
-                max-width: 80px; opacity: 1; margin-left: 5px; /* Textul alunecă afară */
-            }
-        }
-
-        /* 📱 DESIGNUL CURAT PE MOBIL (FĂRĂ HOVER LIPICIOS) */
-        @media (max-width: 768px) {
-            .top-status-container { top: 15px; width: 95%; justify-content: center; gap: 5px; }
-            .cloud-status { font-size: 10px; padding: 6px 12px; }
-            .admin-status-btn { width: 30px; height: 30px; }
-            .admin-text { display: none; } /* Pe mobil eliminăm textul complet, lăsând doar lăcățelul tactil */
-        }
-      /*  .cloud-status {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; background: rgba(39, 174, 96, 0.9); color: white;
-            padding: 10px 20px; border-radius: 20px; font-size: 11px;
-            display: flex; align-items: center; gap: 8px; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
-        }
-        .cloud-status.offline { background: rgba(231, 76, 60, 0.9); }*/
-     /* BANNER CLOUD */
-        .cloud-status {
-            color: white; padding: 8px 15px; border-radius: 20px; font-size: 11px;
-            display: flex; align-items: center; gap: 6px; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
-            white-space: nowrap; backdrop-filter: blur(5px); background: rgba(39, 174, 96, 0.9);
-        }
+        .cloud-status { background: rgba(39, 174, 96, 0.9); }
         .cloud-status.offline { background: rgba(231, 76, 60, 0.9); }
+
+        .admin-status-btn { background: rgba(231, 76, 60, 0.8); cursor: pointer; transition: 0.2s; outline: none; }
+        .admin-status-btn:active { transform: scale(0.95); }
+
         .dot { width: 7px; height: 7px; background: white; border-radius: 50%; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
@@ -150,6 +113,9 @@
         }
         .btn-inchide-pc:hover { background: #e74c3c; color: white; }
 
+        /* ---------------------------------------------------
+           MEDIA QUERY - PENTRU TELEFOANE MOBILE (AICI E MAGIA)
+           --------------------------------------------------- */
         @media (max-width: 768px) {
             body { overflow: hidden; } 
             
@@ -185,9 +151,15 @@
                 top: auto; bottom: 120px; right: 15px;
                 flex-direction: column; 
             }
-            .cloud-status { top: 15px; padding: 8px 15px; }
+            
+            /* AICI SE AJUSTEAZĂ BUTOANELE DE SUS PENTRU ECRANE MICI */
+            .top-status-container { top: 15px; width: 96%; justify-content: center; gap: 6px; }
+            .cloud-status, .admin-status-btn { font-size: 10px; padding: 6px 10px; }
         }
 
+        /* ---------------------------------------------------
+           ELEMENTE DE FORMULAR ȘI PINI
+           --------------------------------------------------- */
         .logo-box { text-align: center; margin-bottom: 20px; }
         .logo-box img { max-width: 120px; }
         
@@ -230,7 +202,7 @@
     </div>
     
     <button onclick="comutaModAdmin()" id="btnModAdmin" class="admin-status-btn">
-        <span id="adminLockIcon">🔒</span><span class="admin-text">ADMIN OFF</span>
+        🔒 ADMIN OFF
     </button>
 </div>
 
@@ -655,20 +627,16 @@
             });
     }
 
-    function actualizeazaButonAdmin() {
+   function actualizeazaButonAdmin() {
         const btn = document.getElementById('btnModAdmin');
-        const icon = document.getElementById('adminLockIcon');
-        const text = btn ? btn.querySelector('.admin-text') : null;
         if (!btn) return;
         
         if (sessionStorage.getItem('is_admin') === 'true') {
-            if (icon) icon.innerText = "🔓";
-            if (text) text.innerText = "ADMIN ON";
-            btn.style.background = "rgba(46, 204, 113, 0.9)"; // Se face verde când e deblocat
+            btn.innerText = "🔓 ADMIN ON"; // Schimbă tot textul butonului direct
+            btn.style.background = "rgba(46, 204, 113, 0.9)"; // Îl face verde
         } else {
-            if (icon) icon.innerText = "🔒";
-            if (text) text.innerText = "ADMIN OFF";
-            btn.style.background = "rgba(231, 76, 60, 0.8)"; // Rămâne roșu când e blocat
+            btn.innerText = "🔒 ADMIN OFF"; // Schimbă tot textul butonului direct
+            btn.style.background = "rgba(231, 76, 60, 0.8)"; // Îl face roșu
         }
     }
 

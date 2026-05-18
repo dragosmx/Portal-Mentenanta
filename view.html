@@ -387,11 +387,38 @@
         verificaAlarmeMentenanta();
         document.getElementById('loading-screen').style.display = 'none';
     });*/ 
-    database.ref('utilaje').on('value', (snap) => {
+   /* database.ref('utilaje').on('value', (snap) => {
         dbRaw = snap.val() || {};
         afiseazaPuncte();
         verificaAlarmeMentenanta();
-        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('loading-screen').style.display = 'none';*/
+    // 🛡️ REPARARE SECURE-READ: Așteptăm ca Firebase Auth să restabilească sesiunea securizată înainte de a interoga baza de date
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            // Utilizatorul este validat! Acum pornim descărcarea pinilor pe hartă
+            database.ref('utilaje').on('value', (snap) => {
+                dbRaw = snap.val() || {};
+                afiseazaPuncte();
+                verificaAlarmeMentenanta();
+                document.getElementById('loading-screen').style.display = 'none';
+
+                // 🚀 DETECTARE AUTOMATĂ ID DIN URL (VENIT DIN INDEX PENTRU AUTO-ZOOM)
+                const urlParams = new URLSearchParams(window.location.search);
+                const idParam = urlParams.get('id');
+                if (idParam && dbRaw[idParam]) {
+                    const u = dbRaw[idParam];
+                    if (u.lat && u.lng) {
+                        setTimeout(() => {
+                            focalizeazaUtilaj(u.lat, u.lng, idParam);
+                        }, 600);
+                    }
+                }
+            });
+        } else {
+            // Scut de siguranță: dacă cineva neautorizat accesează direct view.html, îl aruncăm în ecranul de login
+            window.location.href = "index.html";
+        }
+    });
 
         // 🚀 DETECTARE AUTOMATĂ ID DIN URL (VENIT DIN INDEX)
         const urlParams = new URLSearchParams(window.location.search);

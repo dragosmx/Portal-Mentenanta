@@ -307,11 +307,19 @@
             </label>
         </div>
 
-        <div class="group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
-            <div>
-                <label>Efectuat de (Mecanic):</label>
-                <input type="text" id="mecanic" placeholder="Nume mecanic...">
-            </div>
+           <div class="group">
+            <label>EFECTUAT DE (PERSONAL):</label>
+            <select id="mecanicSelect" onchange="schimbaMecanic()" style="margin-bottom: 5px;">
+                <option value="" disabled selected>-- Alege persoana --</option>
+                <option value="Administrator">Administrator</option>
+                <option value="Dorin Stoicu">Dorin Stoicu</option>
+                <option value="Dragos Munteanu">Dragos Munteanu</option>
+                <option value="Ilie Prelipcean">Ilie Prelipcean</option>
+                <option value="Alexandru Coroamă">Alexandru Coroamă</option>
+                <option value="Moisa Gabriel">Moisa Gabriel</option>
+                <option value="Altcineva">👉 Altcineva (Scrie de mână)</option>
+            </select>
+            <input type="text" id="mecanicCustom" placeholder="Scrie numele persoanei..." style="display: none;">
         </div>
 
         <div id="extraFields"></div>
@@ -727,7 +735,17 @@
         
         extraFieldsDiv.innerHTML = html;
     }
-
+    function schimbaMecanic() {
+        const sel = document.getElementById('mecanicSelect');
+        const custom = document.getElementById('mecanicCustom');
+        if(sel.value === "Altcineva") {
+            custom.style.display = "block";
+            custom.focus(); // Pune cursorul direct în căsuță pentru tastare
+        } else {
+            custom.style.display = "none";
+            custom.value = "";
+        }
+    }
     function checkReady() {
         const numeValid = document.getElementById('nume').value.trim().length > 2;
         const areLocatie = (selectedId !== null) || (currentCoords !== null);
@@ -756,13 +774,28 @@
             if (manual !== "") verificariFinale = verificariFinale ? verificariFinale + " | " + manual : manual;
 
             // ⚙️ SOLUȚIA 6: GENERARE ID UNIC ABSOLUT (TIMESTAMP BAZĂ 36 + SECVENȚĂ RANDOM) - ZERO RISC COLIZIUNE
-            const finalId = selectedId ? selectedId : "K-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random() * 10);
-            let fortamOffline = false; 
+          /* const finalId = selectedId ? selectedId : "K-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random() * 10);
+            let fortamOffline = false; */
+
+            // 🛡️ SISTEM ANTI-DUPLICARE ID: Generăm codul și verificăm dacă e liber
+            let finalId = selectedId;
+            if (!finalId) {
+                let idGenerat;
+                do {
+                    const codScurt = Math.floor(1000 + Math.random() * 9000);
+                    idGenerat = "K-" + codScurt;
+                } while (dbRaw[idGenerat] !== undefined); // Cât timp ID-ul există, mai trage un bilet!
+                finalId = idGenerat;
+            }
+
+            // 🧠 PRELUAREA INTELIGENTĂ A NUMELUI: Lista Fixă sau Scris de mână
+            const numeSelectat = document.getElementById('mecanicSelect').value;
+            const numeFinal = (numeSelectat === "Altcineva") ? document.getElementById('mecanicCustom').value : numeSelectat;
 
             const entry = {
                 data: document.getElementById('data').value, 
                 tip: document.getElementById('tipInterventie').value,
-                mecanic: document.getElementById('mecanic').value, 
+                mecanic: numeFinal || "Necunoscut", // Salvăm ce s-a ales sau s-a scris
                 verificari: verificariFinale,
                 obs: document.getElementById('obs').value, 
                 timestamp: Date.now(),
@@ -876,7 +909,12 @@
         document.getElementById('nume').value = ""; 
         document.getElementById('model').value = ""; 
         document.getElementById('obs').value = ""; 
-        document.getElementById('mecanic').value = "";
+        // Resetăm lista fixă și căsuța ascunsă
+        if(document.getElementById('mecanicSelect')) document.getElementById('mecanicSelect').value = "";
+        if(document.getElementById('mecanicCustom')) {
+            document.getElementById('mecanicCustom').value = "";
+            document.getElementById('mecanicCustom').style.display = "none";
+        }
         document.getElementById('data-punere').value = ""; 
         
         document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; 

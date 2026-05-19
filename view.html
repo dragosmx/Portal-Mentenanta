@@ -748,7 +748,7 @@ function verificaAlarmeMentenanta() {
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
         if (u.istoric) {
-            const istArr = Object.values(u.istoric).reverse();
+          const istArr = Object.values(u.istoric);
             const ultimaRev = istArr.find(i => i.revizie === true);
 
             if (ultimaRev) {

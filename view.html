@@ -426,7 +426,7 @@
         const esteSelectat = (id === selectedId);
         const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
         
-        const istArr = u.istoric ? Object.values(u.istoric) : [];
+        const istArr = u.istoric ? Object.values(u.istoric).reverse() : [];
         const ultimaRev = istArr.find(i => i.revizie === true);
         const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
         
@@ -506,7 +506,7 @@
     Object.values(dbRaw).forEach(u => {
         let maxZile = 0;
         if (u.istoric) {
-            const arr = Object.values(u.istoric);
+            const arr = Object.values(u.istoric).reverse();
             total += arr.length;
             const ultimaRev = arr.find(i => i.revizie === true);
             if (ultimaRev) {
@@ -748,7 +748,7 @@ function verificaAlarmeMentenanta() {
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
         if (u.istoric) {
-            const istArr = Object.values(u.istoric);
+            const istArr = Object.values(u.istoric).reverse();
             const ultimaRev = istArr.find(i => i.revizie === true);
 
             if (ultimaRev) {

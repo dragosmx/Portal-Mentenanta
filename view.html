@@ -363,6 +363,18 @@
     // VARIABILĂ GLOBALĂ PENTRU A ȚINE MINTE CĂ AI ÎNCHIS ALARMA
     let alertaInchisaManual = false; 
  
+  /*  function calculeazaZile(dataString) {
+        if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
+        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+        const part = curat.split(/[./-]/);
+        if (part.length < 3) return 999;
+        let d, m, y;
+        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
+        const dt = new Date(y, m - 1, d);
+        const azi = new Date(); azi.setHours(0,0,0,0);
+        const diff = Math.floor((azi - dt) / 86400000);
+        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+    }*/
     function calculeazaZile(dataString) {
         if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
         const curat = dataString.replace(/[^0-9./-]/g, '').trim();
@@ -374,6 +386,34 @@
         const azi = new Date(); azi.setHours(0,0,0,0);
         const diff = Math.floor((azi - dt) / 86400000);
         return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+    }
+
+    // 🔥 Găsește ultima revizie ordonând TOATE reparațiile utilajului după data reală (nu după ordinea din Firebase)
+    function gasesteUltimaRevizie(istoric) {
+        if (!istoric) return null;
+        let revizii = Object.values(istoric).filter(i => i.revizie === true);
+        if (revizii.length === 0) return null;
+        // Sortăm strict după milisecunde pentru a o găsi pe cea absolut mai nouă
+        revizii.sort((a, b) => {
+            let dataA = Date.parse(a.data);
+            let dataB = Date.parse(b.data);
+            return dataB - dataA; // Cea mai recentă va fi prima
+        });
+        return revizii[0];
+    }
+
+    // 🔥 Găsește ultima revizie ordonând TOATE reparațiile utilajului după data reală (nu după ordinea din Firebase)
+    function gasesteUltimaRevizie(istoric) {
+        if (!istoric) return null;
+        let revizii = Object.values(istoric).filter(i => i.revizie === true);
+        if (revizii.length === 0) return null;
+        // Sortăm strict după milisecunde pentru a o găsi pe cea absolut mai nouă
+        revizii.sort((a, b) => {
+            let dataA = Date.parse(a.data);
+            let dataB = Date.parse(b.data);
+            return dataB - dataA; // Cea mai recentă va fi prima
+        });
+        return revizii[0];
     }
 
    // 🗺️ INITIALIZARE HARTĂ (Lăsată la nivel global pentru a fi accesibilă peste tot)
@@ -426,8 +466,7 @@
         const esteSelectat = (id === selectedId);
         const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
         
-        const istArr = u.istoric ? Object.values(u.istoric).reverse() : [];
-        const ultimaRev = istArr.find(i => i.revizie === true);
+        const ultimaRev = gasesteUltimaRevizie(u.istoric);
         const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
         
         let col = "#2ecc71";
@@ -607,12 +646,9 @@
                 afisareOra = `<span style="color:#7f8c8d; font-size:11px; display:block;">🕒 ${ore}:${minute}</span>`;
             }
             
-            historyRows.push(`<tr>
-                <td style="min-width: 90px;"><b>${i.data}</b>${afisareOra}</td>
-                <td><b>${i.mecanic || '-'}</b></td>
-                <td>${indicatorRev} ${i.verificari || i.tip || '-'}<br>${auditText}</td>
-                <td>${i.obs || '-'}</td>
-                <td style="text-align:center;">${linkFoto}</td>
+           historyRows.push(`
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 10px; font-weight: bold; white-space: nowrap;">${i.data} ${afisareOra}</td>
             </tr>`);
         });
 

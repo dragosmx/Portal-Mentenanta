@@ -363,18 +363,6 @@
     // VARIABILĂ GLOBALĂ PENTRU A ȚINE MINTE CĂ AI ÎNCHIS ALARMA
     let alertaInchisaManual = false; 
  
-  /*  function calculeazaZile(dataString) {
-        if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
-        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
-        const part = curat.split(/[./-]/);
-        if (part.length < 3) return 999;
-        let d, m, y;
-        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
-        const dt = new Date(y, m - 1, d);
-        const azi = new Date(); azi.setHours(0,0,0,0);
-        const diff = Math.floor((azi - dt) / 86400000);
-        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
-    }*/
     function calculeazaZile(dataString) {
         if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
         const curat = dataString.replace(/[^0-9./-]/g, '').trim();
@@ -386,34 +374,6 @@
         const azi = new Date(); azi.setHours(0,0,0,0);
         const diff = Math.floor((azi - dt) / 86400000);
         return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
-    }
-
-    // 🔥 Găsește ultima revizie ordonând TOATE reparațiile utilajului după data reală (nu după ordinea din Firebase)
-    function gasesteUltimaRevizie(istoric) {
-        if (!istoric) return null;
-        let revizii = Object.values(istoric).filter(i => i.revizie === true);
-        if (revizii.length === 0) return null;
-        // Sortăm strict după milisecunde pentru a o găsi pe cea absolut mai nouă
-        revizii.sort((a, b) => {
-            let dataA = Date.parse(a.data);
-            let dataB = Date.parse(b.data);
-            return dataB - dataA; // Cea mai recentă va fi prima
-        });
-        return revizii[0];
-    }
-
-    // 🔥 Găsește ultima revizie ordonând TOATE reparațiile utilajului după data reală (nu după ordinea din Firebase)
-    function gasesteUltimaRevizie(istoric) {
-        if (!istoric) return null;
-        let revizii = Object.values(istoric).filter(i => i.revizie === true);
-        if (revizii.length === 0) return null;
-        // Sortăm strict după milisecunde pentru a o găsi pe cea absolut mai nouă
-        revizii.sort((a, b) => {
-            let dataA = Date.parse(a.data);
-            let dataB = Date.parse(b.data);
-            return dataB - dataA; // Cea mai recentă va fi prima
-        });
-        return revizii[0];
     }
 
    // 🗺️ INITIALIZARE HARTĂ (Lăsată la nivel global pentru a fi accesibilă peste tot)
@@ -453,89 +413,67 @@
     // Siguranță pentru ecranul de loading
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
 
-   function afiseazaPuncte() {
-    // 1. Curățăm markerii vechi și lista laterală
-    markersList.forEach(m => map.removeLayer(m.marker));
+    function afiseazaPuncte() {
+    const filtru = document.getElementById('filterSectie').value;
+    markersList.forEach(m => map.removeLayer(m));
     markersList = [];
-    const sideList = document.getElementById('side-list');
-    if(sideList) sideList.innerHTML = "";
     
-    let stats = { total: 0, ok: 0, warn: 0, crit: 0 };
-
-    // 2. 🧠 Aducem tabelul de alarme și aici ca să știe cum să coloreze pinii!
-    const configuratieAlarme = {
-        "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14
-    };
-
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
-        if (u.lat && u.lng) {
-            stats.total++;
-            
-            // 3. Extragem datele folosind funcția inteligentă (care sortează matematic după dată)
-            const istArr = u.istoric ? Object.values(u.istoric).reverse() : [];
-            const ultimaRev = gasesteUltimaRevizie(u.istoric);
-            
-            // 4. Calculăm culoarea în funcție de intervalul fiecărui utilaj (14 sau 30 zile)
-            const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
-            const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
-            
-            let col = "#2ecc71"; // Verde (La zi)
-            if (z >= limitaZile && z < (limitaZile * 3)) { col = "#f39c12"; stats.warn++; } // Portocaliu
-            else if (z >= (limitaZile * 3)) { col = "#e74c3c"; stats.crit++; } // Roșu (Critic)
-            else { stats.ok++; }
+        if (filtru !== "Toate" && u.sectie !== filtru) return;
+        if (!u.lat || !u.lng) return;
+        
+        const esteSelectat = (id === selectedId);
+        const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
+        
+        const istArr = u.istoric ? Object.values(u.istoric).reverse() : [];
+        const ultimaRev = istArr.find(i => i.revizie === true);
+        const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
+        
+        let col = "#2ecc71";
+        if (z >= 30 && z < 90) col = "#f39c12";
+        else if (z >= 90) col = "#e74c3c";
 
-            // 5. Creăm Pin-ul pentru hartă
-            const mIcon = L.divIcon({
-                className: 'custom-pin',
-                html: `<div class="pin" style="background:${col}; border:2px solid white; box-shadow: 0 0 8px ${col};"></div>`,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            });
+        const dataRevizieAfisata = ultimaRev ? ultimaRev.data : "Niciuna";
+        const ultimaData = istArr.length > 0 ? istArr[0].data : "-";
+        const ultimaActivitate = istArr.length > 0 ? (istArr[0].verificari || istArr[0].tip || "Mentenanță") : "-";
 
-            const marker = L.marker([u.lat, u.lng], { icon: mIcon }).addTo(map);
-            
-            // 6. Fereastra Popup (Când dai click pe pin)
-            const popHtml = `
-                <div style="font-family:Segoe UI; min-width: 160px; text-align: center;">
-                    <b style="font-size:15px; color:#2c3e50;">${u.nume}</b><br>
-                    <span style="font-size:11px; color:#7f8c8d; text-transform:uppercase;">${u.sectie} | ID: ${id}</span>
-                    <hr style="border:0; border-top:1px solid #ecf0f1; margin:8px 0;">
-                    <div style="font-size: 11px; color: #7f8c8d; margin-top: 5px;">
-                        Ultima revizie: <b style="color: ${col};">${ultimaRev ? ultimaRev.data : 'Fără istoric'}</b>
-                    </div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <a href="edit.html?id=${id}" style="flex:1; background:#27ae60; color:white; padding:8px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:12px;">🔧 Fişă Utilaj</a>
-                    </div>
+        const customIcon = L.divIcon({
+            className: clasaPin,
+            html: `
+                <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
+                    <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
+                    <circle cx="15" cy="15" r="5.5" fill="white"/>
+                </svg>`,
+            iconSize: [30, 45], iconAnchor: [15, 45], popupAnchor: [0, -45]
+        });
+
+        const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(map);
+        
+        // 🚀 AICI AM ADĂUGAT CELE 2 BUTOANE (ISTORIC + INTERVENȚIE)
+        m.bindPopup(`
+            <div class="popup-header">
+                <h3>${u.nume}</h3>
+                <p style="margin: 0; font-weight: bold;">${u.marca || ''} ${u.model || ''}</p>
+                <p>ID: ${u.id} | ${u.sectie}</p>
+            </div>
+            <div class="popup-body">
+                <div class="last-info">
+                    <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
+                    <span style="color:#666; font-size:11px;">Ultima revizie: ${dataRevizieAfisata}</span><br>
+                    <span style="color:#666; font-size:11px;">Ultima intervenție: ${ultimaData}</span><br>
+                    <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px;">Recent: ${ultimaActivitate}</i>
                 </div>
-            `;
-            marker.bindPopup(popHtml);
-            markersList.push({ id: id, nume: u.nume, marker: marker });
-
-            // 7. Adăugare în meniul lateral de căutare
-            if(sideList) {
-                sideList.innerHTML += `
-                    <div class="list-item" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <b>${u.nume}</b>
-                            <span style="font-size:10px; padding:3px 6px; background:${col}; color:white; border-radius:4px;">${z === 999 ? 'LIPSĂ' : z + 'z'}</span>
-                        </div>
-                        <div style="font-size:10px; color:#bdc3c7; margin-top:4px;">${u.sectie} | ID: ${id}</div>
-                    </div>
-                `;
-            }
-        }
+                <div style="display:flex; gap:5px; margin-top:10px;">
+                    <button class="btn-history" style="flex:1; margin-top:0;" onclick="deschideHist('${id}')">📜 ISTORIC</button>
+                    <a href="edit.html?id=${id}" class="btn-history" style="flex:1; margin-top:0; background:#3498db; text-decoration:none; text-align:center; box-sizing:border-box;">🔧 INTERVENȚIE</a>
+                </div>
+            </div>
+        `);
+        m.uData = { id: String(u.id).toUpperCase(), n: u.nume.toUpperCase() };
+        markersList.push(m);
     });
-
-    // 8. Actualizăm numerele de sus din Dashboard
-    const statTotal = document.getElementById('stat-total');
-    if(statTotal) statTotal.innerText = stats.total;
-    const statOk = document.getElementById('stat-ok');
-    if(statOk) statOk.innerText = stats.ok;
-    const statWarn = document.getElementById('stat-warn');
-    if(statWarn) statWarn.innerText = stats.warn;
-    const statCrit = document.getElementById('stat-crit');
-    if(statCrit) statCrit.innerText = stats.crit;
 }
 
     window.zoomSectie = function(sectie) {
@@ -669,9 +607,12 @@
                 afisareOra = `<span style="color:#7f8c8d; font-size:11px; display:block;">🕒 ${ore}:${minute}</span>`;
             }
             
-           historyRows.push(`
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td style="padding: 10px; font-weight: bold; white-space: nowrap;">${i.data} ${afisareOra}</td>
+            historyRows.push(`<tr>
+                <td style="min-width: 90px;"><b>${i.data}</b>${afisareOra}</td>
+                <td><b>${i.mecanic || '-'}</b></td>
+                <td>${indicatorRev} ${i.verificari || i.tip || '-'}<br>${auditText}</td>
+                <td>${i.obs || '-'}</td>
+                <td style="text-align:center;">${linkFoto}</td>
             </tr>`);
         });
 

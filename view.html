@@ -466,13 +466,17 @@
         const esteSelectat = (id === selectedId);
         const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
         
+       const istArr = u.istoric ? Object.values(u.istoric).reverse() : [];
         const ultimaRev = gasesteUltimaRevizie(u.istoric);
+        
+        // 🧠 NOU: Citește limita din tabel pentru fiecare utilaj
+        const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
         const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
         
-        let col = "#2ecc71";
-        if (z >= 30 && z < 90) col = "#f39c12";
-        else if (z >= 90) col = "#e74c3c";
-
+        let col = "#2ecc71"; // Verde dacă e la zi
+        if (z >= limitaZile && z < (limitaZile * 3)) col = "#f39c12"; // Portocaliu
+        else if (z >= (limitaZile * 3)) col = "#e74c3c"; // Roșu dacă e critic
+        
         const dataRevizieAfisata = ultimaRev ? ultimaRev.data : "Niciuna";
         const ultimaData = istArr.length > 0 ? istArr[0].data : "-";
         const ultimaActivitate = istArr.length > 0 ? (istArr[0].verificari || istArr[0].tip || "Mentenanță") : "-";

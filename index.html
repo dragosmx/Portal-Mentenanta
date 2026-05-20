@@ -419,16 +419,16 @@ function verificaAlarmeMentenanta() {
                 const statusMesaj = esteCritic ? `CRITIC: Revizie depășită de ${z} zile!` : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
 
                 container.innerHTML += `
-                <div class="alert-item ${clasaAlerta}">
-                    <b style="font-size: 14px; display:block;">${u.nume}</b>
-                    <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
-                    <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
-                    
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <button class="btn-locate" style="flex:1; padding: 8px 5px;" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">📍 HARTĂ</button>
-                        <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">🔧 REPARĂ</a>
-                    </div>
-                </div>`;
+                        <div class="alert-item ${clasaAlerta}">
+                            <b style="font-size: 14px; display:block;">${u.nume}</b>
+                            <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
+                            <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
+                            
+                            <div style="display:flex; gap:5px; margin-top:10px;">
+                                <a href="view.html?id=${id}" class="btn-locate" style="flex:1; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">📍 HARTĂ</a>
+                                <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">🔧 REPARĂ</a>
+                            </div>
+                        </div>`;
             }
         }
     });

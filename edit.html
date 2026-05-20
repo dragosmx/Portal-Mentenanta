@@ -389,17 +389,37 @@
     let selectedId = null;
     let currentCoords = null;
     
+   // --- START TRADUCĂTOR DATE ---
+    function obtineTimp(dataString) {
+        if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
+        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+        const part = curat.split(/[./-]/);
+        if (part.length < 3) return 0;
+        
+        let d, m, y;
+        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
+        
+        return new Date(y, m - 1, d).getTime(); 
+    }
+
     function calculeazaZile(dataString) {
-        if (!dataString || dataString === "-") return 999; 
-        let dt = new Date(dataString);
-        if (isNaN(dt)) {
-            const p = dataString.split(/[./-]/);
-            if (p.length === 3) dt = new Date(p[2], p[1]-1, p[0]);
-        }
+        const timp = obtineTimp(dataString);
+        if (timp === 0) return 999;
+        const dt = new Date(timp);
         const azi = new Date(); azi.setHours(0,0,0,0);
         const diff = Math.floor((azi - dt) / 86400000);
-        return diff < 0 ? 0 : diff;
+        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
     }
+
+    function gasesteUltimaRevizie(istoric) {
+        if (!istoric) return null;
+        let revizii = Object.values(istoric).filter(i => i.revizie === true);
+        if (revizii.length === 0) return null;
+        
+        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
+        return revizii[0];
+    }
+    // --- END TRADUCĂTOR DATE ---
     
     document.getElementById('data').valueAsDate = new Date();
 
@@ -429,7 +449,7 @@
                 // 🪄 MAGIC: Verificăm dacă utilajul curent se potrivește cu textul din bara de căutare
                 if (textCautat === "" || nume.includes(textCautat) || cod.includes(textCautat) || sectie.includes(textCautat) || model.includes(textCautat)) {
                     
-                    let col = "#2ecc71"; 
+                    /*let col = "#2ecc71"; 
                     if (u.istoric) {
                         const istArr = Object.values(u.istoric);
                         const ultimaRev = istArr.find(i => i.revizie === true);
@@ -437,6 +457,21 @@
                             const z = calculeazaZile(ultimaRev.data); 
                             col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
                         }
+                    }*/
+                    // --- CULORI INTELIGENTE 14/30 ZILE ---
+                    let col = "#2ecc71"; // Presupunem verde
+                    const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+                    const ultimaRev = gasesteUltimaRevizie(u.istoric);
+                    
+                    if (ultimaRev) {
+                        const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+                        const z = calculeazaZile(ultimaRev.data);
+                        
+                        if (z >= limitaZile && z < (limitaZile * 3)) col = "#f39c12"; // Portocaliu
+                        else if (z >= (limitaZile * 3)) col = "#e74c3c"; // Roșu critic
+                    } else if (u.istoric) {
+                         // Dacă are istoric dar nu are revizie
+                         col = "#e74c3c";
                     }
 
                     const esteSelectat = (id === selectedId);

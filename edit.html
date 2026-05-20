@@ -710,9 +710,9 @@
         }
         // --- END TRADUCĂTOR DATE ---
 
-        document.getElementById('data').valueAsDate = new Date();
+       document.getElementById('data').valueAsDate = new Date();
 
-        database.ref('utilaje').on('value', (snap) => {// 1. Încarcă instant din memoria telefonului
+// 1. Încarcă instant din memoria telefonului
 const backupLocal = localStorage.getItem('backup_utilaje');
 if (backupLocal) {
     dbRaw = JSON.parse(backupLocal);

@@ -801,7 +801,7 @@ function verificaAlarmeMentenanta() {
         
         if (ultimaRev) {
             const z = calculeazaZile(ultimaRev.data);
-            const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+          
             const idFaraK = id.replace("K-", "");
             const limitaZile = CONFIGURATIE_ALARME[id] || CONFIGURATIE_ALARME[idFaraK] || 30;
             

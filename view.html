@@ -363,37 +363,7 @@
     // VARIABILĂ GLOBALĂ PENTRU A ȚINE MINTE CĂ AI ÎNCHIS ALARMA
     let alertaInchisaManual = false; 
  
- // --- START TRADUCĂTOR DATE ---
-    function obtineTimp(dataString) {
-        if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
-        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
-        const part = curat.split(/[./-]/);
-        if (part.length < 3) return 0;
-        
-        let d, m, y;
-        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
-        
-        return new Date(y, m - 1, d).getTime(); 
-    }
 
-    function calculeazaZile(dataString) {
-        const timp = obtineTimp(dataString);
-        if (timp === 0) return 999;
-        const dt = new Date(timp);
-        const azi = new Date(); azi.setHours(0,0,0,0);
-        const diff = Math.floor((azi - dt) / 86400000);
-        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
-    }
-
-    function gasesteUltimaRevizie(istoric) {
-        if (!istoric) return null;
-        let revizii = Object.values(istoric).filter(i => i.revizie === true);
-        if (revizii.length === 0) return null;
-        
-        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
-        return revizii[0];
-    }
-    // --- END TRADUCĂTOR DATE ---
     
 
    // 🗺️ INITIALIZARE HARTĂ (Lăsată la nivel global pentru a fi accesibilă peste tot)
@@ -433,7 +403,37 @@
 
     // Siguranță pentru ecranul de loading
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
+ // --- START TRADUCĂTOR DATE ---
+    function obtineTimp(dataString) {
+        if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
+        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+        const part = curat.split(/[./-]/);
+        if (part.length < 3) return 0;
+        
+        let d, m, y;
+        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
+        
+        return new Date(y, m - 1, d).getTime(); 
+    }
 
+    function calculeazaZile(dataString) {
+        const timp = obtineTimp(dataString);
+        if (timp === 0) return 999;
+        const dt = new Date(timp);
+        const azi = new Date(); azi.setHours(0,0,0,0);
+        const diff = Math.floor((azi - dt) / 86400000);
+        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+    }
+
+    function gasesteUltimaRevizie(istoric) {
+        if (!istoric) return null;
+        let revizii = Object.values(istoric).filter(i => i.revizie === true);
+        if (revizii.length === 0) return null;
+        
+        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
+        return revizii[0];
+    }
+    // --- END TRADUCĂTOR DATE ---
  function afiseazaPuncte() {
     const filtru = document.getElementById('filterSectie').value;
     markersList.forEach(m => map.removeLayer(m));
@@ -508,6 +508,38 @@
         markersList.push(m);
     });
 }
+    const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+     // --- START TRADUCĂTOR DATE ---
+    function obtineTimp(dataString) {
+        if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
+        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+        const part = curat.split(/[./-]/);
+        if (part.length < 3) return 0;
+        
+        let d, m, y;
+        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
+        
+        return new Date(y, m - 1, d).getTime(); 
+    }
+
+    function calculeazaZile(dataString) {
+        const timp = obtineTimp(dataString);
+        if (timp === 0) return 999;
+        const dt = new Date(timp);
+        const azi = new Date(); azi.setHours(0,0,0,0);
+        const diff = Math.floor((azi - dt) / 86400000);
+        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+    }
+
+    function gasesteUltimaRevizie(istoric) {
+        if (!istoric) return null;
+        let revizii = Object.values(istoric).filter(i => i.revizie === true);
+        if (revizii.length === 0) return null;
+        
+        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
+        return revizii[0];
+    }
+    // --- END TRADUCĂTOR DATE ---
         window.zoomSectie = function(sectie) {
         if (sectie === "Toate") { map.setView([500, 700], 0.5); return; }
         const bounds = [];

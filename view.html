@@ -404,72 +404,46 @@
     // Siguranță pentru ecranul de loading
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
  // --- START TRADUCĂTOR DATE ---
-    function obtineTimp(dataString) {
-        if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
-        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
-        const part = curat.split(/[./-]/);
-        if (part.length < 3) return 0;
-        
-        let d, m, y;
-        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
-        
-        return new Date(y, m - 1, d).getTime(); 
-    }
-
-    function calculeazaZile(dataString) {
-        const timp = obtineTimp(dataString);
-        if (timp === 0) return 999;
-        const dt = new Date(timp);
-        const azi = new Date(); azi.setHours(0,0,0,0);
-        const diff = Math.floor((azi - dt) / 86400000);
-        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
-    }
-
-    function gasesteUltimaRevizie(istoric) {
-        if (!istoric) return null;
-        let revizii = Object.values(istoric).filter(i => i.revizie === true);
-        if (revizii.length === 0) return null;
-        
-        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
-        return revizii[0];
-    }
-    // --- END TRADUCĂTOR DATE ---
- function afiseazaPuncte() {
+   function afiseazaPuncte() {
+    if (!dbRaw) return;
     const filtru = document.getElementById('filterSectie').value;
+    
+    // Curățăm markerii
     markersList.forEach(m => map.removeLayer(m));
     markersList = [];
     
+    const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
         if (filtru !== "Toate" && u.sectie !== filtru) return;
         if (!u.lat || !u.lng) return;
-        
-        const esteSelectat = (id === selectedId);
-        const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
-       /* 
-        const istArr = u.istoric ? Object.values(u.istoric).reverse() : [];
-        const ultimaRev = istArr.find(i => i.revizie === true);
-        const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
-        
-        let col = "#2ecc71";
-        if (z >= 30 && z < 90) col = "#f39c12";
-        else if (z >= 90) col = "#e74c3c";
-*/
-        // 🧠 AICI INTEGRĂM CREIERUL NOU ÎN HARTA TA
+
+        // 1. Calculăm revizia folosind funcția noastră sigură
         const ultimaRev = gasesteUltimaRevizie(u.istoric);
-        const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
-        const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
         const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
-        
-        // Calculăm culoarea bazat pe limita specifică a utilajului
+        const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+
+        // 2. Calculăm culoarea
         let col = "#2ecc71"; // Verde
         if (z >= limitaZile && z < (limitaZile * 3)) col = "#f39c12"; // Portocaliu
         else if (z >= (limitaZile * 3)) col = "#e74c3c"; // Roșu
 
+        // 3. Obținem ultima activitate sigură (fără istArr)
+        let ultimaActivitate = "Mentenanță";
+        let dataUltimaActivitate = "-";
         
-        const dataRevizieAfisata = ultimaRev ? ultimaRev.data : "Niciuna";
-        const ultimaData = istArr.length > 0 ? istArr[0].data : "-";
-        const ultimaActivitate = istArr.length > 0 ? (istArr[0].verificari || istArr[0].tip || "Mentenanță") : "-";
+        if (u.istoric) {
+            // Sortăm rapid local ca să obținem ultima activitate
+            const toateActiunile = Object.values(u.istoric).sort((a,b) => obtineTimp(b.data) - obtineTimp(a.data));
+            if (toateActiunile.length > 0) {
+                dataUltimaActivitate = toateActiunile[0].data;
+                ultimaActivitate = toateActiunile[0].verificari || toateActiunile[0].tip || "Mentenanță";
+            }
+        }
+
+        const esteSelectat = (id === selectedId);
+        const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
 
         const customIcon = L.divIcon({
             className: clasaPin,
@@ -484,18 +458,16 @@
 
         const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(map);
         
-        // 🚀 AICI AM ADĂUGAT CELE 2 BUTOANE (ISTORIC + INTERVENȚIE)
         m.bindPopup(`
             <div class="popup-header">
                 <h3>${u.nume}</h3>
-                <p style="margin: 0; font-weight: bold;">${u.marca || ''} ${u.model || ''}</p>
                 <p>ID: ${u.id} | ${u.sectie}</p>
             </div>
             <div class="popup-body">
                 <div class="last-info">
                     <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
-                    <span style="color:#666; font-size:11px;">Ultima revizie: ${dataRevizieAfisata}</span><br>
-                    <span style="color:#666; font-size:11px;">Ultima intervenție: ${ultimaData}</span><br>
+                    <span style="color:#666; font-size:11px;">Ultima revizie: ${ultimaRev ? ultimaRev.data : "Niciuna"}</span><br>
+                    <span style="color:#666; font-size:11px;">Ultima activitate: ${dataUltimaActivitate}</span><br>
                     <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px;">Recent: ${ultimaActivitate}</i>
                 </div>
                 <div style="display:flex; gap:5px; margin-top:10px;">
@@ -508,6 +480,7 @@
         markersList.push(m);
     });
 }
+ 
     const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
      // --- START TRADUCĂTOR DATE ---
     function obtineTimp(dataString) {

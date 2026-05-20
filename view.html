@@ -446,9 +446,17 @@
         const esteSelectat = (id === selectedId);
         const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
         
-        const istArr = u.istoric ? Object.values(u.istoric).reverse() : [];
+        /*const istArr = u.istoric ? Object.values(u.istoric).reverse() : [];
         const ultimaRev = istArr.find(i => i.revizie === true);
+        const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;*/
+
+        const ultimaRev = gasesteUltimaRevizie(u.istoric);
+        const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
         const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
+        
+        let col = "#2ecc71"; // Verde dacă e la zi
+        if (z >= limitaZile && z < (limitaZile * 3)) col = "#f39c12"; // Portocaliu
+        else if (z >= (limitaZile * 3)) col = "#e74c3c"; // Roșu dacă e critic
         
         let col = "#2ecc71";
         if (z >= 30 && z < 90) col = "#f39c12";
@@ -528,7 +536,8 @@
         if (u.istoric) {
             const arr = Object.values(u.istoric).reverse();
             total += arr.length;
-            const ultimaRev = arr.find(i => i.revizie === true);
+            //const ultimaRev = arr.find(i => i.revizie === true);
+            const ultimaRev = gasesteUltimaRevizie(u.istoric);
             if (ultimaRev) {
                 maxZile = calculeazaZile(ultimaRev.data);
             }
@@ -757,45 +766,42 @@
 }*/
 function verificaAlarmeMentenanta() {
     const alertPanel = document.getElementById('alert-panel');
-    const container = document.getElementById('alert-list'); // ✅ CORECTAT: alert-list în loc de alert-container
+    const container = document.getElementById('alert-list');
     const btnClopotel = document.getElementById('btn-clopotel');
 
     if (!alertPanel || !container) return;
 
     container.innerHTML = "";
     let areAlerte = false;
+    
+    // 🧠 Tabelul pus intern ca să nu mai dea eroare de "Undefined" și să arate TOATE alarmele
+    const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
 
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
-        if (u.istoric) {
-          const istArr = Object.values(u.istoric);
-            const ultimaRev = gasesteUltimaRevizie(u.istoric);
+        const ultimaRev = gasesteUltimaRevizie(u.istoric);
 
-            if (ultimaRev) {
-                const z = calculeazaZile(ultimaRev.data);
-                
-                // 🧠 ACTIVARE CONFIGURAȚIE INTELIGENTĂ: folosește zilele specifice utilajului sau 30 implicit
-                const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+        if (ultimaRev) {
+            const z = calculeazaZile(ultimaRev.data);
+            const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
 
-                if (z >= limitaZile) {
-                    areAlerte = true;
-                    const esteCritic = z >= (limitaZile * 3); // De 3 ori limita înseamnă critic (ex: 90 zile pentru limita de 30)
-                    const clasaAlerta = esteCritic ? 'alert-urgent' : 'alert-warning';
-                    const statusMesaj = esteCritic ? `CRITIC: Revizie depășită de ${z} zile!` : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
+            if (z >= limitaZile) {
+                areAlerte = true;
+                const esteCritic = z >= (limitaZile * 3);
+                const clasaAlerta = esteCritic ? 'alert-urgent' : 'alert-warning';
+                const statusMesaj = esteCritic ? `CRITIC: Revizie depășită de ${z} zile!` : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
 
-                    // 🚀 BUTONUL DE SHORTCUT URGENȚĂ (Simetrice, egale și pe un singur rând)
-                    container.innerHTML += `
-                    <div class="alert-item ${clasaAlerta}">
-                        <b style="font-size: 14px; display:block;">${u.nume}</b>
-                        <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
-                        <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
+                container.innerHTML += `
+                <div class="alert-item ${clasaAlerta}">
+                    <b style="font-size: 14px; display:block;">${u.nume}</b>
+                    <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
+                    <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
 
-                        <div style="display:flex; gap:8px; margin-top:12px; width: 100%;">
-                            <button class="btn-locate" style="flex:1; padding: 10px 5px; display:flex; align-items:center; justify-content:center; white-space:nowrap; box-sizing:border-box; font-size: 11px; margin: 0;" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${u.id}')">📍 HARTĂ</button>
-                            <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; color:white; text-decoration:none; padding: 10px 5px; display:flex; align-items:center; justify-content:center; white-space:nowrap; box-sizing:border-box; font-size: 11px; margin: 0;">🔧 REPARĂ</a>
-                        </div>
-                    </div>`;
-                }
+                    <div style="display:flex; gap:8px; margin-top:12px; width: 100%;">
+                        <button class="btn-locate" style="flex:1; padding: 10px 5px; display:flex; align-items:center; justify-content:center; white-space:nowrap; box-sizing:border-box; font-size: 11px; margin: 0;" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">📍 HARTĂ</button>
+                        <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; color:white; text-decoration:none; padding: 10px 5px; display:flex; align-items:center; justify-content:center; white-space:nowrap; box-sizing:border-box; font-size: 11px; margin: 0;">🔧 REPARĂ</a>
+                    </div>
+                </div>`;
             }
         }
     });
@@ -804,16 +810,16 @@ function verificaAlarmeMentenanta() {
         if (!alertaInchisaManual) {
             alertPanel.classList.remove('alert-hidden');
             alertPanel.classList.add('activ');
-            btnClopotel.style.display = 'none';
+            if(btnClopotel) btnClopotel.style.display = 'none';
         } else {
             alertPanel.classList.add('alert-hidden');
             alertPanel.classList.remove('activ');
-            btnClopotel.style.display = 'flex';
+            if(btnClopotel) btnClopotel.style.display = 'flex';
         }
     } else {
         alertPanel.classList.add('alert-hidden');
         alertPanel.classList.remove('activ');
-        btnClopotel.style.display = 'none';
+        if(btnClopotel) btnClopotel.style.display = 'none';
     }
 }
     // Funcțiile atașate butoanelor "X" și "Clopoțel"

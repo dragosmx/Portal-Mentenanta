@@ -384,6 +384,7 @@
 
         const _u = "ZHJhZ29zLm11bnRlYW51QGtpbGxlcnNybC5ybw==";
         let dbRaw = {};
+        let html5QrCode;
         let alertaInchisaManual = false;
 
         const configuratieAlarme = {
@@ -458,31 +459,33 @@
         }
 */
         function pornesteScanner() {
-    // 1. Deschidem modalul de overlay
     document.getElementById('scanner-modal').classList.add('activ');
     
-    // 2. Inițializăm scannerul
-    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
         { facingMode: "environment" }, 
         { fps: 10, qrbox: 250 },
         (decodedText) => {
-            // Aici procesezi codul scanat
             console.log(`Cod: ${decodedText}`);
-            inchideScanner();
-            // Poți redirecționa automat:
+            // Dacă vrei să redirecționezi automat:
             // window.location.href = "edit.html?id=" + decodedText;
+            inchideScanner();
         },
         (err) => { /* eroare scanare */ }
     ).catch(err => alert("Eroare cameră: " + err));
 }
 
 function inchideScanner() {
-    // 1. Închidem modalul
-    document.getElementById('scanner-modal').classList.remove('activ');
-    
-    // 2. Oprim camera (FOARTE IMPORTANT pentru baterie)
-    Html5Qrcode.stop().catch(err => console.log("Camera deja oprită"));
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            document.getElementById('scanner-modal').classList.remove('activ');
+        }).catch(err => {
+            console.log("Eroare oprire cameră:", err);
+            document.getElementById('scanner-modal').classList.remove('activ');
+        });
+    } else {
+        document.getElementById('scanner-modal').classList.remove('activ');
+    }
 }
         function calculeazaZile(dataInstalare) {
             if (!dataInstalare) return 999;

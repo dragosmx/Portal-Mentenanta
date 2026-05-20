@@ -220,7 +220,7 @@
     <label>🔍 Căutare Utilaj</label>
     <input type="text" id="searchInput" placeholder="Nume sau Cod..." onkeyup="if(event.key==='Enter') cautaSmart()">
     <label>📂 Filtru Secție</label>
-    <select id="filterSectie" onchange="(); zoomSectie(this.value)">
+    <select id="filterSectie" onchange="cauta(); zoomSectie(this.value)">
         <option value="Toate">Toate Secțiile</option>
         <option value="Spălare">Spălare</option>
         <option value="Tranșare">Tranșare</option>

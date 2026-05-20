@@ -788,7 +788,17 @@ window.addEventListener('offline', updateConnectionStatus);
                         }*/
                         // --- CULORI INTELIGENTE 14/30 ZILE ---
                         let col = "#2ecc71"; // Presupunem verde
-                        const configuratieAlarme = { "9728": 30, "6355": 30, "9902": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+                       // Lista unificată (include tot ce ai nevoie pentru ambele pagini)
+const configuratieAlarme = { 
+    "9728": 30, 
+    "6355": 30, 
+    "1111": 14, 
+    "2222": 14, 
+    "3333": 14, 
+    "4444": 14, 
+    "9902": 14,
+    "5061": 14 
+};
                         const ultimaRev = gasesteUltimaRevizie(u.istoric);
 
                         if (ultimaRev) {

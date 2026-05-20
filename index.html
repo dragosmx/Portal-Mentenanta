@@ -127,12 +127,26 @@
         }
         @keyframes pulse-cloud { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        @media (max-width: 768px) {
+       /* @media (max-width: 768px) {
             #alert-panel { display: none; top: 130px; left: 15px; width: calc(100% - 30px); right: auto !important; z-index: 2001; }
             #alert-panel.activ { display: block; }
             .alert-hidden { display: none !important; }
             #btn-clopotel { top: 75px; right: 15px; position: fixed; }
-        }
+        }*/
+        @media (max-width: 768px) {
+    #alert-panel {         display: none; 
+        top: 100px; 
+        left: 50%;                 /* Îl trage la jumătatea ecranului */
+        transform: translateX(-50%); /* Îl centrează perfect pe orizontală */
+        width: 90%;                /* Ocupă 90% din ecran */
+        max-width: 400px;          /* Nu-l lăsăm să se lățească prea mult */
+        right: auto !important;    /* Resetăm orice setare de "right" */
+        z-index: 2001; 
+    }
+    #alert-panel.activ { display: block; }
+    .alert-hidden { display: none !important; }
+    #btn-clopotel { top: 75px; right: 15px; position: fixed; }
+}
     </style>
 </head>
 <body>

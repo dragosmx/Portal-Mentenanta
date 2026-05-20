@@ -150,7 +150,7 @@
             display: none;
         }
 
-        .footer-dev {
+        /*.footer-dev {
             position: absolute;
             bottom: 20px;
             font-size: 10px;
@@ -161,6 +161,13 @@
         /* ---------------------------------------------------
            ⚠️ STILURI DE ALERTE COPIATE 1:1 DIN VIEW.HTML
            --------------------------------------------------- */
+        .footer-dev {
+    position: absolute;
+    bottom: 20px;
+    z-index: 1; /* Footer-ul stă în spate */
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.3);
+}
         #alert-panel {
             position: fixed;
             top: 80px;
@@ -302,29 +309,46 @@
             }
         }
         .modal-scanner {
-    display: none; /* Ascuns implicit */
+    display: none; 
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 99999;
+    background: rgba(0, 0, 0, 0.98); /* Negru aproape opac */
+    z-index: 999999; /* Mult mai mare decât orice altceva */
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .modal-scanner.activ {
-    display: flex; /* Se arată doar când adăugăm clasa 'activ' */
+    display: flex;
 }
 
 #reader {
     width: 100%; 
     max-width: 500px;
-    min-height: 300px; /* IMPORTANT: Camera are nevoie de spațiu pe verticală */
+    min-height: 300px;
     background: white; 
     border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Butonul de închidere mai vizibil */
+.btn-inchidere-scan {
+    margin-top: 30px; 
+    padding: 15px 40px; 
+    background: var(--danger); 
+    color: white; 
+    border: none; 
+    border-radius: 50px; 
+    font-weight: bold; 
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
     </style>
 </head>
@@ -643,7 +667,7 @@ function inchideScanner() {
     </script>
   <div id="scanner-modal" class="modal-scanner">
     <div id="reader"></div>
-    <button onclick="inchideScanner()" style="margin-top: 20px; padding: 15px 30px; background: var(--danger); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer;">❌ ÎNCHIDE SCANNER</button>
+    <button onclick="inchideScanner()" class="btn-inchidere-scan">❌ ÎNCHIDE SCANNER</button>
 </div>
 </body>
 

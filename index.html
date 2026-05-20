@@ -308,33 +308,34 @@
                 position: fixed;
             }
         }
-        .modal-scanner {
+     .modal-scanner {
     display: none; 
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.98); /* Negru aproape opac */
-    z-index: 999999; /* Mult mai mare decât orice altceva */
+    background: black; /* Fundal negru opac */
+    z-index: 9999999; /* Z-index uriaș */
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    box-sizing: border-box;
 }
 
 .modal-scanner.activ {
     display: flex;
 }
 
+/* 2. Asigurăm că reader-ul are loc */
 #reader {
-    width: 100%; 
-    max-width: 500px;
-    min-height: 300px;
-    background: white; 
-    border-radius: 10px;
-    overflow: hidden;
+    width: 90%; 
+    max-width: 400px;
+    background: white;
+}
+
+/* 3. Footer-ul stă sub modal */
+.footer-dev {
+    z-index: 1; /* Footer-ul e în spate */
 }
 
 /* Butonul de închidere mai vizibil */
@@ -390,7 +391,7 @@
     </div>
     
     <div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">🔔</div>
-    <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
+   
 
     <script>
         const firebaseConfig = {
@@ -486,34 +487,25 @@
         function pornesteScanner() {
     document.getElementById('scanner-modal').classList.add('activ');
     
-    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode = new Html5Qrcode("reader"); // Inițializare globală
     html5QrCode.start(
         { facingMode: "environment" }, 
         { fps: 10, qrbox: 250 },
         (decodedText) => {
-            console.log(`Cod: ${decodedText}`);
-            // Dacă vrei să redirecționezi automat:
-            // window.location.href = "edit.html?id=" + decodedText;
+            alert("Scanat: " + decodedText); // Verifică dacă merge
             inchideScanner();
         },
-        (err) => { /* eroare scanare */ }
+        (err) => { /* erori */ }
     ).catch(err => alert("Eroare cameră: " + err));
 }
 
 function inchideScanner() {
-    // 1. Oprim camera folosind INSTANȚA creată (html5QrCode), nu clasa (Html5Qrcode)
     if (html5QrCode) {
-        html5QrCode.stop().then((ignore) => {
-            // Camera s-a oprit cu succes
+        html5QrCode.stop().then(() => {
             document.getElementById('scanner-modal').classList.remove('activ');
-            html5QrCode.clear(); // Ștergem și zona de redare pentru a curăța memoria
-        }).catch((err) => {
-            // Dacă a apărut o eroare la oprire, închidem oricum modalul
-            console.log("Eroare la oprirea camerei:", err);
+        }).catch(err => {
             document.getElementById('scanner-modal').classList.remove('activ');
         });
-    } else {
-        document.getElementById('scanner-modal').classList.remove('activ');
     }
 }
         function calculeazaZile(dataInstalare) {
@@ -665,10 +657,17 @@ function inchideScanner() {
             if (btn) btn.style.display = 'none';
         }
     </script>
-  <div id="scanner-modal" class="modal-scanner">
-    <div id="reader"></div>
-    <button onclick="inchideScanner()" class="btn-inchidere-scan">❌ ÎNCHIDE SCANNER</button>
-</div>
+  <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
+
+    <div id="scanner-modal" class="modal-scanner">
+        <div id="reader"></div>
+        <button onclick="inchideScanner()" 
+                style="margin-top: 20px; padding: 15px 40px; background: var(--danger); 
+                color: white; border: none; border-radius: 50px; font-size: 16px; 
+                font-weight: bold; cursor: pointer;">
+            ❌ ÎNCHIDE SCANNER
+        </button>
+    </div>
 </body>
 
 </html>

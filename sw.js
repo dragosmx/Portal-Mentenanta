@@ -43,6 +43,19 @@ self.addEventListener('activate', event => {
 
 // Interceptarea cererilor (Network First, fallback to Cache)
 self.addEventListener('fetch', event => {
+    // 1. Dacă utilizatorul navighează către o pagină (HTML), ne uităm ÎNTÂI în cache.
+    // Dacă e acolo, o afișăm instant. Dacă nu, abia atunci încercăm netul.
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            caches.match(event.request).then(response => {
+                return response || fetch(event.request);
+            })
+        );
+        return;
+    }
+
+    // 2. Pentru restul fișierelor (CSS, JS, Imagini), păstrăm stilul Network First
+    // (încercăm netul, dacă nu merge, luăm din cache)
     event.respondWith(
         fetch(event.request).catch(() => caches.match(event.request))
     );

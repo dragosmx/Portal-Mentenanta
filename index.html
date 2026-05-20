@@ -305,41 +305,43 @@
 
 <body>
 
-    <div class="container">
-    <div class="logo-box">
-        <img src="logo.png" alt="Logo Killer SRL">
-    </div>
+<div class="container">
+        <div class="logo-box">
+            <img src="logo.png" alt="Logo Killer SRL">
+        </div>
 
-    <div id="login-screen">
-        <h2>Sistem Mentenanță</h2>
-        <p>Acces securizat pentru echipa tehnică</p>
-        
-        <div class="input-group">
-            <input type="password" id="passInput" placeholder="••••••••" onkeyup="if(event.key==='Enter') verificaParola()">
+        <div id="login-screen">
+            <h2>Sistem Mentenanță</h2>
+            <p>Acces securizat pentru echipa tehnică</p>
+            <div class="input-group">
+                <input type="password" id="passInput" placeholder="••••••••" onkeyup="if(event.key==='Enter') verificaParola()">
+            </div>
+            <div id="errorMsg" class="error-msg">❌ Parolă incorectă!</div>
+            <button class="btn btn-login" id="loginBtn" onclick="verificaParola()">🔐 INTRĂ ÎN SISTEM</button>
+        </div>
+
+        <div id="menu-screen">
+            <h2>Salut!</h2>
+            <p>Alege secțiunea dorită:</p>
+            <a href="edit.html" class="btn btn-menu" style="border-left: 5px solid var(--success);">🛠️ Administrare Mentenanță</a>
+            <a href="view.html" class="btn btn-menu" style="border-left: 5px solid #3498db;">👁️ Centru de Control Mentenanță</a>
+            <button onclick="pornesteScanner()" class="btn btn-menu" style="border-left: 5px solid var(--warning);">📷 Scanează Cod QR Utilaj</button>
+            <button class="btn" style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:20px;" onclick="logout()">Ieșire</button>
         </div>
         
-        <div id="errorMsg" class="error-msg">❌ Parolă incorectă!</div>
-        
-        <button class="btn btn-login" id="loginBtn" onclick="verificaParola()">🔐 INTRĂ ÎN SISTEM</button>
+        <div id="reader" style="width: 100%; max-width: 500px; margin: 20px auto; display: none; border-radius: 15px; overflow: hidden;"></div>
     </div>
 
-    <div id="menu-screen">
-        <h2>Salut!</h2>
-        <p>Alege secțiunea dorită:</p>
-        
-        <a href="edit.html" class="btn btn-menu" style="border-left: 5px solid var(--success);">🛠️ Administrare Mentenanță</a>
-        <a href="view.html" class="btn btn-menu" style="border-left: 5px solid #3498db;">👁️ Centru de Control Mentenanță</a>
-        <button onclick="pornesteScanner()" class="btn btn-menu" style="border-left: 5px solid var(--warning);">📷 Scanează Cod QR Utilaj</button>
-        
-        <button class="btn" style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:20px;" onclick="logout()">Ieșire</button>
+    <div id="alert-panel" class="alert-hidden">
+        <div class="alert-header">
+            <span>⚠️ Alerte Mentenanță</span>
+            <span onclick="inchideAlarmaManual()" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:4px; font-size:10px;">❌ ÎNCHIDE</span>
+        </div>
+        <div id="alert-list"></div>
     </div>
     
-    <div id="reader" style="width: 100%; max-width: 500px; margin: 20px auto; display: none; border-radius: 15px; overflow: hidden;"></div>
-</div>
-
-<div id="indexAlertContainer" class="index-alert-container"></div>
-
-<div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
+    <div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">🔔</div>
+    <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
 
     <script>
         const firebaseConfig = {

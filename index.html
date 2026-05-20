@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="offline.js"></script>
 
     <style>
         :root {
@@ -443,20 +444,36 @@
 
         // 🚀 REPARATĂ: Conectează Firebase direct la funcția de procesare
         function pornesteAscultareAlarme() {
-            const configuratieAlarme = {
-                "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
-            };
+    const configuratieAlarme = {
+        "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
+    };
 
-            // 🛡️ Așteptăm aprobarea serverului înainte de a cere alarmele live
-            firebase.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    firebase.database().ref('utilaje').on('value', (snapshot) => {
-                        dbRaw = snapshot.val() || {};
-                        verificaAlarmeMentenanta();
-                    });
-                }
+    // 1. Verificăm dacă suntem OFFLINE (Fără internet)
+    if (!navigator.onLine) {
+        const backup = localStorage.getItem('backup_utilaje');
+        if (backup) {
+            dbRaw = JSON.parse(backup);
+            verificaAlarmeMentenanta();
+            console.log("⚠️ Index offline: Alarme încărcate din memorie.");
+        }
+        return; // Ne oprim aici, nu mai încercăm să comunicăm cu Firebase
+    }
+
+    // 2. Dacă suntem ONLINE (Avem internet)
+    // 🛡️ Așteptăm aprobarea serverului înainte de a cere alarmele live
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            firebase.database().ref('utilaje').on('value', (snapshot) => {
+                dbRaw = snapshot.val() || {};
+                
+                // 💾 SALVĂM datele în telefon în caz că pică netul mai târziu
+                localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
+                
+                verificaAlarmeMentenanta();
             });
         }
+    });
+}
         // --- START TRADUCĂTOR DATE ---
         function obtineTimp(dataString) {
             if (!dataString || dataString === "-" || dataString.trim() === "") return 0;

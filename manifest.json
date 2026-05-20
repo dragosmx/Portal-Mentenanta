@@ -8,13 +8,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "favilogo2.png",
+      "src": "favicon2.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "favilogo2.png",
+      "src": "favicon2.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

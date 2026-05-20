@@ -403,7 +403,19 @@
 
     // Siguranță pentru ecranul de loading
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
-
+ // Modifică lista astfel încât să recunoască și ID-ul cu tot cu "K-"
+const CONFIGURATIE_ALARME = { 
+    "9728": 30, 
+    "6355": 30, 
+    "9902": 14, 
+    "2701": 14, 
+    "5740": 14, 
+    "1111": 14, 
+    "2222": 14, 
+    "3333": 14, 
+    "4444": 14, 
+    "5061": 14 
+};
    function afiseazaPuncte() {
     if (!dbRaw) return;
     const filtru = document.getElementById('filterSectie').value;
@@ -480,12 +492,7 @@
         markersList.push(m);
     });
 }
-   // Modifică lista astfel încât să recunoască și ID-ul cu tot cu "K-"
-const configuratieAlarme = { 
-    "9728": 30, "6355": 30, 
-    "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14, 
-    "9902": 14 // <--- Adaugă asta aici (ID-ul fără K-)
-};
+  
      // --- START TRADUCĂTOR DATE ---
     function obtineTimp(dataString) {
         if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
@@ -786,20 +793,21 @@ function verificaAlarmeMentenanta() {
     let areAlerte = false;
 
     // Tabelul de configurare inclus direct ca să nu mai dea erori
-    const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+   // const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
 
-    Object.keys(dbRaw).forEach(id => {
+   Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
         const ultimaRev = gasesteUltimaRevizie(u.istoric);
         
         if (ultimaRev) {
             const z = calculeazaZile(ultimaRev.data);
             const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+            const idFaraK = id.replace("K-", "");
+            const limitaZile = CONFIGURATIE_ALARME[id] || CONFIGURATIE_ALARME[idFaraK] || 30;
             
-            // --- MICROSCOPUL (Pune asta exact aici) ---
-            console.log(`LOG UTILAJ: ID=${id} | Nume=${u.nume} | Zile_Trecute=${z} | Limita_Gasita=${limitaZile} | Alarma_Activa=${z >= limitaZile}`);
-            // ------------------------------------------
-
+            // Debug 
+            console.log(`DEBUG: ID=${id} | Limita gasita=${limitaZile}`);
+            
             if (z >= limitaZile) {
                 areAlerte = true;
                 const esteCritic = z >= (limitaZile * 3);

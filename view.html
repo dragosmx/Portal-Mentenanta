@@ -502,8 +502,8 @@
         const statWarn = document.getElementById('stat-warn'); if(statWarn) statWarn.innerText = stats.warn;
         const statCrit = document.getElementById('stat-crit'); if(statCrit) statCrit.innerText = stats.crit;
     }
-
-    window.zoomSectie = function(sectie) {
+  }
+        window.zoomSectie = function(sectie) {
         if (sectie === "Toate") { map.setView([500, 700], 0.5); return; }
         const bounds = [];
         if (typeof dbRaw === 'undefined' || !dbRaw) return;

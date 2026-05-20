@@ -412,7 +412,7 @@
     markersList.forEach(m => map.removeLayer(m));
     markersList = [];
     
-    const configuratieAlarme = { "9728": 30, "6355": 30, "9902": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+    //const configuratieAlarme = { "9728": 30, "6355": 30, "9902": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
 
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
@@ -422,7 +422,7 @@
         // 1. Calculăm revizia folosind funcția noastră sigură
         const ultimaRev = gasesteUltimaRevizie(u.istoric);
         const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
-        const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+        const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || configuratieAlarme[parseInt(id.replace("K-", ""))] || 30;
 
         // 2. Calculăm culoarea
         let col = "#2ecc71"; // Verde
@@ -481,7 +481,12 @@
     });
 }
  
-    const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+   // Modifică lista astfel încât să recunoască și ID-ul cu tot cu "K-"
+const configuratieAlarme = { 
+    "9728": 30, "6355": 30, 
+    "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14, "K-9902": 14, 
+    "5061": 14 
+};
      // --- START TRADUCĂTOR DATE ---
     function obtineTimp(dataString) {
         if (!dataString || dataString === "-" || dataString.trim() === "") return 0;

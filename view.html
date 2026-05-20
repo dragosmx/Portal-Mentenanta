@@ -434,75 +434,71 @@
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
 
    function afiseazaPuncte() {
-    markersList.forEach(m => map.removeLayer(m.marker));
-    markersList = [];
-    const sideList = document.getElementById('side-list');
-    if(sideList) sideList.innerHTML = "";
-    
-    let stats = { total: 0, ok: 0, warn: 0, crit: 0 };
-    
-    // 🧠 Tabelul de limite pus aici ca să fie găsit de hartă
-    const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+        markersList.forEach(m => map.removeLayer(m.marker));
+        markersList = [];
+        const sideList = document.getElementById('side-list');
+        if(sideList) sideList.innerHTML = "";
+        
+        let stats = { total: 0, ok: 0, warn: 0, crit: 0 };
+        
+        Object.keys(dbRaw).forEach(id => {
+            const u = dbRaw[id];
+            if (u.lat && u.lng) {
+                stats.total++;
+                
+                const ultimaRev = gasesteUltimaRevizie(u.istoric);
+                const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+                const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
+                
+                let col = "#2ecc71"; // Verde la zi
+                if (z >= limitaZile && z < (limitaZile * 3)) { col = "#f39c12"; stats.warn++; } // Portocaliu
+                else if (z >= (limitaZile * 3)) { col = "#e74c3c"; stats.crit++; } // Roșu critic
+                else { stats.ok++; }
 
-    Object.keys(dbRaw).forEach(id => {
-        const u = dbRaw[id];
-        if (u.lat && u.lng) {
-            stats.total++;
-            
-            // 🚀 APLICĂM ALGORITMUL INTELIGENT PENTRU CULOAREA PINULUI
-            const ultimaRev = gasesteUltimaRevizie(u.istoric);
-            const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
-            const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
-            
-            let col = "#2ecc71"; // Verde la zi
-            if (z >= limitaZile && z < (limitaZile * 3)) { col = "#f39c12"; stats.warn++; } // Portocaliu
-            else if (z >= (limitaZile * 3)) { col = "#e74c3c"; stats.crit++; } // Roșu critic
-            else { stats.ok++; }
+                const mIcon = L.divIcon({
+                    className: 'custom-pin',
+                    html: `<div class="pin" style="background:${col}; border:2px solid white; box-shadow: 0 0 8px ${col};"></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
 
-            const mIcon = L.divIcon({
-                className: 'custom-pin',
-                html: `<div class="pin" style="background:${col}; border:2px solid white; box-shadow: 0 0 8px ${col};"></div>`,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            });
-
-            const marker = L.marker([u.lat, u.lng], { icon: mIcon }).addTo(map);
-            
-            const popHtml = `
-                <div style="font-family:Segoe UI; min-width: 160px; text-align: center;">
-                    <b style="font-size:15px; color:#2c3e50;">${u.nume}</b><br>
-                    <span style="font-size:11px; color:#7f8c8d; text-transform:uppercase;">${u.sectie} | ID: ${id}</span>
-                    <hr style="border:0; border-top:1px solid #ecf0f1; margin:8px 0;">
-                    <div style="font-size: 11px; color: #7f8c8d; margin-top: 5px;">
-                        Ultima revizie: <b style="color: ${col};">${ultimaRev ? ultimaRev.data : 'Fără istoric'}</b>
-                    </div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <a href="edit.html?id=${id}" style="flex:1; background:#27ae60; color:white; padding:8px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:12px;">🔧 Fişă Utilaj</a>
-                    </div>
-                </div>
-            `;
-            marker.bindPopup(popHtml);
-            markersList.push({ id: id, nume: u.nume, marker: marker });
-
-            if(sideList) {
-                sideList.innerHTML += `
-                    <div class="list-item" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <b>${u.nume}</b>
-                            <span style="font-size:10px; padding:3px 6px; background:${col}; color:white; border-radius:4px;">${z === 999 ? 'LIPSĂ' : z + 'z'}</span>
+                const marker = L.marker([u.lat, u.lng], { icon: mIcon }).addTo(map);
+                
+                const popHtml = `
+                    <div style="font-family:Segoe UI; min-width: 160px; text-align: center;">
+                        <b style="font-size:15px; color:#2c3e50;">${u.nume}</b><br>
+                        <span style="font-size:11px; color:#7f8c8d; text-transform:uppercase;">${u.sectie} | ID: ${id}</span>
+                        <hr style="border:0; border-top:1px solid #ecf0f1; margin:8px 0;">
+                        <div style="font-size: 11px; color: #7f8c8d; margin-top: 5px;">
+                            Ultima revizie: <b style="color: ${col};">${ultimaRev ? ultimaRev.data : 'Fără istoric'}</b>
                         </div>
-                        <div style="font-size:10px; color:#bdc3c7; margin-top:4px;">${u.sectie} | ID: ${id}</div>
+                        <div style="display:flex; gap:5px; margin-top:10px;">
+                            <a href="edit.html?id=${id}" style="flex:1; background:#27ae60; color:white; padding:8px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:12px;">🔧 Fişă Utilaj</a>
+                        </div>
                     </div>
                 `;
-            }
-        }
-    });
+                marker.bindPopup(popHtml);
+                markersList.push({ id: id, nume: u.nume, marker: marker });
 
-    const statTotal = document.getElementById('stat-total'); if(statTotal) statTotal.innerText = stats.total;
-    const statOk = document.getElementById('stat-ok'); if(statOk) statOk.innerText = stats.ok;
-    const statWarn = document.getElementById('stat-warn'); if(statWarn) statWarn.innerText = stats.warn;
-    const statCrit = document.getElementById('stat-crit'); if(statCrit) statCrit.innerText = stats.crit;
-}
+                if(sideList) {
+                    sideList.innerHTML += `
+                        <div class="list-item" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <b>${u.nume}</b>
+                                <span style="font-size:10px; padding:3px 6px; background:${col}; color:white; border-radius:4px;">${z === 999 ? 'LIPSĂ' : z + 'z'}</span>
+                            </div>
+                            <div style="font-size:10px; color:#bdc3c7; margin-top:4px;">${u.sectie} | ID: ${id}</div>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        const statTotal = document.getElementById('stat-total'); if(statTotal) statTotal.innerText = stats.total;
+        const statOk = document.getElementById('stat-ok'); if(statOk) statOk.innerText = stats.ok;
+        const statWarn = document.getElementById('stat-warn'); if(statWarn) statWarn.innerText = stats.warn;
+        const statCrit = document.getElementById('stat-crit'); if(statCrit) statCrit.innerText = stats.crit;
+    }
 
     window.zoomSectie = function(sectie) {
         if (sectie === "Toate") { map.setView([500, 700], 0.5); return; }

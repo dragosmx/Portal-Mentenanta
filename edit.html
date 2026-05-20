@@ -726,15 +726,25 @@ if (backupLocal) {
 // 2. Conectare la Firebase (doar dacă avem net)
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-        // Dacă avem net, ascultăm schimbările în timp real
+        // Când avem user, ascultăm baza de date
         database.ref('utilaje').on('value', (snap) => {
             const dateNoi = snap.val();
             if (dateNoi) {
                 dbRaw = dateNoi;
                 localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
+                
+                // 1. Refresh listă
                 refreshPini();
                 actualizeazaListaSidebar();
-                console.log("✅ Date sincronizate cu Cloud.");
+                
+                // 2. 🚀 TRIGGER: Verificăm dacă avem un ID în URL și îl încărcăm
+                const urlParams = new URLSearchParams(window.location.search);
+                const qrId = urlParams.get('id');
+                if (qrId && dbRaw[qrId] && selectedId !== qrId) {
+                    incarcaUtilaj(qrId);
+                }
+                
+                console.log("✅ Date sincronizate și ID procesat.");
             }
         });
     } else {
@@ -926,7 +936,13 @@ const configuratieAlarme = {
 
         function incarcaUtilaj(id) {
             selectedId = id; const u = dbRaw[id];
+            if (!u) return; // Siguranță
             const isAdmin = (sessionStorage.getItem('is_admin') === 'true');
+            //Centrare automată pe utilaj
+            if (u.lat && u.lng) {
+            map.setView([u.lat, u.lng], 2); 
+            }
+            
 
             document.getElementById('sidebar').style.display = 'flex';
             document.getElementById('lista-utilaje-container').style.display = 'none';

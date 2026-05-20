@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administrare - Killer SRL</title>
-    <meta name="mobile-web-app-capable" content="yes"> 
-    <meta name="apple-mobile-web-app-capable" content="yes"> 
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mentenanță">
-    
+
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
     <link rel="apple-touch-icon" href="logo.png">
@@ -18,8 +19,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
-    
-<style>
+
+    <style>
         :root {
             --primary: #2c3e50;
             --accent: #f39c12;
@@ -30,25 +31,36 @@
         }
 
         body {
-            margin: 0; padding: 0;
-            display: flex; flex-direction: row;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: row;
             height: 100vh;
-            background: #1a1a1a; color: var(--text);
+            background: #1a1a1a;
+            color: var(--text);
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
         }
 
         #map {
-            position: absolute; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: #222; z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #222;
+            z-index: 1;
         }
-        .leaflet-container { cursor: crosshair !important; }
+
+        .leaflet-container {
+            cursor: crosshair !important;
+        }
 
         #sidebar {
-            display: none; 
+            display: none;
             position: relative;
-            width: 420px; min-width: 420px;
+            width: 420px;
+            min-width: 420px;
             height: 100vh;
             background: var(--primary);
             padding: 25px;
@@ -56,469 +68,744 @@
             box-sizing: border-box;
             flex-direction: column;
             z-index: 10;
-            border-right: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
         }
 
-        .drag-handle { display: none; }
+        .drag-handle {
+            display: none;
+        }
 
         /* ---------------------------------------------------
            MENIU PLUTITOR (DREAPTA JOS/SUS)
            --------------------------------------------------- */
         .floating-menu {
-            position: absolute; top: 20px; right: 20px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
             z-index: 1000;
-            display: flex; gap: 15px;
+            display: flex;
+            gap: 15px;
         }
+
         .float-btn {
-            width: 50px; height: 50px; border-radius: 50%;
-            background: rgba(44, 62, 80, 0.9); color: white; 
-            border: 2px solid rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center;
-            text-decoration: none; font-size: 22px; cursor: pointer;
-            backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 22px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
         }
-        .float-btn:hover { transform: scale(1.1); background: var(--primary); }
+
+        .float-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary);
+        }
 
         /* ---------------------------------------------------
            BUTOANE CENTRALE SUS (CLOUD + ADMIN)
            --------------------------------------------------- */
         .top-status-container {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; display: flex; gap: 10px; align-items: center;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
-        .cloud-status, .admin-status-btn {
-            color: white; padding: 8px 15px; border-radius: 20px; font-size: 11px;
-            display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
-            white-space: nowrap; backdrop-filter: blur(5px);
+        .cloud-status,
+        .admin-status-btn {
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
+            backdrop-filter: blur(5px);
         }
 
-        .cloud-status { background: rgba(39, 174, 96, 0.9); }
-        .cloud-status.offline { background: rgba(231, 76, 60, 0.9); }
+        .cloud-status {
+            background: rgba(39, 174, 96, 0.9);
+        }
 
-        .admin-status-btn { background: rgba(231, 76, 60, 0.8); cursor: pointer; transition: 0.2s; outline: none; }
-        .admin-status-btn:active { transform: scale(0.95); }
+        .cloud-status.offline {
+            background: rgba(231, 76, 60, 0.9);
+        }
 
-        .dot { width: 7px; height: 7px; background: white; border-radius: 50%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        .admin-status-btn {
+            background: rgba(231, 76, 60, 0.8);
+            cursor: pointer;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        .admin-status-btn:active {
+            transform: scale(0.95);
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.4;
+            }
+        }
 
         .btn-inchide-pc {
-            background: rgba(231, 76, 60, 0.1); color: #e74c3c;
-            border: 1px solid #e74c3c; padding: 15px; border-radius: 8px;
-            cursor: pointer; font-weight: bold; margin-bottom: 20px;
-            width: 100%; transition: 0.3s; font-size: 12px;
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+            width: 100%;
+            transition: 0.3s;
+            font-size: 12px;
         }
-        .btn-inchide-pc:hover { background: #e74c3c; color: white; }
+
+        .btn-inchide-pc:hover {
+            background: #e74c3c;
+            color: white;
+        }
 
         /* ---------------------------------------------------
            MEDIA QUERY - PENTRU TELEFOANE MOBILE (AICI E MAGIA)
            --------------------------------------------------- */
         @media (max-width: 768px) {
-            body { overflow: hidden; } 
-            
+            body {
+                overflow: hidden;
+            }
+
             #sidebar {
                 position: fixed !important;
-                bottom: 0 !important; 
-                transform: translateY(150%); 
-                left: 0; width: 100% !important; max-height: 85vh;
+                bottom: 0 !important;
+                transform: translateY(150%);
+                left: 0;
+                width: 100% !important;
+                max-height: 85vh;
                 z-index: 1000;
                 border-radius: 20px 20px 0 0;
-                box-shadow: 0 -5px 25px rgba(0,0,0,0.6);
+                box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6);
                 transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 display: flex !important;
                 padding: 10px 20px 20px 20px !important;
             }
 
-            #sidebar.panou-deschis { transform: translateY(0); }
-            #sidebar.panou-deschis.minimizat { transform: translateY(calc(100% - 50px)); }
+            #sidebar.panou-deschis {
+                transform: translateY(0);
+            }
+
+            #sidebar.panou-deschis.minimizat {
+                transform: translateY(calc(100% - 50px));
+            }
 
             .drag-handle {
-                display: flex; flex-direction: column; align-items: center;
-                width: 100%; padding-bottom: 10px; cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                padding-bottom: 10px;
+                cursor: pointer;
             }
-            .drag-handle .bar {
-                width: 50px; height: 5px; background: rgba(255,255,255,0.4);
-                border-radius: 5px; margin-bottom: 5px;
-            }
-            .drag-handle span { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
 
-            .btn-inchide-pc { display: none; } 
-            
-            .floating-menu {
-                top: auto; bottom: 120px; right: 15px;
-                flex-direction: column; 
+            .drag-handle .bar {
+                width: 50px;
+                height: 5px;
+                background: rgba(255, 255, 255, 0.4);
+                border-radius: 5px;
+                margin-bottom: 5px;
             }
-            
+
+            .drag-handle span {
+                font-size: 10px;
+                color: rgba(255, 255, 255, 0.5);
+                text-transform: uppercase;
+            }
+
+            .btn-inchide-pc {
+                display: none;
+            }
+
+            .floating-menu {
+                top: auto;
+                bottom: 120px;
+                right: 15px;
+                flex-direction: column;
+            }
+
             /* AICI SE AJUSTEAZĂ BUTOANELE DE SUS PENTRU ECRANE MICI */
-            .top-status-container { top: 15px; width: 96%; justify-content: center; gap: 6px; }
-            .cloud-status, .admin-status-btn { font-size: 10px; padding: 6px 10px; }
+            .top-status-container {
+                top: 15px;
+                width: 96%;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .cloud-status,
+            .admin-status-btn {
+                font-size: 10px;
+                padding: 6px 10px;
+            }
         }
 
         /* ---------------------------------------------------
            ELEMENTE DE FORMULAR ȘI PINI
            --------------------------------------------------- */
-        .logo-box { text-align: center; margin-bottom: 20px; }
-        .logo-box img { max-width: 120px; }
-        
-        #form-container { display: none; background: transparent; }
+        .logo-box {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-        .status-badge { padding: 12px; border-radius: 8px; font-size: 11px; font-weight: bold; margin-bottom: 15px; text-align: center; border-left: 5px solid var(--accent); background: rgba(0,0,0,0.2); }
-        .status-edit { border-left-color: #3498db; color: #3498db; }
+        .logo-box img {
+            max-width: 120px;
+        }
 
-        .group { margin-bottom: 15px; }
-        label { display: block; font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; font-weight: bold; }
+        #form-container {
+            display: none;
+            background: transparent;
+        }
 
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-size: 13px; box-sizing: border-box; outline: none; font-family: inherit; }
-        input:disabled, select:disabled { background: rgba(255,255,255,0.05); color: #888; border-color: rgba(255,255,255,0.05); cursor: not-allowed; }
-        textarea { resize: vertical; }
-        select option { background: #2c3e50; color: white; }
+        .status-badge {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            border-left: 5px solid var(--accent);
+            background: rgba(0, 0, 0, 0.2);
+        }
 
-        .checklist { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-top: 5px; border: 1px dashed rgba(255,255,255,0.1); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .check-item { display: flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer; }
-        .check-item input { width: auto; margin: 0; }
+        .status-edit {
+            border-left-color: #3498db;
+            color: #3498db;
+        }
 
-        .btn-save { background: var(--success); color: white; padding: 18px; border: none; border-radius: 12px; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; margin-top: 10px; }
-        .btn-save:disabled { opacity: 0.2; cursor: not-allowed; }
-        .btn-del { background: none; color: var(--danger); border: 1px solid var(--danger); padding: 10px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 15px; }
+        .group {
+            margin-bottom: 15px;
+        }
 
-        .msg-popup { padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 12px; font-weight: bold; text-align: center; display: none; }
-        .msg-success { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #27ae60; }
-        .msg-error { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #c0392b; }
+        label {
+            display: block;
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
 
-        .custom-pin svg { filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); shape-rendering: geometricPrecision; }
-        .pin-selectat svg { filter: drop-shadow(0 0 10px #3498db) drop-shadow(0 0 15px #3498db) !important; transform: scale(1.2); transition: all 0.3s ease; }
-        .pin-selectat path { stroke: #3498db !important; stroke-width: 2.5px !important; }
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 13px;
+            box-sizing: border-box;
+            outline: none;
+            font-family: inherit;
+        }
+
+        input:disabled,
+        select:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            color: #888;
+            border-color: rgba(255, 255, 255, 0.05);
+            cursor: not-allowed;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        select option {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .checklist {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 5px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .check-item input {
+            width: auto;
+            margin: 0;
+        }
+
+        .btn-save {
+            background: var(--success);
+            color: white;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            width: 100%;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .btn-save:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        .btn-del {
+            background: none;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+            margin-top: 15px;
+        }
+
+        .msg-popup {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+
+        .msg-success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid #27ae60;
+        }
+
+        .msg-error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #c0392b;
+        }
+
+        .custom-pin svg {
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+            shape-rendering: geometricPrecision;
+        }
+
+        .pin-selectat svg {
+            filter: drop-shadow(0 0 10px #3498db) drop-shadow(0 0 15px #3498db) !important;
+            transform: scale(1.2);
+            transition: all 0.3s ease;
+        }
+
+        .pin-selectat path {
+            stroke: #3498db !important;
+            stroke-width: 2.5px !important;
+        }
     </style>
 </head>
 
 <body>
 
-<div class="top-status-container">
-    <div class="cloud-status">
-        <div class="dot"></div> CLOUD ONLINE
-    </div>
-    
-    <button onclick="comutaModAdmin()" id="btnModAdmin" class="admin-status-btn">
-        🔒 ADMIN OFF
-    </button>
-</div>
+    <div class="top-status-container">
+        <div class="cloud-status">
+            <div class="dot"></div> CLOUD ONLINE
+        </div>
 
-<div class="floating-menu">
-    <button onclick="deschideCautareLista()" class="float-btn">🔍</button>
-    <a href="index.html" class="float-btn">🏠</a>
-    <a href="view.html" class="float-btn">👁️</a>
-</div>
-
-<div id="map"></div>
-
-<div id="sidebar">
-    <div id="drag-handle" class="drag-handle">
-       <button onclick="toggleMinimize()" style="background:var(--accent); border:none; border-radius:20px; padding:6px 15px; font-size:10px; font-weight:bold; margin-top:5px; cursor:pointer;">
-            ⬇️ ASCUNDE / ⬆️ ARATĂ HARTA
+        <button onclick="comutaModAdmin()" id="btnModAdmin" class="admin-status-btn">
+            🔒 ADMIN OFF
         </button>
     </div>
 
-    <button class="btn-inchide-pc" onclick="ascundeSidebarComplet()">❌ ÎNCHIDE PANOUL PENTRU A VEDEA HARTA</button>
-
-   <div class="logo-box">
-        <img src="logo.png" alt="Logo">
+    <div class="floating-menu">
+        <button onclick="deschideCautareLista()" class="float-btn">🔍</button>
+        <a href="index.html" class="float-btn">🏠</a>
+        <a href="view.html" class="float-btn">👁️</a>
     </div>
 
-    <div id="lista-utilaje-container" style="display: block; margin-bottom: 15px;">
-        
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--accent);">🔍 Căutare Rapidă (Filtrează Lista și Harta)</label>
-            <input type="text" id="searchBar" placeholder="Ex: tocat, K-9, Tranșare..." oninput="actualizeazaListaSidebar()" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--accent); background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; outline: none;">
-        </div>
-        
-        <h3 style="font-size: 13px; margin: 0 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; color: var(--accent); font-weight: bold; text-transform: uppercase;">📋 Registru Utilaje Fabrică</h3>
-        <div id="corpListaSidebar" style="max-height: 55vh; overflow-y: auto; padding-right: 3px;"></div>
-    
-    </div>
+    <div id="map"></div>
 
-    <div id="form-container">
-        <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
-
-        <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px dashed #ccc;">
-            <label style="display: block; font-weight: bold; margin-bottom: 8px;">📸 FOTOGRAFIE UTILAJ</label>
-            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="previewImagine(this)">
-            <button type="button" onclick="document.getElementById('fileInput').click()" style="width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                📷 FĂ POZĂ SAU ALEGE DIN TELEFON
+    <div id="sidebar">
+        <div id="drag-handle" class="drag-handle">
+            <button onclick="toggleMinimize()"
+                style="background:var(--accent); border:none; border-radius:20px; padding:6px 15px; font-size:10px; font-weight:bold; margin-top:5px; cursor:pointer;">
+                ⬇️ ASCUNDE / ⬆️ ARATĂ HARTA
             </button>
-            <div id="containerPreview" style="display: none; margin-top: 10px; text-align: center;">
-                <img id="imgPreview" src="" style="max-width: 100%; height: 120px; border-radius: 8px; object-fit: cover; border: 2px solid var(--accent);">
-                <p id="uploadStatus" style="font-size: 11px; color: var(--accent); margin-top: 5px; font-weight: bold;"></p>
-            </div>
-            <input type="hidden" id="imagineUrl">
-        </div>
-        
-        <div class="group" id="grup-punere-functiune">
-            <label>Data Punere în Funcțiune (Fixă)</label>
-            <input type="date" id="data-punere">
         </div>
 
-        <div class="group">
-            <label>Denumire Utilaj</label>
-            <input type="text" id="nume" placeholder="Ex: Cuter Seydelmann 330L" oninput="checkReady()">
-        </div>
-        
-        <div class="group">
-            <label>Model / Serie</label>
-            <input type="text" id="model" placeholder="Ex: SN 16400-1">
-        </div>
-        
-        <div class="group">
-            <label>Secție</label>
-            <select id="sectie" onchange="toggleExtra()">
-                <option value="Tranșare">Tranșare</option>
-                <option value="Injectare">Injectare</option>
-                <option value="Tocare">Tocare</option>
-                <option value="Fabricație">Fabricație</option>
-                <option value="Tratament Termic">Tratament Termic (Celule)</option>
-                <option value="Secție Crude">Secție Crude</option>
-                <option value="Ambalare Vid">Ambalare Vid</option>
-                <option value="Livrare">Livrare (Cântare)</option>
-                <option value="Depozitare">Depozitare (Frig)</option>
-            </select>
+        <button class="btn-inchide-pc" onclick="ascundeSidebarComplet()">❌ ÎNCHIDE PANOUL PENTRU A VEDEA HARTA</button>
+
+        <div class="logo-box">
+            <img src="logo.png" alt="Logo">
         </div>
 
-        <div class="group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-                <label>Data Intervenție</label>
-                <input type="date" id="data">
+        <div id="lista-utilaje-container" style="display: block; margin-bottom: 15px;">
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px; color: var(--accent);">🔍 Căutare
+                    Rapidă (Filtrează Lista și Harta)</label>
+                <input type="text" id="searchBar" placeholder="Ex: tocat, K-9, Tranșare..."
+                    oninput="actualizeazaListaSidebar()"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--accent); background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; outline: none;">
             </div>
-            <div>
-                <label>Tip Intervenție</label>
-                <select id="tipInterventie">
-                    <option value="Mentenanță Preventivă">Preventivă (Plan)</option>
-                    <option value="Mentenanță Corectivă">Corectivă (Defect)</option>
-                    <option value="Inspecție Vizuală">Inspecție Săptămânală</option>
+
+            <h3
+                style="font-size: 13px; margin: 0 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; color: var(--accent); font-weight: bold; text-transform: uppercase;">
+                📋 Registru Utilaje Fabrică</h3>
+            <div id="corpListaSidebar" style="max-height: 55vh; overflow-y: auto; padding-right: 3px;"></div>
+
+        </div>
+
+        <div id="form-container">
+            <div id="status" class="status-badge">MOD: UTILAJ NOU</div>
+
+            <div
+                style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px; border: 1px dashed #ccc;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">📸 FOTOGRAFIE UTILAJ</label>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;"
+                    onchange="previewImagine(this)">
+                <button type="button" onclick="document.getElementById('fileInput').click()"
+                    style="width: 100%; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    📷 FĂ POZĂ SAU ALEGE DIN TELEFON
+                </button>
+                <div id="containerPreview" style="display: none; margin-top: 10px; text-align: center;">
+                    <img id="imgPreview" src=""
+                        style="max-width: 100%; height: 120px; border-radius: 8px; object-fit: cover; border: 2px solid var(--accent);">
+                    <p id="uploadStatus"
+                        style="font-size: 11px; color: var(--accent); margin-top: 5px; font-weight: bold;"></p>
+                </div>
+                <input type="hidden" id="imagineUrl">
+            </div>
+
+            <div class="group" id="grup-punere-functiune">
+                <label>Data Punere în Funcțiune (Fixă)</label>
+                <input type="date" id="data-punere">
+            </div>
+
+            <div class="group">
+                <label>Denumire Utilaj</label>
+                <input type="text" id="nume" placeholder="Ex: Cuter Seydelmann 330L" oninput="checkReady()">
+            </div>
+
+            <div class="group">
+                <label>Model / Serie</label>
+                <input type="text" id="model" placeholder="Ex: SN 16400-1">
+            </div>
+
+            <div class="group">
+                <label>Secție</label>
+                <select id="sectie" onchange="toggleExtra()">
+                    <option value="Tranșare">Tranșare</option>
+                    <option value="Injectare">Injectare</option>
+                    <option value="Tocare">Tocare</option>
+                    <option value="Fabricație">Fabricație</option>
+                    <option value="Tratament Termic">Tratament Termic (Celule)</option>
+                    <option value="Secție Crude">Secție Crude</option>
+                    <option value="Ambalare Vid">Ambalare Vid</option>
+                    <option value="Livrare">Livrare (Cântare)</option>
+                    <option value="Depozitare">Depozitare (Frig)</option>
                 </select>
             </div>
-        </div>
-        
-        <div class="group" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 12px; border-radius: 8px;">
-            <label class="check-item" style="color: #2ecc71; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" id="esteRevizie" style="width: 18px; height: 18px; cursor: pointer;">
-                BIFEAZĂ DACĂ ACEASTA ESTE O REVIZIE SAU MENTENANȚĂ PREVENTIVĂ
-            </label>
-        </div>
 
-           <div class="group">
-            <label>EFECTUAT DE (PERSONAL):</label>
-            <select id="mecanicSelect" onchange="schimbaMecanic()" style="margin-bottom: 5px;">
-                <option value="" disabled selected>-- Alege persoana --</option>
-                <option value="Administrator">Administrator</option>
-                <option value="Dorin Stoicu">Dorin Stoicu</option>
-                <option value="Dragos Munteanu">Dragos Munteanu</option>
-                <option value="Ilie Prelipcean">Ilie Prelipcean</option>
-                <option value="Alexandru Coroamă">Alexandru Coroamă</option>
-                <option value="Moisa Gabriel">Moisa Gabriel</option>
-                <option value="Altcineva">👉 Altcineva (Scrie de mână)</option>
-            </select>
-            <input type="text" id="mecanicCustom" placeholder="Scrie numele persoanei..." style="display: none;">
-        </div>
+            <div class="group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Data Intervenție</label>
+                    <input type="date" id="data">
+                </div>
+                <div>
+                    <label>Tip Intervenție</label>
+                    <select id="tipInterventie">
+                        <option value="Mentenanță Preventivă">Preventivă (Plan)</option>
+                        <option value="Mentenanță Corectivă">Corectivă (Defect)</option>
+                        <option value="Inspecție Vizuală">Inspecție Săptămânală</option>
+                    </select>
+                </div>
+            </div>
 
-        <div id="extraFields"></div>
+            <div class="group"
+                style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); padding: 12px; border-radius: 8px;">
+                <label class="check-item"
+                    style="color: #2ecc71; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="esteRevizie" style="width: 18px; height: 18px; cursor: pointer;">
+                    BIFEAZĂ DACĂ ACEASTA ESTE O REVIZIE SAU MENTENANȚĂ PREVENTIVĂ
+                </label>
+            </div>
 
-        <div class="group">
-            <label>Observații / Piese înlocuite</label>
-            <textarea id="obs" rows="3" placeholder="Ex: Înlocuit ulei Shell Tellus 90..."></textarea>
-        </div>
-        
-        <div class="group">
-            <label>📸 FOTOGRAFIE DEFECT / REPARAȚIE</label>
-            <input type="file" id="fotoUtilaj" accept="image/*" capture="environment" style="padding: 10px;">
-        </div>
-        
-       <div style="display: flex; gap: 10px; margin-top: 15px; width: 100%;">
-            <button class="btn-save" id="saveBtn" onclick="verificareSalvare()" disabled style="margin-top: 0; flex: 2; padding: 15px 5px; display: flex; align-items: center; justify-content: center; white-space: nowrap; box-sizing: border-box; font-size: 12px; transition: background 0.3s ease;">💾 SALVEAZĂ FIȘA</button>
-            
-            <button type="button" id="cancelBtn" onclick="resetForm()" style="display: none; flex: 1; padding: 15px 5px; display: flex; align-items: center; justify-content: center; white-space: nowrap; box-sizing: border-box; background: var(--danger); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px; text-transform: uppercase; margin: 0;">❌ ANULEAZĂ</button>
-        </div>
+            <div class="group">
+                <label>EFECTUAT DE (PERSONAL):</label>
+                <select id="mecanicSelect" onchange="schimbaMecanic()" style="margin-bottom: 5px;">
+                    <option value="" disabled selected>-- Alege persoana --</option>
+                    <option value="Administrator">Administrator</option>
+                    <option value="Dorin Stoicu">Dorin Stoicu</option>
+                    <option value="Dragos Munteanu">Dragos Munteanu</option>
+                    <option value="Ilie Prelipcean">Ilie Prelipcean</option>
+                    <option value="Alexandru Coroamă">Alexandru Coroamă</option>
+                    <option value="Moisa Gabriel">Moisa Gabriel</option>
+                    <option value="Altcineva">👉 Altcineva (Scrie de mână)</option>
+                </select>
+                <input type="text" id="mecanicCustom" placeholder="Scrie numele persoanei..." style="display: none;">
+            </div>
 
-        <div id="feedbackMsg" class="msg-popup"></div>
-        <div id="deleteZone"></div>
+            <div id="extraFields"></div>
+
+            <div class="group">
+                <label>Observații / Piese înlocuite</label>
+                <textarea id="obs" rows="3" placeholder="Ex: Înlocuit ulei Shell Tellus 90..."></textarea>
+            </div>
+
+            <div class="group">
+                <label>📸 FOTOGRAFIE DEFECT / REPARAȚIE</label>
+                <input type="file" id="fotoUtilaj" accept="image/*" capture="environment" style="padding: 10px;">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px; width: 100%;">
+                <button class="btn-save" id="saveBtn" onclick="verificareSalvare()" disabled
+                    style="margin-top: 0; flex: 2; padding: 15px 5px; display: flex; align-items: center; justify-content: center; white-space: nowrap; box-sizing: border-box; font-size: 12px; transition: background 0.3s ease;">💾
+                    SALVEAZĂ FIȘA</button>
+
+                <button type="button" id="cancelBtn" onclick="resetForm()"
+                    style="display: none; flex: 1; padding: 15px 5px; display: flex; align-items: center; justify-content: center; white-space: nowrap; box-sizing: border-box; background: var(--danger); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px; text-transform: uppercase; margin: 0;">❌
+                    ANULEAZĂ</button>
+            </div>
+
+            <div id="feedbackMsg" class="msg-popup"></div>
+            <div id="deleteZone"></div>
+        </div>
     </div>
-</div>
 
-<div id="adminPasswordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-    <div style="background: var(--primary); padding: 30px; border-radius: 15px; border-top: 5px solid var(--danger); text-align: center; width: 90%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); box-sizing: border-box;">
-        <h3 style="margin-top: 0; color: white; font-size: 18px;">🔓 Verificare Administrator</h3>
-        <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Introdu parola de deblocare</p>
-        
-        <input type="password" id="adminPasswordInput" placeholder="••••••••" onkeyup="if(event.key==='Enter') valideazaParolaAdmin()" style="text-align: center; font-size: 20px; letter-spacing: 4px; margin-bottom: 20px; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; width: 100%; box-sizing: border-box; outline: none;">
-        
-        <div style="display: flex; gap: 10px;">
-            <button onclick="valideazaParolaAdmin()" style="flex: 2; background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px;">🔐 Verifică</button>
-            <button onclick="inchideModalAdmin()" style="flex: 1; background: transparent; color: var(--text-dim); border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 12px;">ANULEAZĂ</button>
+    <div id="adminPasswordModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+        <div
+            style="background: var(--primary); padding: 30px; border-radius: 15px; border-top: 5px solid var(--danger); text-align: center; width: 90%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); box-sizing: border-box;">
+            <h3 style="margin-top: 0; color: white; font-size: 18px;">🔓 Verificare Administrator</h3>
+            <p
+                style="font-size: 11px; color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">
+                Introdu parola de deblocare</p>
+
+            <input type="password" id="adminPasswordInput" placeholder="••••••••"
+                onkeyup="if(event.key==='Enter') valideazaParolaAdmin()"
+                style="text-align: center; font-size: 20px; letter-spacing: 4px; margin-bottom: 20px; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; width: 100%; box-sizing: border-box; outline: none;">
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="valideazaParolaAdmin()"
+                    style="flex: 2; background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px;">🔐
+                    Verifică</button>
+                <button onclick="inchideModalAdmin()"
+                    style="flex: 1; background: transparent; color: var(--text-dim); border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; cursor: pointer; font-size: 12px;">ANULEAZĂ</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
-        authDomain: "killer-mentenanta.firebaseapp.com",
-        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "killer-mentenanta",
-        storageBucket: "killer-mentenanta.firebasestorage.app",
-        messagingSenderId: "434460062600",
-        appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
+            authDomain: "killer-mentenanta.firebaseapp.com",
+            databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "killer-mentenanta",
+            storageBucket: "killer-mentenanta.firebasestorage.app",
+            messagingSenderId: "434460062600",
+            appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
+        };
 
-    firebase.auth().onAuthStateChanged((user) => {
-        if (!user) { window.location.href = "index.html"; }
-    });
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-    var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3, zoomControl: false });
-    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) { window.location.href = "index.html"; }
+        });
 
-    L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
-    map.setView([500, 700], 1); 
+        var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3, zoomControl: false });
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
-    let dbRaw = {};
-    let markersGroup = L.layerGroup().addTo(map);
-    let activeMarker = null;
-    let selectedId = null;
-    let currentCoords = null;
-    
-   // --- START TRADUCĂTOR DATE ---
-    function obtineTimp(dataString) {
-        if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
-        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
-        const part = curat.split(/[./-]/);
-        if (part.length < 3) return 0;
-        
-        let d, m, y;
-        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
-        
-        return new Date(y, m - 1, d).getTime(); 
-    }
+        L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
+        map.setView([500, 700], 1);
 
-    function calculeazaZile(dataString) {
-        const timp = obtineTimp(dataString);
-        if (timp === 0) return 999;
-        const dt = new Date(timp);
-        const azi = new Date(); azi.setHours(0,0,0,0);
-        const diff = Math.floor((azi - dt) / 86400000);
-        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
-    }
+        let dbRaw = {};
+        let markersGroup = L.layerGroup().addTo(map);
+        let activeMarker = null;
+        let selectedId = null;
+        let currentCoords = null;
 
-    function gasesteUltimaRevizie(istoric) {
-        if (!istoric) return null;
-        let revizii = Object.values(istoric).filter(i => i.revizie === true);
-        if (revizii.length === 0) return null;
-        
-        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
-        return revizii[0];
-    }
-    // --- END TRADUCĂTOR DATE ---
-    
-    document.getElementById('data').valueAsDate = new Date();
+        // --- START TRADUCĂTOR DATE ---
+        function obtineTimp(dataString) {
+            if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
+            const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+            const part = curat.split(/[./-]/);
+            if (part.length < 3) return 0;
 
-    database.ref('utilaje').on('value', (snap) => { 
-        dbRaw = snap.val() || {}; 
-        refreshPini(); 
-        actualizeazaListaSidebar(); // Menține lista la zi în timp real
+            let d, m, y;
+            if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const qrId = urlParams.get('id');
-        if (qrId && dbRaw[qrId] && selectedId !== qrId) { incarcaUtilaj(qrId); }
-    });
+            return new Date(y, m - 1, d).getTime();
+        }
 
-    function refreshPini() {
-        markersGroup.clearLayers();
-        const searchInput = document.getElementById('searchBar');
-        const textCautat = searchInput ? searchInput.value.toLowerCase().trim() : "";
+        function calculeazaZile(dataString) {
+            const timp = obtineTimp(dataString);
+            if (timp === 0) return 999;
+            const dt = new Date(timp);
+            const azi = new Date(); azi.setHours(0, 0, 0, 0);
+            const diff = Math.floor((azi - dt) / 86400000);
+            return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+        }
 
-        Object.keys(dbRaw).forEach(id => {
-            const u = dbRaw[id];
-            if (u.lat && u.lng) {
-                const nume = (u.nume || "").toLowerCase();
-                const cod = (id || "").toLowerCase();
-                const sectie = (u.sectie || "").toLowerCase();
-                const model = (u.model || "").toLowerCase();
+        function gasesteUltimaRevizie(istoric) {
+            if (!istoric) return null;
+            let revizii = Object.values(istoric).filter(i => i.revizie === true);
+            if (revizii.length === 0) return null;
 
-                // 🪄 MAGIC: Verificăm dacă utilajul curent se potrivește cu textul din bara de căutare
-                if (textCautat === "" || nume.includes(textCautat) || cod.includes(textCautat) || sectie.includes(textCautat) || model.includes(textCautat)) {
-                    
-                    /*let col = "#2ecc71"; 
-                    if (u.istoric) {
-                        const istArr = Object.values(u.istoric);
-                        const ultimaRev = istArr.find(i => i.revizie === true);
+            revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
+            return revizii[0];
+        }
+        // --- END TRADUCĂTOR DATE ---
+
+        document.getElementById('data').valueAsDate = new Date();
+
+        database.ref('utilaje').on('value', (snap) => {
+            dbRaw = snap.val() || {};
+            refreshPini();
+            actualizeazaListaSidebar(); // Menține lista la zi în timp real
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const qrId = urlParams.get('id');
+            if (qrId && dbRaw[qrId] && selectedId !== qrId) { incarcaUtilaj(qrId); }
+        });
+
+        function refreshPini() {
+            markersGroup.clearLayers();
+            const searchInput = document.getElementById('searchBar');
+            const textCautat = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+            Object.keys(dbRaw).forEach(id => {
+                const u = dbRaw[id];
+                if (u.lat && u.lng) {
+                    const nume = (u.nume || "").toLowerCase();
+                    const cod = (id || "").toLowerCase();
+                    const sectie = (u.sectie || "").toLowerCase();
+                    const model = (u.model || "").toLowerCase();
+
+                    // 🪄 MAGIC: Verificăm dacă utilajul curent se potrivește cu textul din bara de căutare
+                    if (textCautat === "" || nume.includes(textCautat) || cod.includes(textCautat) || sectie.includes(textCautat) || model.includes(textCautat)) {
+
+                        /*let col = "#2ecc71"; 
+                        if (u.istoric) {
+                            const istArr = Object.values(u.istoric);
+                            const ultimaRev = istArr.find(i => i.revizie === true);
+                            if (ultimaRev) {
+                                const z = calculeazaZile(ultimaRev.data); 
+                                col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
+                            }
+                        }*/
+                        // --- CULORI INTELIGENTE 14/30 ZILE ---
+                        let col = "#2ecc71"; // Presupunem verde
+                        const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+                        const ultimaRev = gasesteUltimaRevizie(u.istoric);
+
                         if (ultimaRev) {
-                            const z = calculeazaZile(ultimaRev.data); 
-                            col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
-                        }
-                    }*/
-                    // --- CULORI INTELIGENTE 14/30 ZILE ---
-                    let col = "#2ecc71"; // Presupunem verde
-                    const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
-                    const ultimaRev = gasesteUltimaRevizie(u.istoric);
-                    
-                    if (ultimaRev) {
-                        const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
-                        const z = calculeazaZile(ultimaRev.data);
-                        
-                        if (z >= limitaZile && z < (limitaZile * 3)) col = "#f39c12"; // Portocaliu
-                        else if (z >= (limitaZile * 3)) col = "#e74c3c"; // Roșu critic
-                    } else if (u.istoric) {
-                         // Dacă are istoric dar nu are revizie
-                         col = "#e74c3c";
-                    }
+                            const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
+                            const z = calculeazaZile(ultimaRev.data);
 
-                    const esteSelectat = (id === selectedId);
-                    const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
-                    const customIcon = L.divIcon({ 
-                        className: clasaPin, 
-                        html: `
+                            if (z >= limitaZile && z < (limitaZile * 3)) col = "#f39c12"; // Portocaliu
+                            else if (z >= (limitaZile * 3)) col = "#e74c3c"; // Roșu critic
+                        } else if (u.istoric) {
+                            // Dacă are istoric dar nu are revizie
+                            col = "#e74c3c";
+                        }
+
+                        const esteSelectat = (id === selectedId);
+                        const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
+                        const customIcon = L.divIcon({
+                            className: clasaPin,
+                            html: `
                             <svg width="30" height="45" viewBox="0 0 30 45" xmlns="http://www.w3.org/2000/svg">
                                 <ellipse cx="15" cy="42" rx="7" ry="2" fill="rgba(0,0,0,0.15)" />
                                 <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
                                 <circle cx="15" cy="15" r="5.5" fill="white"/>
                             </svg>`,
-                        iconSize: [30, 45], iconAnchor: [15, 45], popupAnchor: [0, -45]
-                    });
-                    
-                    const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(markersGroup);
-                    m.on('click', (e) => { L.DomEvent.stopPropagation(e); incarcaUtilaj(id); });
-                }
-            }
-        });
-    }
+                            iconSize: [30, 45], iconAnchor: [15, 45], popupAnchor: [0, -45]
+                        });
 
-    // 📋 GENERARE ȘI FILTRARE LISTĂ SIDEBAR PENTRU VIZUALIZARE TIP LISTĂ
-    function actualizeazaListaSidebar() {
-        const textCautat = document.getElementById('searchBar').value.toLowerCase().trim();
-        const corpLista = document.getElementById('corpListaSidebar');
-        corpLista.innerHTML = "";
-        
-        Object.keys(dbRaw).forEach(id => {
-            const u = dbRaw[id];
-            const nume = (u.nume || "").toLowerCase();
-            const cod = (id || "").toLowerCase();
-            const sectie = (u.sectie || "").toLowerCase();
-            const model = (u.model || "").toLowerCase();
-            
-            if (textCautat === "" || nume.includes(textCautat) || cod.includes(textCautat) || sectie.includes(textCautat) || model.includes(textCautat)) {
-                let col = "#2ecc71";
-                if (u.istoric) {
-                    const istArr = Object.values(u.istoric);
-                    const ultimaRev = istArr.find(i => i.revizie === true);
-                    if (ultimaRev) {
-                        const z = calculeazaZile(ultimaRev.data);
-                        col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
+                        const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(markersGroup);
+                        m.on('click', (e) => { L.DomEvent.stopPropagation(e); incarcaUtilaj(id); });
                     }
                 }
-                
-                const itemHtml = `
+            });
+        }
+
+        // 📋 GENERARE ȘI FILTRARE LISTĂ SIDEBAR PENTRU VIZUALIZARE TIP LISTĂ
+        function actualizeazaListaSidebar() {
+            const textCautat = document.getElementById('searchBar').value.toLowerCase().trim();
+            const corpLista = document.getElementById('corpListaSidebar');
+            corpLista.innerHTML = "";
+
+            Object.keys(dbRaw).forEach(id => {
+                const u = dbRaw[id];
+                const nume = (u.nume || "").toLowerCase();
+                const cod = (id || "").toLowerCase();
+                const sectie = (u.sectie || "").toLowerCase();
+                const model = (u.model || "").toLowerCase();
+
+                if (textCautat === "" || nume.includes(textCautat) || cod.includes(textCautat) || sectie.includes(textCautat) || model.includes(textCautat)) {
+                    let col = "#2ecc71";
+                    if (u.istoric) {
+                        const istArr = Object.values(u.istoric);
+                        const ultimaRev = istArr.find(i => i.revizie === true);
+                        if (ultimaRev) {
+                            const z = calculeazaZile(ultimaRev.data);
+                            col = z < 30 ? "#2ecc71" : (z < 90 ? "#f39c12" : "#e74c3c");
+                        }
+                    }
+
+                    const itemHtml = `
                     <div onclick="incarcaUtilaj('${id}'); map.setView([${u.lat}, ${u.lng}], 2);" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px; cursor: pointer; border-left: 5px solid ${col}; transition: 0.2s; box-sizing: border-box;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <strong style="font-size: 13px; color: white;">${u.nume}</strong>
@@ -527,170 +814,170 @@
                         <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">📍 Secție: ${u.sectie} | Mod: ${u.model || '-'}</div>
                     </div>
                 `;
-                corpLista.innerHTML += itemHtml;
+                    corpLista.innerHTML += itemHtml;
+                }
+            });
+
+            if (corpLista.innerHTML === "") {
+                corpLista.innerHTML = "<p style='text-align:center; font-size:12px; color:var(--text-dim); padding:10px;'>Niciun utilaj găsit.</p>";
             }
-        });
-        
-        if (corpLista.innerHTML === "") {
-            corpLista.innerHTML = "<p style='text-align:center; font-size:12px; color:var(--text-dim); padding:10px;'>Niciun utilaj găsit.</p>";
-        }
-        refreshPini();
-    }
-
-    function deschideCautareLista() {
-        document.getElementById('sidebar').style.display = 'flex';
-        document.getElementById('lista-utilaje-container').style.display = 'block';
-        document.getElementById('form-container').style.display = 'none';
-        document.getElementById('sidebar').classList.add('panou-deschis');
-        document.getElementById('sidebar').classList.remove('minimizat');
-        selectedId = null;
-        if (activeMarker) map.removeLayer(activeMarker);
-        actualizeazaListaSidebar();
-        setTimeout(() => { map.invalidateSize(); }, 400);
-    }
-
-    function ascundeSidebarComplet() {
-        document.getElementById('sidebar').style.display = 'none';
-        document.getElementById('sidebar').classList.remove('panou-deschis');
-        if (activeMarker) map.removeLayer(activeMarker);
-        selectedId = null;
-        setTimeout(() => { map.invalidateSize(); }, 400);
-    }
-   
-    // 🔒 SCUT DE PROTECȚIE CLIENT: Blocăm click-ul pe hartă dacă utilizatorul nu este Admin
-    map.on('click', (e) => {
-        if (sessionStorage.getItem('is_admin') !== 'true') {
-            alert("⚠️ ACCES REFUZAT: Doar Administratorul poate adăuga utilaje noi pe hartă! Pentru a adăuga o reparație, selectează utilajul direct din hartă sau din lista de căutare (butorul 🔍).");
-            return;
+            refreshPini();
         }
 
-        if (selectedId) {
-            alert("⚠️ Ești în modul de editare pentru un utilaj existent! Dacă dorești să adaugi un utilaj nou în altă locație, apasă mai întâi butonul roșu 'ANULEAZĂ'.");
-            return;
+        function deschideCautareLista() {
+            document.getElementById('sidebar').style.display = 'flex';
+            document.getElementById('lista-utilaje-container').style.display = 'block';
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('sidebar').classList.add('panou-deschis');
+            document.getElementById('sidebar').classList.remove('minimizat');
+            selectedId = null;
+            if (activeMarker) map.removeLayer(activeMarker);
+            actualizeazaListaSidebar();
+            setTimeout(() => { map.invalidateSize(); }, 400);
         }
-        
-        resetForm(); 
-        
-        currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
-        if (activeMarker) map.removeLayer(activeMarker);
-        activeMarker = L.marker(e.latlng).addTo(map); 
-        
-        document.getElementById('sidebar').style.display = 'flex'; 
-        document.getElementById('lista-utilaje-container').style.display = 'none';
-        document.getElementById('form-container').style.display = 'block';
-        document.getElementById('sidebar').classList.add('panou-deschis'); 
-        document.getElementById('sidebar').classList.remove('minimizat');
-        document.getElementById('data-punere').disabled = false;
-        
-        setTimeout(() => { map.invalidateSize(); }, 400);
-        checkReady();
-    });
 
-    function incarcaUtilaj(id) {
-        selectedId = id; const u = dbRaw[id];
-        const isAdmin = (sessionStorage.getItem('is_admin') === 'true');
-
-        document.getElementById('sidebar').style.display = 'flex'; 
-        document.getElementById('lista-utilaje-container').style.display = 'none'; 
-        document.getElementById('form-container').style.display = 'block';
-        document.getElementById('sidebar').classList.add('panou-deschis'); 
-        document.getElementById('sidebar').classList.remove('minimizat');
-        
-        setTimeout(() => { map.invalidateSize(); }, 400);
-        
-        document.getElementById('nume').disabled = !isAdmin;
-        document.getElementById('model').disabled = !isAdmin;
-        document.getElementById('sectie').disabled = !isAdmin;
-
-        const campPunere = document.getElementById('data-punere');
-        if (u.dataPunere) { campPunere.value = u.dataPunere; campPunere.disabled = true; } 
-        else { campPunere.value = ""; campPunere.disabled = !isAdmin; }
-
-        document.getElementById('nume').value = u.nume; 
-        document.getElementById('model').value = u.model || ""; 
-        document.getElementById('sectie').value = u.sectie;
-        
-        if (isAdmin) {
-            document.getElementById('status').innerHTML = `MOD: ADMINISTRARE UTILAJ (ID: ${id})`; 
-            document.getElementById('status').className = "status-badge status-edit";
-            document.getElementById('deleteZone').innerHTML = `<button class="btn-del" onclick="stergeUtilaj('${id}')">⚠️ ȘTERGE UTILAJ DEFINITIV</button>`;
-        } else {
-            document.getElementById('status').innerHTML = `MOD: ADĂUGARE INTERVENȚIE (ID: ${id})`; 
-            document.getElementById('status').className = "status-badge";
-            document.getElementById('deleteZone').innerHTML = ""; 
+        function ascundeSidebarComplet() {
+            document.getElementById('sidebar').style.display = 'none';
+            document.getElementById('sidebar').classList.remove('panou-deschis');
+            if (activeMarker) map.removeLayer(activeMarker);
+            selectedId = null;
+            setTimeout(() => { map.invalidateSize(); }, 400);
         }
-        
-        if (activeMarker) map.removeLayer(activeMarker);
-        
-        const btnSalvare = document.getElementById('saveBtn');
-        btnSalvare.innerText = isAdmin ? "📝 ACTUALIZEAZĂ DATE UTILAJ & FIȘĂ" : "💾 SALVEAZĂ FIȘA INTERVENȚIE";
-        btnSalvare.style.background = isAdmin ? "#3498db" : "var(--success)"; 
-        document.getElementById('cancelBtn').style.display = "block";
-        
-        toggleExtra(); checkReady(); refreshPini();
-    }
 
-    // 🔒 LOGICĂ MODAL MASCAT PAROLĂ ADMIN
-    function comutaModAdmin() {
-        if (sessionStorage.getItem('is_admin') === 'true') {
-            sessionStorage.removeItem('is_admin');
-            alert("🔒 Ai trecut înapoi în MOD INTERVENȚII (MECANIC).");
-            actualizeazaButonAdmin();
+        // 🔒 SCUT DE PROTECȚIE CLIENT: Blocăm click-ul pe hartă dacă utilizatorul nu este Admin
+        map.on('click', (e) => {
+            if (sessionStorage.getItem('is_admin') !== 'true') {
+                alert("⚠️ ACCES REFUZAT: Doar Administratorul poate adăuga utilaje noi pe hartă! Pentru a adăuga o reparație, selectează utilajul direct din hartă sau din lista de căutare (butorul 🔍).");
+                return;
+            }
+
+            if (selectedId) {
+                alert("⚠️ Ești în modul de editare pentru un utilaj existent! Dacă dorești să adaugi un utilaj nou în altă locație, apasă mai întâi butonul roșu 'ANULEAZĂ'.");
+                return;
+            }
+
             resetForm();
-            return;
+
+            currentCoords = [e.latlng.lat.toFixed(0), e.latlng.lng.toFixed(0)];
+            if (activeMarker) map.removeLayer(activeMarker);
+            activeMarker = L.marker(e.latlng).addTo(map);
+
+            document.getElementById('sidebar').style.display = 'flex';
+            document.getElementById('lista-utilaje-container').style.display = 'none';
+            document.getElementById('form-container').style.display = 'block';
+            document.getElementById('sidebar').classList.add('panou-deschis');
+            document.getElementById('sidebar').classList.remove('minimizat');
+            document.getElementById('data-punere').disabled = false;
+
+            setTimeout(() => { map.invalidateSize(); }, 400);
+            checkReady();
+        });
+
+        function incarcaUtilaj(id) {
+            selectedId = id; const u = dbRaw[id];
+            const isAdmin = (sessionStorage.getItem('is_admin') === 'true');
+
+            document.getElementById('sidebar').style.display = 'flex';
+            document.getElementById('lista-utilaje-container').style.display = 'none';
+            document.getElementById('form-container').style.display = 'block';
+            document.getElementById('sidebar').classList.add('panou-deschis');
+            document.getElementById('sidebar').classList.remove('minimizat');
+
+            setTimeout(() => { map.invalidateSize(); }, 400);
+
+            document.getElementById('nume').disabled = !isAdmin;
+            document.getElementById('model').disabled = !isAdmin;
+            document.getElementById('sectie').disabled = !isAdmin;
+
+            const campPunere = document.getElementById('data-punere');
+            if (u.dataPunere) { campPunere.value = u.dataPunere; campPunere.disabled = true; }
+            else { campPunere.value = ""; campPunere.disabled = !isAdmin; }
+
+            document.getElementById('nume').value = u.nume;
+            document.getElementById('model').value = u.model || "";
+            document.getElementById('sectie').value = u.sectie;
+
+            if (isAdmin) {
+                document.getElementById('status').innerHTML = `MOD: ADMINISTRARE UTILAJ (ID: ${id})`;
+                document.getElementById('status').className = "status-badge status-edit";
+                document.getElementById('deleteZone').innerHTML = `<button class="btn-del" onclick="stergeUtilaj('${id}')">⚠️ ȘTERGE UTILAJ DEFINITIV</button>`;
+            } else {
+                document.getElementById('status').innerHTML = `MOD: ADĂUGARE INTERVENȚIE (ID: ${id})`;
+                document.getElementById('status').className = "status-badge";
+                document.getElementById('deleteZone').innerHTML = "";
+            }
+
+            if (activeMarker) map.removeLayer(activeMarker);
+
+            const btnSalvare = document.getElementById('saveBtn');
+            btnSalvare.innerText = isAdmin ? "📝 ACTUALIZEAZĂ DATE UTILAJ & FIȘĂ" : "💾 SALVEAZĂ FIȘA INTERVENȚIE";
+            btnSalvare.style.background = isAdmin ? "#3498db" : "var(--success)";
+            document.getElementById('cancelBtn').style.display = "block";
+
+            toggleExtra(); checkReady(); refreshPini();
         }
 
-        document.getElementById('adminPasswordModal').style.display = 'flex';
-        document.getElementById('adminPasswordInput').value = '';
-        document.getElementById('adminPasswordInput').focus();
-    }
-
-    function inchideModalAdmin() {
-        document.getElementById('adminPasswordModal').style.display = 'none';
-    }
-
-    function valideazaParolaAdmin() {
-        const parola = document.getElementById('adminPasswordInput').value;
-        if (!parola) return;
-
-        const user = firebase.auth().currentUser;
-        if (!user) return alert("❌ Sesiune expirată. Te rugăm să reîmprospătezi pagina.");
-
-        inchideModalAdmin();
-
-        user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email, parola))
-            .then(() => {
-                sessionStorage.setItem('is_admin', 'true');
-                alert("🔓 MOD ADMINISTRATOR ACTIVAT! Acum poți adăuga, șterge sau modifica utilaje pe hartă.");
+        // 🔒 LOGICĂ MODAL MASCAT PAROLĂ ADMIN
+        function comutaModAdmin() {
+            if (sessionStorage.getItem('is_admin') === 'true') {
+                sessionStorage.removeItem('is_admin');
+                alert("🔒 Ai trecut înapoi în MOD INTERVENȚII (MECANIC).");
                 actualizeazaButonAdmin();
                 resetForm();
-            })
-            .catch(() => {
-                alert("❌ Parolă incorectă! Rămâi în Modul normal de adăugare reparații.");
-            });
-    }
+                return;
+            }
 
-   function actualizeazaButonAdmin() {
-        const btn = document.getElementById('btnModAdmin');
-        if (!btn) return;
-        
-        if (sessionStorage.getItem('is_admin') === 'true') {
-            btn.innerText = "🔓 ADMIN ON"; // Schimbă tot textul butonului direct
-            btn.style.background = "rgba(46, 204, 113, 0.9)"; // Îl face verde
-        } else {
-            btn.innerText = "🔒 ADMIN OFF"; // Schimbă tot textul butonului direct
-            btn.style.background = "rgba(231, 76, 60, 0.8)"; // Îl face roșu
+            document.getElementById('adminPasswordModal').style.display = 'flex';
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminPasswordInput').focus();
         }
-    }
 
-    function toggleExtra() {
-        const s = document.getElementById('sectie').value;
-        const extraFieldsDiv = document.getElementById('extraFields');
-        
-        let html = '<label>Operațiuni Plan Mentenanță 2026:</label><div class="checklist">';
+        function inchideModalAdmin() {
+            document.getElementById('adminPasswordModal').style.display = 'none';
+        }
 
-        if (s === 'Tocare' || s === 'Injectare' || s === 'Fabricație') {
-            html += `
+        function valideazaParolaAdmin() {
+            const parola = document.getElementById('adminPasswordInput').value;
+            if (!parola) return;
+
+            const user = firebase.auth().currentUser;
+            if (!user) return alert("❌ Sesiune expirată. Te rugăm să reîmprospătezi pagina.");
+
+            inchideModalAdmin();
+
+            user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email, parola))
+                .then(() => {
+                    sessionStorage.setItem('is_admin', 'true');
+                    alert("🔓 MOD ADMINISTRATOR ACTIVAT! Acum poți adăuga, șterge sau modifica utilaje pe hartă.");
+                    actualizeazaButonAdmin();
+                    resetForm();
+                })
+                .catch(() => {
+                    alert("❌ Parolă incorectă! Rămâi în Modul normal de adăugare reparații.");
+                });
+        }
+
+        function actualizeazaButonAdmin() {
+            const btn = document.getElementById('btnModAdmin');
+            if (!btn) return;
+
+            if (sessionStorage.getItem('is_admin') === 'true') {
+                btn.innerText = "🔓 ADMIN ON"; // Schimbă tot textul butonului direct
+                btn.style.background = "rgba(46, 204, 113, 0.9)"; // Îl face verde
+            } else {
+                btn.innerText = "🔒 ADMIN OFF"; // Schimbă tot textul butonului direct
+                btn.style.background = "rgba(231, 76, 60, 0.8)"; // Îl face roșu
+            }
+        }
+
+        function toggleExtra() {
+            const s = document.getElementById('sectie').value;
+            const extraFieldsDiv = document.getElementById('extraFields');
+
+            let html = '<label>Operațiuni Plan Mentenanță 2026:</label><div class="checklist">';
+
+            if (s === 'Tocare' || s === 'Injectare' || s === 'Fabricație') {
+                html += `
                 <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Hidraulic"> Schimb Ulei Hidraulic</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Vacuum"> Schimb Ulei Pompă Vacuum</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Filtre Aer/Ulei"> Verificare/Schimb Filtre</label>
@@ -705,9 +992,9 @@
                 <label class="check-item"><input type="checkbox" class="task" value="Verificare Generală"> Verificare Generală</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
             `;
-        } 
-        else if (s === 'Tratament Termic') {
-            html += `
+            }
+            else if (s === 'Tratament Termic') {
+                html += `
                 <label class="check-item"><input type="checkbox" class="task" value="Curatare Tubulatura"> Curățare Tubulatură</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Clapeti"> Clapete </label>
                 <label class="check-item"><input type="checkbox" class="task" value="Verificare Ventilatoare"> Motoare Ventilație</label>
@@ -717,24 +1004,24 @@
                 <label class="check-item"><input type="checkbox" class="task" value="Generator Fum"> Mentenanță Generator Fum</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
             `;
-        }
-        else if (s === 'Ambalare Vid') {
-            html += `
+            }
+            else if (s === 'Ambalare Vid') {
+                html += `
                 <label class="check-item"><input type="checkbox" class="task" value="Ulei Pompa Vid"> Schimb Ulei Pompă Vid</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Filtre Separatoare"> Filtre Separatoare Ulei</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Rezistente/Teflon"> Rezistențe Lipire & Teflon</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Membrane/Garnituri"> Verificare Membrane/Garnituri</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
             `;
-        }
-        else if (s === 'Depozitare') {
-            html += `
+            }
+            else if (s === 'Depozitare') {
+                html += `
                 <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
                 
             `;
-        }
-        else if (s === 'Spălare') {
-            html += `
+            }
+            else if (s === 'Spălare') {
+                html += `
                 <label class="check-item"><input type="checkbox" class="task" value="Schimb Ulei Pompa"> Schimb Ulei Pompă</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Etansare Pompa/Presetupe"> Etanșare Pompă (Presetupe/Garnituri)</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Verificare Furtunuri/Cuplaje"> Verificare Furtunuri & Cuplaje</label>
@@ -743,306 +1030,307 @@
                 <label class="check-item"><input type="checkbox" class="task" value="Filtre Apa"> Verificare Filtre/Decantoare Apă</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
             `;
-        }
-        else if (s === 'Tranșare') {
-            html += `
+            }
+            else if (s === 'Tranșare') {
+                html += `
                 <label class="check-item"><input type="checkbox" class="task" value="Altele">Masina de deșoricat </label>
                <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
             `;
-        }
-        else {
-            html += `
+            }
+            else {
+                html += `
                 <label class="check-item"><input type="checkbox" class="task" value="Inspectie Vizuala"> Inspecție Vizuală Generală</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Gresare Generala"> Gresare Componente Mobile</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Verificare Suruburi"> Strângere Șuruburi/Fixări</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Tablou Electric"> Suflare/Strângere Tablou El.</label>
                 <label class="check-item"><input type="checkbox" class="task" value="Altele"> Altele - Specifica mai jos </label>
             `;
+            }
+
+            html += `</div>`;
+            html += `<div class="group" style="margin-top:10px;">`;
+            html += `<label>Altă operațiune manuală (Piese înlocuite):</label>`;
+            html += `<input type="text" id="extraCheck" placeholder="Ex: Înlocuit rulment 6205...">`;
+            html += `</div>`;
+
+            extraFieldsDiv.innerHTML = html;
         }
-        
-        html += `</div>`;
-        html += `<div class="group" style="margin-top:10px;">`;
-        html += `<label>Altă operațiune manuală (Piese înlocuite):</label>`;
-        html += `<input type="text" id="extraCheck" placeholder="Ex: Înlocuit rulment 6205...">`;
-        html += `</div>`;
-        
-        extraFieldsDiv.innerHTML = html;
-    }
-    function schimbaMecanic() {
-        const sel = document.getElementById('mecanicSelect');
-        const custom = document.getElementById('mecanicCustom');
-        if(sel.value === "Altcineva") {
-            custom.style.display = "block";
-            custom.focus(); // Pune cursorul direct în căsuță pentru tastare
-        } else {
-            custom.style.display = "none";
-            custom.value = "";
+        function schimbaMecanic() {
+            const sel = document.getElementById('mecanicSelect');
+            const custom = document.getElementById('mecanicCustom');
+            if (sel.value === "Altcineva") {
+                custom.style.display = "block";
+                custom.focus(); // Pune cursorul direct în căsuță pentru tastare
+            } else {
+                custom.style.display = "none";
+                custom.value = "";
+            }
         }
-    }
-    function checkReady() {
-        const numeValid = document.getElementById('nume').value.trim().length > 2;
-        const areLocatie = (selectedId !== null) || (currentCoords !== null);
-        document.getElementById('saveBtn').disabled = !(areLocatie && numeValid);
-    }
+        function checkReady() {
+            const numeValid = document.getElementById('nume').value.trim().length > 2;
+            const areLocatie = (selectedId !== null) || (currentCoords !== null);
+            document.getElementById('saveBtn').disabled = !(areLocatie && numeValid);
+        }
 
-    async function stergeUtilaj(id) { 
-        if (confirm("🚨 ATENȚIE CRITICĂ: Ești sigur că vrei să ștergi acest utilaj și ÎNTREGUL său istoric definitiv din Cloud?")) { 
-            await database.ref('utilaje/' + id).remove(); resetForm(); 
-        } 
-    }
+        async function stergeUtilaj(id) {
+            if (confirm("🚨 ATENȚIE CRITICĂ: Ești sigur că vrei să ștergi acest utilaj și ÎNTREGUL său istoric definitiv din Cloud?")) {
+                await database.ref('utilaje/' + id).remove(); resetForm();
+            }
+        }
 
-    async function salveaza() {
-        const btn = document.getElementById('saveBtn'); 
-        const msg = document.getElementById('feedbackMsg');
-        const file = document.getElementById('fotoUtilaj').files[0]; 
-        const esteOnline = navigator.onLine;
+        async function salveaza() {
+            const btn = document.getElementById('saveBtn');
+            const msg = document.getElementById('feedbackMsg');
+            const file = document.getElementById('fotoUtilaj').files[0];
+            const esteOnline = navigator.onLine;
 
-        btn.disabled = true; 
-        btn.innerText = (file && esteOnline) ? "⏳ SE ÎNCARCĂ POZA..." : "⏳ SE SALVEAZĂ...";
+            btn.disabled = true;
+            btn.innerText = (file && esteOnline) ? "⏳ SE ÎNCARCĂ POZA..." : "⏳ SE SALVEAZĂ...";
 
-        try {
-            const bifeValues = Array.from(document.querySelectorAll('.task:checked')).map(c => c.value);
-            let verificariFinale = bifeValues.join(", ");
-            const manual = document.getElementById('extraCheck') ? document.getElementById('extraCheck').value : "";
-            if (manual !== "") verificariFinale = verificariFinale ? verificariFinale + " | " + manual : manual;
+            try {
+                const bifeValues = Array.from(document.querySelectorAll('.task:checked')).map(c => c.value);
+                let verificariFinale = bifeValues.join(", ");
+                const manual = document.getElementById('extraCheck') ? document.getElementById('extraCheck').value : "";
+                if (manual !== "") verificariFinale = verificariFinale ? verificariFinale + " | " + manual : manual;
 
             // ⚙️ SOLUȚIA 6: GENERARE ID UNIC ABSOLUT (TIMESTAMP BAZĂ 36 + SECVENȚĂ RANDOM) - ZERO RISC COLIZIUNE
           /* const finalId = selectedId ? selectedId : "K-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random() * 10);
-           */ let fortamOffline = false; 
+           */ let fortamOffline = false;
 
-            // 🛡️ SISTEM ANTI-DUPLICARE ID: Generăm codul și verificăm dacă e liber
-            let finalId = selectedId;
-            if (!finalId) {
-                let idGenerat;
-                do {
-                    const codScurt = Math.floor(1000 + Math.random() * 9000);
-                    idGenerat = "K-" + codScurt;
-                } while (dbRaw[idGenerat] !== undefined); // Cât timp ID-ul există, mai trage un bilet!
-                finalId = idGenerat;
-            }
+                // 🛡️ SISTEM ANTI-DUPLICARE ID: Generăm codul și verificăm dacă e liber
+                let finalId = selectedId;
+                if (!finalId) {
+                    let idGenerat;
+                    do {
+                        const codScurt = Math.floor(1000 + Math.random() * 9000);
+                        idGenerat = "K-" + codScurt;
+                    } while (dbRaw[idGenerat] !== undefined); // Cât timp ID-ul există, mai trage un bilet!
+                    finalId = idGenerat;
+                }
 
-            // 🧠 PRELUAREA INTELIGENTĂ A NUMELUI: Lista Fixă sau Scris de mână
-            const numeSelectat = document.getElementById('mecanicSelect').value;
-            const numeFinal = (numeSelectat === "Altcineva") ? document.getElementById('mecanicCustom').value : numeSelectat;
+                // 🧠 PRELUAREA INTELIGENTĂ A NUMELUI: Lista Fixă sau Scris de mână
+                const numeSelectat = document.getElementById('mecanicSelect').value;
+                const numeFinal = (numeSelectat === "Altcineva") ? document.getElementById('mecanicCustom').value : numeSelectat;
 
-            const entry = {
-                data: document.getElementById('data').value, 
-                tip: document.getElementById('tipInterventie').value,
-                mecanic: numeFinal || "Necunoscut", // Salvăm ce s-a ales sau s-a scris
-                verificari: verificariFinale,
-                obs: document.getElementById('obs').value, 
-                timestamp: Date.now(),
-                revizie: document.getElementById('esteRevizie').checked, 
-                foto: "" 
-            };
+                const entry = {
+                    data: document.getElementById('data').value,
+                    tip: document.getElementById('tipInterventie').value,
+                    mecanic: numeFinal || "Necunoscut", // Salvăm ce s-a ales sau s-a scris
+                    verificari: verificariFinale,
+                    obs: document.getElementById('obs').value,
+                    timestamp: Date.now(),
+                    revizie: document.getElementById('esteRevizie').checked,
+                    foto: ""
+                };
 
-            if (esteOnline) {
-                const ruleazaFirebase = (promisiune) => Promise.race([ 
-                    promisiune, 
-                    new Promise((_, r) => setTimeout(() => r(new Error("TIMEOUT")), 10000)) 
-                ]);
+                if (esteOnline) {
+                    const ruleazaFirebase = (promisiune) => Promise.race([
+                        promisiune,
+                        new Promise((_, r) => setTimeout(() => r(new Error("TIMEOUT")), 10000))
+                    ]);
 
-                try {
-                    if (file) {
-                        const storageRef = firebase.storage().ref('utilaje/' + finalId + '/' + Date.now() + "_" + file.name);
-                        const snap = await ruleazaFirebase(storageRef.put(file));
-                        entry.foto = await snap.ref.getDownloadURL();
-                    }
-
-                    if (selectedId) {
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/nume').set(document.getElementById('nume').value));
-                        
-                        const d = document.getElementById('data-punere').value;
-                        if(d) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/dataPunere').set(d));
-
-                        if(entry.foto) {
-                            await ruleazaFirebase(database.ref('utilaje/' + finalId + '/imagine').set(entry.foto));
+                    try {
+                        if (file) {
+                            const storageRef = firebase.storage().ref('utilaje/' + finalId + '/' + Date.now() + "_" + file.name);
+                            const snap = await ruleazaFirebase(storageRef.put(file));
+                            entry.foto = await snap.ref.getDownloadURL();
                         }
-                    } else {
-                        await ruleazaFirebase(database.ref('utilaje/' + finalId).set({
-                            id: finalId, 
-                            nume: document.getElementById('nume').value, 
-                            model: document.getElementById('model').value, 
-                            sectie: document.getElementById('sectie').value,
-                            lat: currentCoords ? parseFloat(currentCoords[0]) : 0, 
-                            lng: currentCoords ? parseFloat(currentCoords[1]) : 0, 
-                            dataPunere: document.getElementById('data-punere').value, 
-                            imagine: entry.foto, 
-                            istoric: { "init": entry }
-                        }));
+
+                        if (selectedId) {
+                            await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
+                            await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
+                            await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
+                            await ruleazaFirebase(database.ref('utilaje/' + finalId + '/nume').set(document.getElementById('nume').value));
+
+                            const d = document.getElementById('data-punere').value;
+                            if (d) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/dataPunere').set(d));
+
+                            if (entry.foto) {
+                                await ruleazaFirebase(database.ref('utilaje/' + finalId + '/imagine').set(entry.foto));
+                            }
+                        } else {
+                            await ruleazaFirebase(database.ref('utilaje/' + finalId).set({
+                                id: finalId,
+                                nume: document.getElementById('nume').value,
+                                model: document.getElementById('model').value,
+                                sectie: document.getElementById('sectie').value,
+                                lat: currentCoords ? parseFloat(currentCoords[0]) : 0,
+                                lng: currentCoords ? parseFloat(currentCoords[1]) : 0,
+                                dataPunere: document.getElementById('data-punere').value,
+                                imagine: entry.foto,
+                                istoric: { "init": entry }
+                            }));
+                        }
+
+                        msg.innerText = "✅ SALVAT CU SUCCES!";
+                        msg.className = "msg-popup msg-success";
+
+                    } catch (err) {
+                        if (err.message === "TIMEOUT") fortamOffline = true;
+                        else throw err;
                     }
-                    
-                    msg.innerText = "✅ SALVAT CU SUCCES!"; 
-                    msg.className = "msg-popup msg-success";
-
-                } catch (err) { 
-                    if (err.message === "TIMEOUT") fortamOffline = true; 
-                    else throw err; 
                 }
-            }
 
-            if (!esteOnline || fortamOffline) {
-                let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
-                coada.push({ 
-                    isNew: !selectedId, 
-                    id: finalId, 
-                    nume: document.getElementById('nume').value, 
-                    model: document.getElementById('model').value, 
-                    sectie: document.getElementById('sectie').value, 
-                    lat: currentCoords ? parseFloat(currentCoords[0]) : null, 
-                    lng: currentCoords ? parseFloat(currentCoords[1]) : null, 
-                    entryData: entry 
-                });
-                localStorage.setItem('coada_sincronizare', JSON.stringify(coada));
-                
-                msg.innerText = "⚠️ SALVAT PE TELEFON (OFFLINE)!"; 
-                msg.className = "msg-popup msg-warning"; 
-                msg.style.borderColor = "#f39c12"; 
-                msg.style.color = "#f39c12";
-            }
+                if (!esteOnline || fortamOffline) {
+                    let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
+                    coada.push({
+                        isNew: !selectedId,
+                        id: finalId,
+                        nume: document.getElementById('nume').value,
+                        model: document.getElementById('model').value,
+                        sectie: document.getElementById('sectie').value,
+                        lat: currentCoords ? parseFloat(currentCoords[0]) : null,
+                        lng: currentCoords ? parseFloat(currentCoords[1]) : null,
+                        entryData: entry
+                    });
+                    localStorage.setItem('coada_sincronizare', JSON.stringify(coada));
 
-            msg.style.display = "block";
-            
-            setTimeout(() => { 
-                if (typeof resetForm === "function") resetForm(); 
-                btn.innerText = "💾 SALVEAZĂ FIȘA"; 
-                btn.disabled = false; 
-                msg.style.display = "none"; 
-            }, 3000);
-
-        } catch (e) {
-            console.error(e);
-            msg.innerText = "❌ EROARE: " + e.message; 
-            msg.className = "msg-popup msg-error"; 
-            msg.style.display = "block";
-            btn.disabled = false; 
-            btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
-        }
-    }
-
-    function resetForm() {
-        selectedId = null; 
-        currentCoords = null;
-
-        if (document.getElementById('searchBar')) { document.getElementById('searchBar').value = ""; }
-        
-        document.getElementById('form-container').style.display = 'none';
-        document.getElementById('lista-utilaje-container').style.display = 'block'; 
-        
-        setTimeout(() => { map.invalidateSize(); }, 400);
-        
-        document.getElementById('nume').disabled = false;
-        document.getElementById('model').disabled = false;
-        document.getElementById('sectie').disabled = false;
-        document.getElementById('data-punere').disabled = false;
-
-        document.getElementById('nume').value = ""; 
-        document.getElementById('model').value = ""; 
-        document.getElementById('obs').value = ""; 
-        // Resetăm lista fixă și căsuța ascunsă
-        if(document.getElementById('mecanicSelect')) document.getElementById('mecanicSelect').value = "";
-        if(document.getElementById('mecanicCustom')) {
-            document.getElementById('mecanicCustom').value = "";
-            document.getElementById('mecanicCustom').style.display = "none";
-        }
-        document.getElementById('data-punere').value = ""; 
-        
-        document.getElementById('status').innerHTML = "MOD: UTILAJ NOU"; 
-        document.getElementById('status').className = "status-badge"; 
-        document.getElementById('deleteZone').innerHTML = ""; 
-        document.getElementById('fotoUtilaj').value = "";
-        document.getElementById('esteRevizie').checked = false;
-        
-        if(document.getElementById('fileInput')) document.getElementById('fileInput').value = "";
-        if(document.getElementById('containerPreview')) document.getElementById('containerPreview').style.display = "none";
-        
-        const btnSalvare = document.getElementById('saveBtn');
-        btnSalvare.innerText = "💾 SALVEAZĂ FIȘA";
-        btnSalvare.style.background = "var(--success)";
-        document.getElementById('cancelBtn').style.display = "none";
-
-        if (activeMarker) map.removeLayer(activeMarker); 
-        refreshPini(); 
-        toggleExtra(); 
-        checkReady();
-        actualizeazaListaSidebar();
-    }
-
-    window.onload = () => { 
-        actualizeazaButonAdmin();
-        setTimeout(() => { map.invalidateSize(); }, 500); 
-    };
-
-    function verificareSalvare() { 
-        salveaza(); 
-    }
-
-    function updateConnectionStatus() {
-        const cloudBanner = document.querySelector('.cloud-status');
-        if (navigator.onLine) {
-            cloudBanner.classList.remove('offline'); 
-            cloudBanner.innerHTML = '<div class="dot"></div> CLOUD ONLINE'; 
-            sincronizeazaDatele(); 
-        } else {
-            cloudBanner.classList.add('offline'); 
-            cloudBanner.innerHTML = '⚠️ OFFLINE - SALVĂM LOCAL';
-        }
-    }
-
-    async function sincronizeazaDatele() {
-        let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
-        if (coada.length === 0) return; 
-        for (let item of coada) {
-            try {
-                if (item.isNew) await database.ref('utilaje/' + item.id).set({ id: item.id, nume: item.nume, model: item.model, sectie: item.sectie, lat: item.lat, lng: item.lng, istoric: { "init": item.entryData } });
-                else {
-                    await database.ref('utilaje/' + item.id + '/istoric').push(item.entryData);
-                    await database.ref('utilaje/' + item.id + '/model').set(item.model);
-                    await database.ref('utilaje/' + item.id + '/sectie').set(item.sectie);
+                    msg.innerText = "⚠️ SALVAT PE TELEFON (OFFLINE)!";
+                    msg.className = "msg-popup msg-warning";
+                    msg.style.borderColor = "#f39c12";
+                    msg.style.color = "#f39c12";
                 }
-            } catch (error) { return; }
-        }
-        localStorage.removeItem('coada_sincronizare'); alert("✅ Datele offline au fost sincronizate automat în Cloud!");
-    }
-    
-    window.addEventListener('online', updateConnectionStatus); 
-    window.addEventListener('offline', updateConnectionStatus); 
-    updateConnectionStatus(); 
 
-    const dragHandle = document.getElementById('drag-handle'); 
-    const sidebar = document.getElementById('sidebar');
-    let touchStartY = 0;
-    if (dragHandle && sidebar) {
-        dragHandle.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, {passive: true});
-        dragHandle.addEventListener('touchend', (e) => {
-            const dif = e.changedTouches[0].clientY - touchStartY;
-            if (dif > 30) sidebar.classList.add('minimizat');
-            else if (dif < -30) sidebar.classList.remove('minimizat');
-            else sidebar.classList.toggle('minimizat');
-        });
-        dragHandle.addEventListener('click', () => sidebar.classList.toggle('minimizat'));
-    }
-    
-    function toggleMinimize() {
+                msg.style.display = "block";
+
+                setTimeout(() => {
+                    if (typeof resetForm === "function") resetForm();
+                    btn.innerText = "💾 SALVEAZĂ FIȘA";
+                    btn.disabled = false;
+                    msg.style.display = "none";
+                }, 3000);
+
+            } catch (e) {
+                console.error(e);
+                msg.innerText = "❌ EROARE: " + e.message;
+                msg.className = "msg-popup msg-error";
+                msg.style.display = "block";
+                btn.disabled = false;
+                btn.innerText = "💾 ÎNCEARCĂ DIN NOU";
+            }
+        }
+
+        function resetForm() {
+            selectedId = null;
+            currentCoords = null;
+
+            if (document.getElementById('searchBar')) { document.getElementById('searchBar').value = ""; }
+
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('lista-utilaje-container').style.display = 'block';
+
+            setTimeout(() => { map.invalidateSize(); }, 400);
+
+            document.getElementById('nume').disabled = false;
+            document.getElementById('model').disabled = false;
+            document.getElementById('sectie').disabled = false;
+            document.getElementById('data-punere').disabled = false;
+
+            document.getElementById('nume').value = "";
+            document.getElementById('model').value = "";
+            document.getElementById('obs').value = "";
+            // Resetăm lista fixă și căsuța ascunsă
+            if (document.getElementById('mecanicSelect')) document.getElementById('mecanicSelect').value = "";
+            if (document.getElementById('mecanicCustom')) {
+                document.getElementById('mecanicCustom').value = "";
+                document.getElementById('mecanicCustom').style.display = "none";
+            }
+            document.getElementById('data-punere').value = "";
+
+            document.getElementById('status').innerHTML = "MOD: UTILAJ NOU";
+            document.getElementById('status').className = "status-badge";
+            document.getElementById('deleteZone').innerHTML = "";
+            document.getElementById('fotoUtilaj').value = "";
+            document.getElementById('esteRevizie').checked = false;
+
+            if (document.getElementById('fileInput')) document.getElementById('fileInput').value = "";
+            if (document.getElementById('containerPreview')) document.getElementById('containerPreview').style.display = "none";
+
+            const btnSalvare = document.getElementById('saveBtn');
+            btnSalvare.innerText = "💾 SALVEAZĂ FIȘA";
+            btnSalvare.style.background = "var(--success)";
+            document.getElementById('cancelBtn').style.display = "none";
+
+            if (activeMarker) map.removeLayer(activeMarker);
+            refreshPini();
+            toggleExtra();
+            checkReady();
+            actualizeazaListaSidebar();
+        }
+
+        window.onload = () => {
+            actualizeazaButonAdmin();
+            setTimeout(() => { map.invalidateSize(); }, 500);
+        };
+
+        function verificareSalvare() {
+            salveaza();
+        }
+
+        function updateConnectionStatus() {
+            const cloudBanner = document.querySelector('.cloud-status');
+            if (navigator.onLine) {
+                cloudBanner.classList.remove('offline');
+                cloudBanner.innerHTML = '<div class="dot"></div> CLOUD ONLINE';
+                sincronizeazaDatele();
+            } else {
+                cloudBanner.classList.add('offline');
+                cloudBanner.innerHTML = '⚠️ OFFLINE - SALVĂM LOCAL';
+            }
+        }
+
+        async function sincronizeazaDatele() {
+            let coada = JSON.parse(localStorage.getItem('coada_sincronizare')) || [];
+            if (coada.length === 0) return;
+            for (let item of coada) {
+                try {
+                    if (item.isNew) await database.ref('utilaje/' + item.id).set({ id: item.id, nume: item.nume, model: item.model, sectie: item.sectie, lat: item.lat, lng: item.lng, istoric: { "init": item.entryData } });
+                    else {
+                        await database.ref('utilaje/' + item.id + '/istoric').push(item.entryData);
+                        await database.ref('utilaje/' + item.id + '/model').set(item.model);
+                        await database.ref('utilaje/' + item.id + '/sectie').set(item.sectie);
+                    }
+                } catch (error) { return; }
+            }
+            localStorage.removeItem('coada_sincronizare'); alert("✅ Datele offline au fost sincronizate automat în Cloud!");
+        }
+
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        updateConnectionStatus();
+
+        const dragHandle = document.getElementById('drag-handle');
         const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('minimizat');
-        setTimeout(() => { map.invalidateSize(); }, 300);
-    }
-    
-    function previewImagine(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('imgPreview').src = e.target.result;
-                document.getElementById('containerPreview').style.display = 'block';
-                document.getElementById('uploadStatus').innerText = "📍 Poză selectată (se va urca la Salvare)";
-            }
-            reader.readAsDataURL(input.files[0]);
+        let touchStartY = 0;
+        if (dragHandle && sidebar) {
+            dragHandle.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+            dragHandle.addEventListener('touchend', (e) => {
+                const dif = e.changedTouches[0].clientY - touchStartY;
+                if (dif > 30) sidebar.classList.add('minimizat');
+                else if (dif < -30) sidebar.classList.remove('minimizat');
+                else sidebar.classList.toggle('minimizat');
+            });
+            dragHandle.addEventListener('click', () => sidebar.classList.toggle('minimizat'));
         }
-    }
-</script>
+
+        function toggleMinimize() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('minimizat');
+            setTimeout(() => { map.invalidateSize(); }, 300);
+        }
+
+        function previewImagine(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('imgPreview').src = e.target.result;
+                    document.getElementById('containerPreview').style.display = 'block';
+                    document.getElementById('uploadStatus').innerText = "📍 Poză selectată (se va urca la Salvare)";
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 </body>
+
 </html>

@@ -322,7 +322,8 @@
 #reader {
     width: 100%; 
     max-width: 500px;
-    background: white; /* Ca să vezi containerul */
+    min-height: 300px; /* IMPORTANT: Camera are nevoie de spațiu pe verticală */
+    background: white; 
     border-radius: 10px;
 }
     </style>
@@ -476,11 +477,15 @@
 }
 
 function inchideScanner() {
+    // 1. Oprim camera folosind INSTANȚA creată (html5QrCode), nu clasa (Html5Qrcode)
     if (html5QrCode) {
-        html5QrCode.stop().then(() => {
+        html5QrCode.stop().then((ignore) => {
+            // Camera s-a oprit cu succes
             document.getElementById('scanner-modal').classList.remove('activ');
-        }).catch(err => {
-            console.log("Eroare oprire cameră:", err);
+            html5QrCode.clear(); // Ștergem și zona de redare pentru a curăța memoria
+        }).catch((err) => {
+            // Dacă a apărut o eroare la oprire, închidem oricum modalul
+            console.log("Eroare la oprirea camerei:", err);
             document.getElementById('scanner-modal').classList.remove('activ');
         });
     } else {

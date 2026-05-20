@@ -330,7 +330,6 @@
             <button class="btn" style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:20px;" onclick="logout()">Ieșire</button>
         </div>
         
-        <div id="reader" style="width: 100%; max-width: 500px; margin: 20px auto; display: none; border-radius: 15px; overflow: hidden;"></div>
     </div>
 
     <div id="alert-panel" class="alert-hidden">
@@ -421,7 +420,7 @@
             });
         }
 
-        function pornesteScanner() {
+       /* function pornesteScanner() {
             document.getElementById('reader').style.display = 'block';
             const html5QrCode = new Html5Qrcode("reader");
 
@@ -433,7 +432,34 @@
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
             html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
         }
+*/
+        function pornesteScanner() {
+    // 1. Deschidem modalul de overlay
+    document.getElementById('scanner-modal').classList.add('activ');
 
+    // 2. Inițializăm scannerul
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" }, 
+        { fps: 10, qrbox: 250 },
+        (decodedText) => {
+            // Aici procesezi codul scanat
+            console.log(`Cod: ${decodedText}`);
+            inchideScanner();
+            // Poți redirecționa automat:
+            // window.location.href = "edit.html?id=" + decodedText;
+        },
+        (err) => { /* eroare scanare */ }
+    ).catch(err => alert("Eroare cameră: " + err));
+}
+
+function inchideScanner() {
+    // 1. Închidem modalul
+    document.getElementById('scanner-modal').classList.remove('activ');
+    
+    // 2. Oprim camera (FOARTE IMPORTANT pentru baterie)
+    Html5Qrcode.stop().catch(err => console.log("Camera deja oprită"));
+}
         function calculeazaZile(dataInstalare) {
             if (!dataInstalare) return 999;
             const oZi = 24 * 60 * 60 * 1000;
@@ -583,6 +609,10 @@
             if (btn) btn.style.display = 'none';
         }
     </script>
+    <div id="scanner-modal" class="modal-scanner">
+    <div id="reader" style="width: 100%; max-width: 500px;"></div>
+    <button onclick="inchideScanner()" class="btn btn-danger">❌ ÎNCHIDE SCANNER</button>
+</div>
 </body>
 
 </html>

@@ -363,17 +363,37 @@
     // VARIABILĂ GLOBALĂ PENTRU A ȚINE MINTE CĂ AI ÎNCHIS ALARMA
     let alertaInchisaManual = false; 
  
-    function calculeazaZile(dataString) {
-        if (!dataString || dataString === "-" || dataString.trim() === "") return 999;
+    function calculeazaZile(dataString) {// --- START TRADUCĂTOR DATE ---
+    function obtineTimp(dataString) {
+        if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
         const curat = dataString.replace(/[^0-9./-]/g, '').trim();
         const part = curat.split(/[./-]/);
-        if (part.length < 3) return 999;
+        if (part.length < 3) return 0;
+        
         let d, m, y;
         if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
-        const dt = new Date(y, m - 1, d);
+        
+        return new Date(y, m - 1, d).getTime(); 
+    }
+
+    function calculeazaZile(dataString) {
+        const timp = obtineTimp(dataString);
+        if (timp === 0) return 999;
+        const dt = new Date(timp);
         const azi = new Date(); azi.setHours(0,0,0,0);
         const diff = Math.floor((azi - dt) / 86400000);
         return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+    }
+
+    function gasesteUltimaRevizie(istoric) {
+        if (!istoric) return null;
+        let revizii = Object.values(istoric).filter(i => i.revizie === true);
+        if (revizii.length === 0) return null;
+        
+        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
+        return revizii[0];
+    }
+    // --- END TRADUCĂTOR DATE ---
     }
 
    // 🗺️ INITIALIZARE HARTĂ (Lăsată la nivel global pentru a fi accesibilă peste tot)
@@ -749,7 +769,7 @@ function verificaAlarmeMentenanta() {
         const u = dbRaw[id];
         if (u.istoric) {
           const istArr = Object.values(u.istoric);
-            const ultimaRev = istArr.find(i => i.revizie === true);
+            const ultimaRev = gasesteUltimaRevizie(u.istoric);
 
             if (ultimaRev) {
                 const z = calculeazaZile(ultimaRev.data);

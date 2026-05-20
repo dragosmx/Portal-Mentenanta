@@ -404,18 +404,9 @@
     // Siguranță pentru ecranul de loading
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
  // Modifică lista astfel încât să recunoască și ID-ul cu tot cu "K-"
-const CONFIGURATIE_ALARME = { 
-    "9728": 30, 
-    "6355": 30, 
-    "9902": 14, 
-    "2701": 14, 
-    "5740": 14, 
-    "1111": 14, 
-    "2222": 14, 
-    "3333": 14, 
-    "4444": 14, 
-    "5061": 14 
-};
+const configuratieAlarme = {
+        "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
+    };
    function afiseazaPuncte() {
     if (!dbRaw) return;
     const filtru = document.getElementById('filterSectie').value;

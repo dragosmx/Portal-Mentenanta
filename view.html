@@ -22,6 +22,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="offline.js"></script>
 
     <style>
         :root {
@@ -933,25 +934,29 @@
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 // Utilizatorul este logat sigur! Acum tragem datele din Cloud în siguranță
-                database.ref('utilaje').on('value', (snap) => {
-                    dbRaw = snap.val() || {};
-                    console.log("DATE PRIMITE DE LA FIREBASE:", dbRaw);
-                    afiseazaPuncte();
-                    verificaAlarmeMentenanta();
-                    document.getElementById('loading-screen').style.display = 'none';
+                // 1. Citirea de pe net (când avem conexiune)
+database.ref('utilaje').on('value', (snap) => {
+    dbRaw = snap.val() || {};
+    
+    // 💾 Salvăm "fotografia" bazei de date în telefon
+    localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
+    
+    refreshPini();
+    actualizeazaListaSidebar(); 
+});
 
-                    // 🚀 AUTO-ZOOM INTELIGENT LA APĂSAREA ALERTEI DIN INDEX
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const idParam = urlParams.get('id');
-                    if (idParam && dbRaw[idParam]) {
-                        const u = dbRaw[idParam];
-                        if (u.lat && u.lng) {
-                            setTimeout(() => {
-                                focalizeazaUtilaj(u.lat, u.lng, idParam);
-                            }, 600);
-                        }
-                    }
-                });
+// 2. Încărcarea de rezervă (când deschidem pagina fără net)
+window.addEventListener('load', () => {
+    if (!navigator.onLine) {
+        const backup = localStorage.getItem('backup_utilaje');
+        if (backup) {
+            dbRaw = JSON.parse(backup);
+            refreshPini();
+            actualizeazaListaSidebar();
+            console.log("⚠️ View offline: Harta și pinii s-au încărcat din memorie.");
+        }
+    }
+});
             } else {
                 // Dacă cineva încearcă să spioneze direct view.html fără login, este aruncat înapoi
                 window.location.href = "index.html";

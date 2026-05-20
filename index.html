@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Mentenanță">
     <link rel="apple-touch-icon" href="logo.png">
-    
+
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
@@ -19,7 +20,7 @@
     <style>
         :root {
             --primary: #2c3e50;
-            --accent: #27ae60; 
+            --accent: #27ae60;
             --success: #2ecc71;
             --warning: #f39c12;
             --danger: #e74c3c;
@@ -43,293 +44,491 @@
             background: var(--primary);
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
             text-align: center;
             width: 100%;
             max-width: 400px;
             box-sizing: border-box;
-            border-top: 6px solid var(--accent); 
+            border-top: 6px solid var(--accent);
         }
 
-        .logo-box img { max-width: 160px; margin-bottom: 20px; }
-        h2 { margin: 0 0 5px 0; font-size: 22px; }
-        p { margin: 0 0 25px 0; font-size: 13px; color: #bdc3c7; }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; font-size: 11px; margin-bottom: 5px; font-weight: bold; color: #bdc3c7; text-transform: uppercase; }
-        
-        input[type="password"] {
-            width: 100%; padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.3); color: white; font-size: 16px; box-sizing: border-box;
-            outline: none; text-align: center; letter-spacing: 3px; transition: 0.3s;
+        .logo-box img {
+            max-width: 160px;
+            margin-bottom: 20px;
         }
-        input[type="password"]:focus { border-color: var(--accent); }
+
+        h2 {
+            margin: 0 0 5px 0;
+            font-size: 22px;
+        }
+
+        p {
+            margin: 0 0 25px 0;
+            font-size: 13px;
+            color: #bdc3c7;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #bdc3c7;
+            text-transform: uppercase;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            text-align: center;
+            letter-spacing: 3px;
+            transition: 0.3s;
+        }
+
+        input[type="password"]:focus {
+            border-color: var(--accent);
+        }
 
         .btn {
-            width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 14px;
-            font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 12px; display: block;
-            text-decoration: none; box-sizing: border-box; text-align: center;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 12px;
+            display: block;
+            text-decoration: none;
+            box-sizing: border-box;
+            text-align: center;
         }
 
-        .btn-login { background: var(--accent); color: white; } 
-        .btn-login:hover { background: #219653; }
-        
-        .btn-menu { 
-            background: #34495e; 
-            color: white; 
-            border: 1px solid rgba(255,255,255,0.1); 
+        .btn-login {
+            background: var(--accent);
+            color: white;
         }
-        .btn-menu:hover { 
-            background: #2c3e50; 
+
+        .btn-login:hover {
+            background: #219653;
+        }
+
+        .btn-menu {
+            background: #34495e;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-menu:hover {
+            background: #2c3e50;
         }
 
         .error-msg {
-            color: var(--danger); font-size: 12px; margin-bottom: 15px; font-weight: bold; display: none;
+            color: var(--danger);
+            font-size: 12px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            display: none;
         }
 
-        #menu-screen { display: none; }
-        .footer-dev { position: absolute; bottom: 20px; font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+        #menu-screen {
+            display: none;
+        }
+
+        .footer-dev {
+            position: absolute;
+            bottom: 20px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 1px;
+        }
 
         /* ---------------------------------------------------
            ⚠️ STILURI DE ALERTE COPIATE 1:1 DIN VIEW.HTML
            --------------------------------------------------- */
         #alert-panel {
-            position: fixed; top: 80px; right: 20px;
-            width: 280px; background: rgba(44, 62, 80, 0.95);
-            border-left: 5px solid #f39c12; border-radius: 8px;
-            z-index: 2000; color: white; padding: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 280px;
+            background: rgba(44, 62, 80, 0.95);
+            border-left: 5px solid #f39c12;
+            border-radius: 8px;
+            z-index: 2000;
+            color: white;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             transition: all 0.5s ease;
             text-align: left;
         }
-        .alert-hidden { right: -350px !important; opacity: 0; pointer-events: none; }
-        .alert-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; }
-        .alert-item { font-size: 12px; margin-bottom: 8px; padding: 5px; border-radius: 4px; color: white; }
-        .alert-urgent { background: rgba(231, 76, 60, 0.2); border-left: 3px solid #e74c3c; }
-        .alert-warning { background: rgba(243, 156, 18, 0.2); border-left: 3px solid #f39c12; }
-        
-        .btn-locate { 
-            display: inline-block; margin-top: 10px; padding: 6px 12px; background: #3498db; 
-            color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: bold; 
-            cursor: pointer; text-transform: uppercase; transition: background 0.2s; 
+
+        .alert-hidden {
+            right: -350px !important;
+            opacity: 0;
+            pointer-events: none;
         }
-        .btn-locate:hover { background: #2980b9; }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+        }
+
+        .alert-item {
+            font-size: 12px;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .alert-urgent {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 3px solid #e74c3c;
+        }
+
+        .alert-warning {
+            background: rgba(243, 156, 18, 0.2);
+            border-left: 3px solid #f39c12;
+        }
+
+        .btn-locate {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .btn-locate:hover {
+            background: #2980b9;
+        }
 
         #btn-clopotel {
-            display: none; 
-            position: fixed; z-index: 1500;
-            top: 80px; right: 20px;
-            width: 45px; height: 45px; border-radius: 50%;
-            background: var(--danger); color: white;
-            align-items: center; justify-content: center;
-            font-size: 20px; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 2px solid white;
+            display: none;
+            position: fixed;
+            z-index: 1500;
+            top: 80px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--danger);
+            color: white;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            border: 2px solid white;
             animation: pulse-cloud 1.5s infinite;
         }
-        @keyframes pulse-cloud { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-       /* @media (max-width: 768px) {
+        @keyframes pulse-cloud {
+            0% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.4;
+            }
+        }
+
+        /* @media (max-width: 768px) {
             #alert-panel { display: none; top: 130px; left: 15px; width: calc(100% - 30px); right: auto !important; z-index: 2001; }
             #alert-panel.activ { display: block; }
             .alert-hidden { display: none !important; }
             #btn-clopotel { top: 75px; right: 15px; position: fixed; }
         }*/
         @media (max-width: 768px) {
-    #alert-panel {         display: none; 
-        top: 100px; 
-        left: 50%;                 /* Îl trage la jumătatea ecranului */
-        transform: translateX(-50%); /* Îl centrează perfect pe orizontală */
-        width: 90%;                /* Ocupă 90% din ecran */
-        max-width: 400px;          /* Nu-l lăsăm să se lățească prea mult */
-        right: auto !important;    /* Resetăm orice setare de "right" */
-        z-index: 2001; 
-    }
-    #alert-panel.activ { display: block; }
-    .alert-hidden { display: none !important; }
-    #btn-clopotel { top: 75px; right: 15px; position: fixed; }
-}
+            #alert-panel {
+                display: none;
+                top: 100px;
+                left: 50%;
+                /* Îl trage la jumătatea ecranului */
+                transform: translateX(-50%);
+                /* Îl centrează perfect pe orizontală */
+                width: 90%;
+                /* Ocupă 90% din ecran */
+                max-width: 400px;
+                /* Nu-l lăsăm să se lățească prea mult */
+                right: auto !important;
+                /* Resetăm orice setare de "right" */
+                z-index: 2001;
+            }
+
+            #alert-panel.activ {
+                display: block;
+            }
+
+            .alert-hidden {
+                display: none !important;
+            }
+
+            #btn-clopotel {
+                top: 75px;
+                right: 15px;
+                position: fixed;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <div class="logo-box">
-        <img src="logo.png" alt="Logo Killer SRL">
-    </div>
-
-    <div id="login-screen">
-        <h2>Sistem Mentenanță</h2>
-        <p>Acces securizat pentru echipa tehnică</p>
-        
-        <div class="input-group">
-            <input type="password" id="passInput" placeholder="••••••••" onkeyup="if(event.key==='Enter') verificaParola()">
+    <div class="container">
+        <div class="logo-box">
+            <img src="logo.png" alt="Logo Killer SRL">
         </div>
-        
-        <div id="errorMsg" class="error-msg">❌ Parolă incorectă!</div>
-        
-        <button class="btn btn-login" id="loginBtn" onclick="verificaParola()">🔐 INTRĂ ÎN SISTEM</button>
+
+        <div id="login-screen">
+            <h2>Sistem Mentenanță</h2>
+            <p>Acces securizat pentru echipa tehnică</p>
+
+            <div class="input-group">
+                <input type="password" id="passInput" placeholder="••••••••"
+                    onkeyup="if(event.key==='Enter') verificaParola()">
+            </div>
+
+            <div id="errorMsg" class="error-msg">❌ Parolă incorectă!</div>
+
+            <button class="btn btn-login" id="loginBtn" onclick="verificaParola()">🔐 INTRĂ ÎN SISTEM</button>
+        </div>
+
+        <div id="menu-screen">
+            <h2>Salut!</h2>
+            <p>Alege secțiunea dorită:</p>
+
+            <a href="edit.html" class="btn btn-menu" style="border-left: 5px solid var(--success);">🛠️ Administrare
+                Mentenanță</a>
+            <a href="view.html" class="btn btn-menu" style="border-left: 5px solid #3498db;">👁️ Centru de Control
+                Mentenanță</a>
+            <button onclick="pornesteScanner()" class="btn btn-menu" style="border-left: 5px solid var(--warning);">📷
+                Scanează Cod QR Utilaj</button>
+
+            <button class="btn"
+                style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:20px;"
+                onclick="logout()">Ieșire</button>
+        </div>
+
+        <div id="reader"
+            style="width: 100%; max-width: 500px; margin: 20px auto; display: none; border-radius: 15px; overflow: hidden;">
+        </div>
     </div>
 
-    <div id="menu-screen">
-        <h2>Salut!</h2>
-        <p>Alege secțiunea dorită:</p>
-        
-        <a href="edit.html" class="btn btn-menu" style="border-left: 5px solid var(--success);">🛠️ Administrare Mentenanță</a>
-        <a href="view.html" class="btn btn-menu" style="border-left: 5px solid #3498db;">👁️ Centru de Control Mentenanță</a>
-        <button onclick="pornesteScanner()" class="btn btn-menu" style="border-left: 5px solid var(--warning);">📷 Scanează Cod QR Utilaj</button>
-        
-        <button class="btn" style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:20px;" onclick="logout()">Ieșire</button>
+    <div id="alert-panel" class="alert-hidden">
+        <div class="alert-header">
+            <span>⚠️ Alerte Mentenanță</span>
+            <span onclick="inchideAlarmaManual()"
+                style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:4px; font-size:10px;">❌
+                ÎNCHIDE</span>
+        </div>
+        <div id="alert-list"></div>
     </div>
-    
-    <div id="reader" style="width: 100%; max-width: 500px; margin: 20px auto; display: none; border-radius: 15px; overflow: hidden;"></div>
-</div>
+    <div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">🔔</div>
 
-<div id="alert-panel" class="alert-hidden">
-    <div class="alert-header">
-        <span>⚠️ Alerte Mentenanță</span>
-        <span onclick="inchideAlarmaManual()" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:4px; font-size:10px;">❌ ÎNCHIDE</span>
-    </div>
-    <div id="alert-list"></div>
-</div>
-<div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">🔔</div>
+    <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
 
-<div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
-
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
-        authDomain: "killer-mentenanta.firebaseapp.com",
-        databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "killer-mentenanta",
-        storageBucket: "killer-mentenanta.firebasestorage.app",
-        messagingSenderId: "434460062600",
-        appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
-    };
-
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-
-    const _u = "ZHJhZ29zLm11bnRlYW51QGtpbGxlcnNybC5ybw==";
-    let dbRaw = {};
-    let alertaInchisaManual = false;
-
-    const configuratieAlarme = {
-        "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
-    };
-
-    window.onload = function() {
-        if (sessionStorage.getItem('access_granted') === 'true') {
-            afiseazaMeniuSauRedirectioneaza();
-        }
-    };
-
-    function verificaParola() {
-        const pass = document.getElementById('passInput').value;
-        const btn = document.getElementById('loginBtn');
-        const msg = document.getElementById('errorMsg');
-        
-        if (!pass) return;
-
-        btn.innerText = "⏳ Se verifică...";
-        btn.disabled = true;
-
-        const email = atob(_u);
-
-        firebase.auth().signInWithEmailAndPassword(email, pass)
-            .then(() => {
-                sessionStorage.setItem('access_granted', 'true');
-                msg.style.display = 'none';
-                afiseazaMeniuSauRedirectioneaza();
-            })
-            .catch((error) => {
-                msg.innerText = "❌ Parolă incorectă!";
-                msg.style.display = 'block';
-                document.getElementById('passInput').value = "";
-                btn.innerText = "🔐 INTRĂ ÎN SISTEM";
-                btn.disabled = false;
-            });
-    }
-
-    function afiseazaMeniuSauRedirectioneaza() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refParams = urlParams.get('ref');
-        if (refParams) {
-            window.location.href = "edit.html" + refParams;
-        } else {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('menu-screen').style.display = 'block';
-            pornesteAscultareAlarme();
-        }
-    }
-
-    function logout() {
-        firebase.auth().signOut().then(() => {
-            sessionStorage.removeItem('access_granted');
-            document.getElementById('alert-panel').className = "alert-hidden";
-            document.getElementById('btn-clopotel').style.display = "none";
-            location.reload();
-        });
-    }
-
-    function pornesteScanner() {
-        document.getElementById('reader').style.display = 'block';
-        const html5QrCode = new Html5Qrcode("reader");
-        
-        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-            window.location.href = decodedText; 
-            html5QrCode.stop();
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
+            authDomain: "killer-mentenanta.firebaseapp.com",
+            databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "killer-mentenanta",
+            storageBucket: "killer-mentenanta.firebasestorage.app",
+            messagingSenderId: "434460062600",
+            appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
         };
-        
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
-    }
 
-    function calculeazaZile(dataInstalare) {
-        if (!dataInstalare) return 999;
-        const oZi = 24 * 60 * 60 * 1000;
-        const azi = new Date();
-        const dataR = new Date(dataInstalare);
-        return Math.floor(Math.abs(azi - dataR) / oZi);
-    }
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
 
-    // 🚀 REPARATĂ: Conectează Firebase direct la funcția de procesare
-    function pornesteAscultareAlarme() {
-       const configuratieAlarme = {
-        "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
-    };
+        const _u = "ZHJhZ29zLm11bnRlYW51QGtpbGxlcnNybC5ybw==";
+        let dbRaw = {};
+        let alertaInchisaManual = false;
 
-        // 🛡️ Așteptăm aprobarea serverului înainte de a cere alarmele live
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                firebase.database().ref('utilaje').on('value', (snapshot) => {
-                    dbRaw = snapshot.val() || {};
-                    verificaAlarmeMentenanta();
-                });
+        const configuratieAlarme = {
+            "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
+        };
+
+        window.onload = function () {
+            if (sessionStorage.getItem('access_granted') === 'true') {
+                afiseazaMeniuSauRedirectioneaza();
             }
-        });
-    }
+        };
 
-    // 🚀 ACTUALIZATĂ: Butonul "📍 HARTĂ" are acum link-ul corect "?id=${id}" pentru zoom direct!
-  /*  function verificaAlarmeMentenanta() {
-        const alertPanel = document.getElementById('alert-panel');
-        const container = document.getElementById('alert-list');
-        const btnClopotel = document.getElementById('btn-clopotel');
-        
-        if (!alertPanel || !container) return;
-        
-        container.innerHTML = ""; 
-        let areAlerte = false;
+        function verificaParola() {
+            const pass = document.getElementById('passInput').value;
+            const btn = document.getElementById('loginBtn');
+            const msg = document.getElementById('errorMsg');
 
-        Object.keys(dbRaw).forEach(id => {
-            const u = dbRaw[id];
-            if (u.istoric) {
-                const istArr = Object.values(u.istoric).reverse();
-                const ultimaRev = istArr.find(i => i.revizie === true);
-                
+            if (!pass) return;
+
+            btn.innerText = "⏳ Se verifică...";
+            btn.disabled = true;
+
+            const email = atob(_u);
+
+            firebase.auth().signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    sessionStorage.setItem('access_granted', 'true');
+                    msg.style.display = 'none';
+                    afiseazaMeniuSauRedirectioneaza();
+                })
+                .catch((error) => {
+                    msg.innerText = "❌ Parolă incorectă!";
+                    msg.style.display = 'block';
+                    document.getElementById('passInput').value = "";
+                    btn.innerText = "🔐 INTRĂ ÎN SISTEM";
+                    btn.disabled = false;
+                });
+        }
+
+        function afiseazaMeniuSauRedirectioneaza() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refParams = urlParams.get('ref');
+            if (refParams) {
+                window.location.href = "edit.html" + refParams;
+            } else {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('menu-screen').style.display = 'block';
+                pornesteAscultareAlarme();
+            }
+        }
+
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                sessionStorage.removeItem('access_granted');
+                document.getElementById('alert-panel').className = "alert-hidden";
+                document.getElementById('btn-clopotel').style.display = "none";
+                location.reload();
+            });
+        }
+
+        function pornesteScanner() {
+            document.getElementById('reader').style.display = 'block';
+            const html5QrCode = new Html5Qrcode("reader");
+
+            const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                window.location.href = decodedText;
+                html5QrCode.stop();
+            };
+
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+        }
+
+        function calculeazaZile(dataInstalare) {
+            if (!dataInstalare) return 999;
+            const oZi = 24 * 60 * 60 * 1000;
+            const azi = new Date();
+            const dataR = new Date(dataInstalare);
+            return Math.floor(Math.abs(azi - dataR) / oZi);
+        }
+
+        // 🚀 REPARATĂ: Conectează Firebase direct la funcția de procesare
+        function pornesteAscultareAlarme() {
+            const configuratieAlarme = {
+                "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
+            };
+
+            // 🛡️ Așteptăm aprobarea serverului înainte de a cere alarmele live
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    firebase.database().ref('utilaje').on('value', (snapshot) => {
+                        dbRaw = snapshot.val() || {};
+                        verificaAlarmeMentenanta();
+                    });
+                }
+            });
+        }
+        // --- START TRADUCĂTOR DATE ---
+        function obtineTimp(dataString) {
+            if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
+            const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+            const part = curat.split(/[./-]/);
+            if (part.length < 3) return 0;
+
+            let d, m, y;
+            if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
+
+            return new Date(y, m - 1, d).getTime();
+        }
+
+        function calculeazaZile(dataString) {
+            const timp = obtineTimp(dataString);
+            if (timp === 0) return 999;
+            const dt = new Date(timp);
+            const azi = new Date(); azi.setHours(0, 0, 0, 0);
+            const diff = Math.floor((azi - dt) / 86400000);
+            return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+        }
+
+        function gasesteUltimaRevizie(istoric) {
+            if (!istoric) return null;
+            let revizii = Object.values(istoric).filter(i => i.revizie === true);
+            if (revizii.length === 0) return null;
+
+            revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
+            return revizii[0];
+        }
+        // --- END TRADUCĂTOR DATE ---
+        function verificaAlarmeMentenanta() {
+            if (!dbRaw) return;
+            const alertPanel = document.getElementById('alert-panel');
+            const container = document.getElementById('alert-list'); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
+            const btnClopotel = document.getElementById('btn-clopotel');
+
+            if (!alertPanel || !container) return;
+
+            container.innerHTML = "";
+            let areAlerte = false;
+
+            // Tabelul de configurare inclus direct ca să nu mai dea erori
+            // const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+
+            Object.keys(dbRaw).forEach(id => {
+                const u = dbRaw[id];
+                const ultimaRev = gasesteUltimaRevizie(u.istoric);
+
                 if (ultimaRev) {
                     const z = calculeazaZile(ultimaRev.data);
-                    const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
-                    
+
+                    const idFaraK = id.replace("K-", "");
+                    const limitaZile = configuratieAlarme[id] || configuratieAlarme[idFaraK] || 30;
+
+                    // Debug 
+                    console.log(`DEBUG: ID=${id} | Limita gasita=${limitaZile}`);
+
                     if (z >= limitaZile) {
                         areAlerte = true;
                         const esteCritic = z >= (limitaZile * 3);
@@ -349,133 +548,38 @@
                         </div>`;
                     }
                 }
-            }
-        });
+            });
 
-        if (areAlerte) {
-            if (!alertaInchisaManual) {
-                alertPanel.classList.remove('alert-hidden');
-                alertPanel.classList.add('activ');
-                if(btnClopotel) btnClopotel.style.display = 'none'; 
+            if (areAlerte) {
+                if (!alertaInchisaManual) {
+                    alertPanel.classList.remove('alert-hidden');
+                    alertPanel.classList.add('activ');
+                    if (btnClopotel) btnClopotel.style.display = 'none';
+                } else {
+                    alertPanel.classList.add('alert-hidden');
+                    alertPanel.classList.remove('activ');
+                    if (btnClopotel) btnClopotel.style.display = 'flex';
+                }
             } else {
                 alertPanel.classList.add('alert-hidden');
                 alertPanel.classList.remove('activ');
-                if(btnClopotel) btnClopotel.style.display = 'flex'; 
-            }
-        } else {
-            alertPanel.classList.add('alert-hidden');
-            alertPanel.classList.remove('activ');
-            if(btnClopotel) btnClopotel.style.display = 'none'; 
-        }
-    }*/
-        // --- START TRADUCĂTOR DATE ---
-    function obtineTimp(dataString) {
-        if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
-        const curat = dataString.replace(/[^0-9./-]/g, '').trim();
-        const part = curat.split(/[./-]/);
-        if (part.length < 3) return 0;
-        
-        let d, m, y;
-        if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
-        
-        return new Date(y, m - 1, d).getTime(); 
-    }
-
-    function calculeazaZile(dataString) {
-        const timp = obtineTimp(dataString);
-        if (timp === 0) return 999;
-        const dt = new Date(timp);
-        const azi = new Date(); azi.setHours(0,0,0,0);
-        const diff = Math.floor((azi - dt) / 86400000);
-        return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
-    }
-
-    function gasesteUltimaRevizie(istoric) {
-        if (!istoric) return null;
-        let revizii = Object.values(istoric).filter(i => i.revizie === true);
-        if (revizii.length === 0) return null;
-        
-        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
-        return revizii[0];
-    }
-    // --- END TRADUCĂTOR DATE ---
-function verificaAlarmeMentenanta() {
-    if (!dbRaw) return;
-    const alertPanel = document.getElementById('alert-panel');
-    const container = document.getElementById('alert-list'); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
-    const btnClopotel = document.getElementById('btn-clopotel');
-    
-    if (!alertPanel || !container) return;
-    
-    container.innerHTML = ""; 
-    let areAlerte = false;
-
-    // Tabelul de configurare inclus direct ca să nu mai dea erori
-   // const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
-
-   Object.keys(dbRaw).forEach(id => {
-        const u = dbRaw[id];
-        const ultimaRev = gasesteUltimaRevizie(u.istoric);
-        
-        if (ultimaRev) {
-            const z = calculeazaZile(ultimaRev.data);
-          
-            const idFaraK = id.replace("K-", "");
-            const limitaZile = configuratieAlarme[id] || configuratieAlarme[idFaraK] || 30;
-            
-            // Debug 
-            console.log(`DEBUG: ID=${id} | Limita gasita=${limitaZile}`);
-            
-            if (z >= limitaZile) {
-                areAlerte = true;
-                const esteCritic = z >= (limitaZile * 3);
-                const clasaAlerta = esteCritic ? 'alert-urgent' : 'alert-warning';
-                const statusMesaj = esteCritic ? `CRITIC: Revizie depășită de ${z} zile!` : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
-
-                container.innerHTML += `
-                        <div class="alert-item ${clasaAlerta}">
-                            <b style="font-size: 14px; display:block;">${u.nume}</b>
-                            <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
-                            <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
-                            
-                            <div style="display:flex; gap:5px; margin-top:10px;">
-                                <a href="view.html?id=${id}" class="btn-locate" style="flex:1; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">📍 HARTĂ</a>
-                                <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">🔧 REPARĂ</a>
-                            </div>
-                        </div>`;
+                if (btnClopotel) btnClopotel.style.display = 'none';
             }
         }
-    });
-
-    if (areAlerte) {
-        if (!alertaInchisaManual) {
-            alertPanel.classList.remove('alert-hidden');
-            alertPanel.classList.add('activ');
-            if(btnClopotel) btnClopotel.style.display = 'none'; 
-        } else {
-            alertPanel.classList.add('alert-hidden');
-            alertPanel.classList.remove('activ');
-            if(btnClopotel) btnClopotel.style.display = 'flex'; 
+        function inchideAlarmaManual() {
+            alertaInchisaManual = true;
+            document.getElementById('alert-panel').classList.add('alert-hidden');
+            const btn = document.getElementById('btn-clopotel');
+            if (btn) btn.style.display = 'flex';
         }
-    } else {
-        alertPanel.classList.add('alert-hidden');
-        alertPanel.classList.remove('activ');
-        if(btnClopotel) btnClopotel.style.display = 'none'; 
-    }
-}
-    function inchideAlarmaManual() {
-        alertaInchisaManual = true;
-        document.getElementById('alert-panel').classList.add('alert-hidden');
-        const btn = document.getElementById('btn-clopotel');
-        if(btn) btn.style.display = 'flex';
-    }
 
-    function deschideAlarmaManual() {
-        alertaInchisaManual = false;
-        document.getElementById('alert-panel').classList.remove('alert-hidden');
-        const btn = document.getElementById('btn-clopotel');
-        if(btn) btn.style.display = 'none';
-    }
-</script>
+        function deschideAlarmaManual() {
+            alertaInchisaManual = false;
+            document.getElementById('alert-panel').classList.remove('alert-hidden');
+            const btn = document.getElementById('btn-clopotel');
+            if (btn) btn.style.display = 'none';
+        }
+    </script>
 </body>
+
 </html>

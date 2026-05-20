@@ -20,6 +20,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
+    <script src="offline.js"></script>
 
     <style>
         :root {
@@ -712,14 +713,35 @@
         document.getElementById('data').valueAsDate = new Date();
 
         database.ref('utilaje').on('value', (snap) => {
-            dbRaw = snap.val() || {};
-            refreshPini();
-            actualizeazaListaSidebar(); // Menține lista la zi în timp real
+    dbRaw = snap.val() || {};
+    
+    // 💾 Salvăm datele în telefon pentru momentele fără internet
+    localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
+    
+    refreshPini();
+    actualizeazaListaSidebar(); 
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const qrId = urlParams.get('id');
+    if (qrId && dbRaw[qrId] && selectedId !== qrId) { incarcaUtilaj(qrId); }
+});
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const qrId = urlParams.get('id');
-            if (qrId && dbRaw[qrId] && selectedId !== qrId) { incarcaUtilaj(qrId); }
-        });
+// 🔌 Când pagina se încarcă, verificăm dacă suntem offline
+window.onload = () => {
+    if (!navigator.onLine) {
+        // Dacă nu avem net, scoatem utilajele din memoria salvată anterior
+        const backup = localStorage.getItem('backup_utilaje');
+        if (backup) {
+            dbRaw = JSON.parse(backup);
+            refreshPini();
+            actualizeazaListaSidebar();
+            console.log("⚠️ Încărcat utilaje din memoria Offline!");
+        }
+    }
+    
+    actualizeazaButonAdmin();
+    setTimeout(() => { map.invalidateSize(); }, 500);
+};
 
         function refreshPini() {
             markersGroup.clearLayers();

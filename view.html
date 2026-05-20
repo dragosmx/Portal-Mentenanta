@@ -786,13 +786,16 @@ function verificaAlarmeMentenanta() {
 
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
-        // Folosim algoritmul inteligent care sortează datele corect
         const ultimaRev = gasesteUltimaRevizie(u.istoric);
         
         if (ultimaRev) {
             const z = calculeazaZile(ultimaRev.data);
             const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
             
+            // --- MICROSCOPUL (Pune asta exact aici) ---
+            console.log(`LOG UTILAJ: ID=${id} | Nume=${u.nume} | Zile_Trecute=${z} | Limita_Gasita=${limitaZile} | Alarma_Activa=${z >= limitaZile}`);
+            // ------------------------------------------
+
             if (z >= limitaZile) {
                 areAlerte = true;
                 const esteCritic = z >= (limitaZile * 3);

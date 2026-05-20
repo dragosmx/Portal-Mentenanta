@@ -762,25 +762,26 @@
 }*/
 function verificaAlarmeMentenanta() {
     const alertPanel = document.getElementById('alert-panel');
-    const container = document.getElementById('alert-list');
+    const container = document.getElementById('alert-list'); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
     const btnClopotel = document.getElementById('btn-clopotel');
-
-    if (!alertPanel || !container) return;
-
-    container.innerHTML = "";
-    let areAlerte = false;
     
-    // 🧠 Tabelul pus intern ca să nu mai dea eroare de "Undefined" și să arate TOATE alarmele
+    if (!alertPanel || !container) return;
+    
+    container.innerHTML = ""; 
+    let areAlerte = false;
+
+    // Tabelul de configurare inclus direct ca să nu mai dea erori
     const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
 
     Object.keys(dbRaw).forEach(id => {
         const u = dbRaw[id];
+        // Folosim algoritmul inteligent care sortează datele corect
         const ultimaRev = gasesteUltimaRevizie(u.istoric);
-
+        
         if (ultimaRev) {
             const z = calculeazaZile(ultimaRev.data);
             const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || 30;
-
+            
             if (z >= limitaZile) {
                 areAlerte = true;
                 const esteCritic = z >= (limitaZile * 3);
@@ -792,10 +793,10 @@ function verificaAlarmeMentenanta() {
                     <b style="font-size: 14px; display:block;">${u.nume}</b>
                     <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
                     <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
-
-                    <div style="display:flex; gap:8px; margin-top:12px; width: 100%;">
-                        <button class="btn-locate" style="flex:1; padding: 10px 5px; display:flex; align-items:center; justify-content:center; white-space:nowrap; box-sizing:border-box; font-size: 11px; margin: 0;" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">📍 HARTĂ</button>
-                        <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; color:white; text-decoration:none; padding: 10px 5px; display:flex; align-items:center; justify-content:center; white-space:nowrap; box-sizing:border-box; font-size: 11px; margin: 0;">🔧 REPARĂ</a>
+                    
+                    <div style="display:flex; gap:5px; margin-top:10px;">
+                        <button class="btn-locate" style="flex:1; padding: 8px 5px;" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">📍 HARTĂ</button>
+                        <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">🔧 REPARĂ</a>
                     </div>
                 </div>`;
             }
@@ -806,16 +807,16 @@ function verificaAlarmeMentenanta() {
         if (!alertaInchisaManual) {
             alertPanel.classList.remove('alert-hidden');
             alertPanel.classList.add('activ');
-            if(btnClopotel) btnClopotel.style.display = 'none';
+            if(btnClopotel) btnClopotel.style.display = 'none'; 
         } else {
             alertPanel.classList.add('alert-hidden');
             alertPanel.classList.remove('activ');
-            if(btnClopotel) btnClopotel.style.display = 'flex';
+            if(btnClopotel) btnClopotel.style.display = 'flex'; 
         }
     } else {
         alertPanel.classList.add('alert-hidden');
         alertPanel.classList.remove('activ');
-        if(btnClopotel) btnClopotel.style.display = 'none';
+        if(btnClopotel) btnClopotel.style.display = 'none'; 
     }
 }
     // Funcțiile atașate butoanelor "X" și "Clopoțel"

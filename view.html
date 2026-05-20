@@ -408,6 +408,7 @@
             // Utilizatorul este logat sigur! Acum tragem datele din Cloud în siguranță
             database.ref('utilaje').on('value', (snap) => {
                 dbRaw = snap.val() || {};
+                console.log("DATE PRIMITE DE LA FIREBASE:", dbRaw);
                 afiseazaPuncte();
                 verificaAlarmeMentenanta();
                 document.getElementById('loading-screen').style.display = 'none';
@@ -433,18 +434,19 @@
     // Siguranță pentru ecranul de loading
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
 
-   function afiseazaPuncte() {
-       if (!dbRaw) return;
-        markersList.forEach(m => map.removeLayer(m.marker));
-        markersList = [];
+  function afiseazaPuncte() {
+        if (!dbRaw) { console.error("dbRaw este gol!"); return; }
+        try {
+            markersList.forEach(m => map.removeLayer(m.marker));
+            markersList = [];
         const sideList = document.getElementById('side-list');
         if(sideList) sideList.innerHTML = "";
         
         let stats = { total: 0, ok: 0, warn: 0, crit: 0 };
         
         Object.keys(dbRaw).forEach(id => {
-            const u = dbRaw[id];
-            if (u.lat && u.lng) {
+                const u = dbRaw[id];
+                if (u.lat && u.lng) {
                 stats.total++;
                 
                 const ultimaRev = gasesteUltimaRevizie(u.istoric);

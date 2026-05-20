@@ -220,7 +220,7 @@
     <label>🔍 Căutare Utilaj</label>
     <input type="text" id="searchInput" placeholder="Nume sau Cod..." onkeyup="if(event.key==='Enter') cautaSmart()">
     <label>📂 Filtru Secție</label>
-    <select id="filterSectie" onchange="afiseazaPuncte(); zoomSectie(this.value)">
+    <select id="filterSectie" onchange="(); zoomSectie(this.value)">
         <option value="Toate">Toate Secțiile</option>
         <option value="Spălare">Spălare</option>
         <option value="Tranșare">Tranșare</option>
@@ -434,6 +434,7 @@
     setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
 
    function afiseazaPuncte() {
+       if (!dbRaw) return;
         markersList.forEach(m => map.removeLayer(m.marker));
         markersList = [];
         const sideList = document.getElementById('side-list');
@@ -761,6 +762,7 @@
     }
 }*/
 function verificaAlarmeMentenanta() {
+    if (!dbRaw) return;
     const alertPanel = document.getElementById('alert-panel');
     const container = document.getElementById('alert-list'); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
     const btnClopotel = document.getElementById('btn-clopotel');

@@ -712,36 +712,54 @@
 
         document.getElementById('data').valueAsDate = new Date();
 
+        database.ref('utilaje').on('value', (snap) => {// 1. Încarcă instant din memoria telefonului
+const backupLocal = localStorage.getItem('backup_utilaje');
+if (backupLocal) {
+    dbRaw = JSON.parse(backupLocal);
+    // Așteptăm puțin ca harta să fie gata, apoi desenăm
+    setTimeout(() => { 
+        refreshPini(); 
+        actualizeazaListaSidebar(); 
+    }, 500);
+}
+
+// 2. Conectare la Firebase (doar dacă avem net)
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        // Dacă avem net, ascultăm schimbările în timp real
         database.ref('utilaje').on('value', (snap) => {
-    dbRaw = snap.val() || {};
-    
-    // 💾 Salvăm datele în telefon pentru momentele fără internet
-    localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
-    
-    refreshPini();
-    actualizeazaListaSidebar(); 
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const qrId = urlParams.get('id');
-    if (qrId && dbRaw[qrId] && selectedId !== qrId) { incarcaUtilaj(qrId); }
+            const dateNoi = snap.val();
+            if (dateNoi) {
+                dbRaw = dateNoi;
+                localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
+                refreshPini();
+                actualizeazaListaSidebar();
+                console.log("✅ Date sincronizate cu Cloud.");
+            }
+        });
+    } else {
+        window.location.href = "index.html";
+    }
 });
 
-// 🔌 Când pagina se încarcă, verificăm dacă suntem offline
+// 3. Gestionarea stării și inițializare la încărcare
 window.onload = () => {
-    if (!navigator.onLine) {
-        // Dacă nu avem net, scoatem utilajele din memoria salvată anterior
-        const backup = localStorage.getItem('backup_utilaje');
-        if (backup) {
-            dbRaw = JSON.parse(backup);
-            refreshPini();
-            actualizeazaListaSidebar();
-            console.log("⚠️ Încărcat utilaje din memoria Offline!");
-        }
-    }
-    
     actualizeazaButonAdmin();
-    setTimeout(() => { map.invalidateSize(); }, 500);
+    updateConnectionStatus();
+    
+    // Asigurăm că harta se desenează corect
+    setTimeout(() => { 
+        map.invalidateSize(); 
+        refreshPini(); // Forțăm un refresh la pornire
+    }, 500);
 };
+
+// 4. Ascultăm schimbările de rețea
+window.addEventListener('online', () => {
+    updateConnectionStatus();
+    if (dbRaw) { refreshPini(); }
+});
+window.addEventListener('offline', updateConnectionStatus);
 
         function refreshPini() {
             markersGroup.clearLayers();

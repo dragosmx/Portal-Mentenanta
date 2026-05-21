@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fișă Utilaj - Killer SRL</title>
-    
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     
     <style>
         body { 
@@ -127,11 +127,6 @@
 </div>
 
 <script>
-    if (sessionStorage.getItem('access_granted') !== 'true') {
-              window.location.href = "index.html?target=scan.html&ref=" + encodeURIComponent(window.location.search);
-    }
-
- 
     const firebaseConfig = {
         apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
         authDomain: "killer-mentenanta.firebaseapp.com",
@@ -151,56 +146,69 @@
     const urlParams = new URLSearchParams(window.location.search); 
     const idUtilaj = urlParams.get('id');
 
-    if (idUtilaj) {
-        // Interogare bază de date
-        database.ref('utilaje/' + idUtilaj).once('value').then(snapshot => {
-            const utilaj = snapshot.val(); 
-            
-            if (!utilaj) {
-                document.getElementById('load').innerText = "❌ Eroare: Utilajul nu a fost găsit.";
-                return;
-            }
-            
-            // Ascundem loading-ul și afișăm conținutul
-            document.getElementById('load').style.display = "none"; 
-            document.getElementById('content').style.display = "block";
-            
-            // Populăm datele generale
-            document.getElementById('uNume').innerText = utilaj.nume; 
-            document.getElementById('uDetalii').innerText = "Secția: " + utilaj.sectie + " | ID: " + utilaj.id;
-            
-            // Setăm linkul pentru butonul de mecanic (îl va trimite la index.html pentru parolă, apoi la edit.html)
-            document.getElementById('btnEditare').href = "index.html?ref=?id=" + utilaj.id;
-            
-            const containerIstoric = document.getElementById('uIstoric');
-            
-            if (utilaj.istoric) {
-                // Sortăm descrescător după dată
-                const istoricSortat = Object.values(utilaj.istoric).sort((a, b) => new Date(b.data) - new Date(a.data));
-                
-                istoricSortat.forEach(i => {
-                    let clasaCSS = "istoric-item";
+    if (!idUtilaj) {
+        document.getElementById('load').innerText = "❌ Eroare: Nu s-a scanat un cod valid.";
+    } else {
+        // 🚀 SECRETUL ESTE AICI: Așteptăm ca Firebase să ne confirme autentificarea!
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // Avem undă verde, suntem logați. Acum cerem datele:
+                database.ref('utilaje/' + idUtilaj).once('value').then(snapshot => {
+                    const utilaj = snapshot.val(); 
                     
-                    // Dacă e intervenție corectivă (defect), o facem roșie
-                    if (i.tip && i.tip.includes("Corectivă")) {
-                        clasaCSS += " defect";
+                    if (!utilaj) {
+                        document.getElementById('load').innerText = "❌ Eroare: Utilajul nu a fost găsit în baza de date.";
+                        return;
                     }
                     
-                    containerIstoric.innerHTML += `
-                        <div class="${clasaCSS}">
-                            <div class="data-interventie">📅 ${i.data} | Tip: ${i.tip || 'Preventivă'}</div>
-                            <div style="font-size:13px; margin-bottom:5px;"><b>👷 Mecanic:</b> ${i.mecanic || '-'}</div>
-                            <div style="font-size:13px; margin-bottom:5px;"><b>🔧 Operațiuni:</b> ${i.verificari}</div>
-                            <div style="font-size:13px; color:#555;"><b>📝 Obs:</b> ${i.obs || '-'}</div>
-                        </div>
-                    `;
+                    // Ascundem loading-ul și afișăm conținutul
+                    document.getElementById('load').style.display = "none"; 
+                    document.getElementById('content').style.display = "block";
+                    
+                    // Populăm datele generale
+                    document.getElementById('uNume').innerText = utilaj.nume; 
+                    document.getElementById('uDetalii').innerText = "Secția: " + utilaj.sectie + " | ID: " + utilaj.id;
+                    
+                    // Am corectat și linkul de redirecționare spre Edit
+                    document.getElementById('btnEditare').href = "edit.html?id=" + utilaj.id;
+                    
+                    const containerIstoric = document.getElementById('uIstoric');
+                    
+                    if (utilaj.istoric) {
+                        // Sortăm descrescător după dată
+                        const istoricSortat = Object.values(utilaj.istoric).sort((a, b) => new Date(b.data) - new Date(a.data));
+                        
+                        istoricSortat.forEach(i => {
+                            let clasaCSS = "istoric-item";
+                            
+                            // Dacă e intervenție corectivă (defect), o facem roșie
+                            if (i.tip && i.tip.includes("Corectivă")) {
+                                clasaCSS += " defect";
+                            }
+                            
+                            containerIstoric.innerHTML += `
+                                <div class="${clasaCSS}">
+                                    <div class="data-interventie">📅 ${i.data} | Tip: ${i.tip || 'Preventivă'}</div>
+                                    <div style="font-size:13px; margin-bottom:5px;"><b>👷 Mecanic:</b> ${i.mecanic || '-'}</div>
+                                    <div style="font-size:13px; margin-bottom:5px;"><b>🔧 Operațiuni:</b> ${i.verificari}</div>
+                                    <div style="font-size:13px; color:#555;"><b>📝 Obs:</b> ${i.obs || '-'}</div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        containerIstoric.innerHTML = "<p style='text-align:center; padding:20px;'>Niciun istoric înregistrat pentru acest utilaj.</p>";
+                    }
+                }).catch((error) => {
+                    // 🛑 Dacă Firebase refuză, afișăm eroarea ca să nu mai stea blocat
+                    console.error("Eroare Firebase:", error);
+                    document.getElementById('load').innerText = "❌ Eroare de acces la baza de date: " + error.message;
                 });
+                
             } else {
-                containerIstoric.innerHTML = "<p style='text-align:center; padding:20px;'>Niciun istoric înregistrat pentru acest utilaj.</p>";
+                // Dacă nu e logat, îl dăm afară spre index.html ca să bage parola
+                window.location.href = "index.html?ref=" + encodeURIComponent("?id=" + idUtilaj);
             }
         });
-    } else {
-        document.getElementById('load').innerText = "❌ Eroare: Nu s-a scanat un cod valid.";
     }
 </script>
 </body>

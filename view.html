@@ -1094,7 +1094,7 @@ const configuratieAlarme = {
                 if (u.sectie && u.sectie.trim().toLowerCase() === sectie.toLowerCase() && u.lat && u.lng) { bounds.push([u.lat, u.lng]); }
             });
             if (bounds.length > 0) { map.flyToBounds(bounds, { padding: [100, 100], duration: 1.5, easeLinearity: 0.25 }); }
-            else { alert("Nu există utilaje cu coordonate înregistrate în secția: " + sectie); }
+            else { alert("Nu există utilaje înregistrate în secția: " + sectie); }
         };
 
         function cautaSmart() {

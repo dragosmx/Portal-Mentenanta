@@ -992,21 +992,24 @@ const configuratieAlarme = {
 
             toggleExtra(); checkReady(); refreshPini();
 
-           // ADAUGĂ ASTA LA FINALUL FUNCȚIEI incarcaUtilaj:
-   const container = document.getElementById('lastInterventionContainer');
+          // ADAUGĂ ASTA LA FINALUL FUNCȚIEI incarcaUtilaj:
+    const container = document.getElementById('lastInterventionContainer');
     const details = document.getElementById('lastInterventionDetails');
     
-    currentEditKey = null; // AM SCOS window.
+    currentEditKey = null; // 🚀 CRITIC: La deschiderea utilajului, modul este mereu NOU!
 
     if (u.istoric) {
-        // Găsim ultima intervenție (cea cu timestamp-ul cel mai mare)
+        // Găsim ultima intervenție
         const intrari = Object.entries(u.istoric);
         const ultima = intrari.sort((a, b) => b[1].timestamp - a[1].timestamp)[0];
         const [key, date] = ultima;
 
-        currentEditKey = key; // SALVĂM CHEIA GLOBAL (Fără window.)
         container.style.display = "block";
         details.innerHTML = `<b>Data:</b> ${date.data} | <b>Tip:</b> ${date.tip}<br><b>Obs:</b> ${date.obs}`;
+
+        // 🚀 Punem cheia doar în butoane, nu activăm editarea direct!
+        document.getElementById('btnEdit').onclick = function() { editeazaInterventie(key); };
+        document.getElementById('btnDel').onclick = function() { stergeUltimaInterventie(key); };
     } else {
         container.style.display = "none";
     }
@@ -1477,12 +1480,12 @@ const configuratieAlarme = {
         }
         let currentEditKey = null;
 
-async function stergeUltimaInterventie() {
-    if (!currentEditKey || !selectedId) return;
+async function stergeUltimaInterventie(key) {
+    if (!key || !selectedId) return;
     if (!confirm("🚨 Ești sigur că vrei să ștergi DEFINITIV ultima intervenție?")) return;
     
     try {
-        await database.ref('utilaje/' + selectedId + '/istoric/' + currentEditKey).remove();
+        await database.ref('utilaje/' + selectedId + '/istoric/' + key).remove();
         alert("Intervenție ștearsă!");
         location.reload(); 
     } catch (e) { alert("Eroare la ștergere: " + e.message); }
@@ -1498,28 +1501,18 @@ async function stergeUltimaInterventie() {
     document.getElementById('saveBtn').innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
     window.scrollTo(0,0);
 }*/
-       function editeazaInterventie() {
-    // 1. Verificăm dacă știm ce trebuie să edităm
-    if (!selectedId || !currentEditKey) {
-        alert("Eroare: Nu știm ce intervenție să edităm. Dă un refresh paginii.");
-        return;
-    }
+       function editeazaInterventie(key) {
+    if (!selectedId || !key) return;
 
-    // 2. Ne asigurăm că datele sunt în memorie
     const utilaj = dbRaw[selectedId];
-    if (!utilaj || !utilaj.istoric || !utilaj.istoric[currentEditKey]) {
-        alert("Eroare: Intervenția nu se găsește în memorie.");
-        return;
-    }
-
-    // 3. Extragem datele și le punem în căsuțe
-    const i = utilaj.istoric[currentEditKey];
+    const i = utilaj.istoric[key];
     
     document.getElementById('data').value = i.data || "";
     document.getElementById('tipInterventie').value = i.tip || "";
     document.getElementById('obs').value = i.obs || "";
     
-    // 4. Transformăm butonul de Salvare în Actualizare
+    currentEditKey = key; // 🚀 ABIA ACUM, după ce ai apăsat "Editează", intrăm în modul Editare!
+    
     const btn = document.getElementById('saveBtn');
     btn.innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
     window.scrollTo(0, 0);

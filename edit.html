@@ -748,7 +748,7 @@ firebase.auth().onAuthStateChanged((user) => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const qrId = urlParams.get('id');
                 if (qrId && dbRaw[qrId] && selectedId !== qrId) {
-                    incarcaUtilaj(id);(qrId);
+                    incarcaUtilaj(qrId);
                 }
                 
                 console.log("✅ Date sincronizate și ID procesat.");

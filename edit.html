@@ -748,7 +748,7 @@ firebase.auth().onAuthStateChanged((user) => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const qrId = urlParams.get('id');
                 if (qrId && dbRaw[qrId] && selectedId !== qrId) {
-                    Utilaj(qrId);
+                    incarcaUtilaj(id);(qrId);
                 }
                 
                 console.log("✅ Date sincronizate și ID procesat.");
@@ -843,7 +843,7 @@ const configuratieAlarme = {
                         });
 
                         const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(markersGroup);
-                        m.on('click', (e) => { L.DomEvent.stopPropagation(e); utilaj(id); });
+                        m.on('click', (e) => { L.DomEvent.stopPropagation(e); incarcaUtilaj(id); });
                     }
                 }
             });
@@ -874,7 +874,7 @@ const configuratieAlarme = {
                     }
 
                     const itemHtml = `
-                    <div onclick="Utilaj('${id}'); map.setView([${u.lat}, ${u.lng}], 2);" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px; cursor: pointer; border-left: 5px solid ${col}; transition: 0.2s; box-sizing: border-box;">
+                    <div onclick="incarcaUtilaj('${id}'); map.setView([${u.lat}, ${u.lng}], 2);" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px; cursor: pointer; border-left: 5px solid ${col}; transition: 0.2s; box-sizing: border-box;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <strong style="font-size: 13px; color: white;">${u.nume}</strong>
                             <span style="font-family: monospace; font-size: 11px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #3498db; font-weight: bold;">${id}</span>

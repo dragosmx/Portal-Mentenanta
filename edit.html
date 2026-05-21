@@ -1498,34 +1498,42 @@ async function stergeUltimaInterventie() {
     document.getElementById('saveBtn').innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
     window.scrollTo(0,0);
 }*/
-        function editeazaInterventie(key) {
-    // 1. Verificăm dacă avem datele necesare înainte să le citim
-    if (!dbRaw || !dbRaw[selectedId] || !dbRaw[selectedId].istoric || !dbRaw[selectedId].istoric[key]) {
-        console.error("❌ EROARE DEBUG: Datele nu au fost găsite!");
-        console.error("Cheia căutată:", key);
-        console.error("Obiectul utilajului:", dbRaw[selectedId]);
-        alert("Eroare: Nu am putut găsi detaliile acestei intervenții. Te rog dă un refresh la pagină.");
-        return; // Oprim execuția ca să nu mai crape scriptul
+       function editeazaInterventie(key) {
+    console.log("--- DEBUG START ---");
+    console.log("Cheia primită:", key);
+    console.log("selectedId curent:", selectedId);
+    console.log("dbRaw complet:", dbRaw);
+    
+    // Verificări pas cu pas
+    if (!dbRaw) {
+        console.error("❌ EROARE: dbRaw este gol/undefined!");
+    } else if (!selectedId) {
+        console.error("❌ EROARE: selectedId este null sau undefined!");
+    } else if (!dbRaw[selectedId]) {
+        console.error("❌ EROARE: dbRaw nu are proprietatea pentru acest ID:", selectedId);
+    } else if (!dbRaw[selectedId].istoric) {
+        console.error("❌ EROARE: Utilajul selectat nu are istoric!");
+    } else if (!dbRaw[selectedId].istoric[key]) {
+        console.error("❌ EROARE: Cheia specifică nu a fost găsită în istoric!");
+    } else {
+        console.log("✅ Toate datele sunt valide!");
     }
 
-    // 2. Acum suntem siguri că datele există
-    const i = dbRaw[selectedId].istoric[key];
-    
-    // 3. Populăm formularul cu verificare (folosim || "" pentru siguranță)
-    document.getElementById('data').value = i.data || "";
-    document.getElementById('tipInterventie').value = i.tip || "";
-    document.getElementById('obs').value = i.obs || "";
-    
-    // Dacă ai și alte câmpuri (ex: verificari, mecanic), adaugă-le aici:
-    // document.getElementById('mecanicSelect').value = i.mecanic || "";
-    
-    // 4. Salvăm cheia global
-    window.currentEditKey = key;
-    
-    // 5. Schimbăm butonul
-    const btn = document.getElementById('saveBtn');
-    btn.innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
-    window.scrollTo(0, 0);
+    // Dacă a trecut de verificări, continuăm
+    if (dbRaw && dbRaw[selectedId] && dbRaw[selectedId].istoric && dbRaw[selectedId].istoric[key]) {
+        const i = dbRaw[selectedId].istoric[key];
+        
+        document.getElementById('data').value = i.data || "";
+        document.getElementById('tipInterventie').value = i.tip || "";
+        document.getElementById('obs').value = i.obs || "";
+        
+        window.currentEditKey = key;
+        const btn = document.getElementById('saveBtn');
+        btn.innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
+        window.scrollTo(0, 0);
+    } else {
+        alert("Eroare: Datele nu au fost găsite. Verifică consola (F12) pentru detalii.");
+    }
 }
     </script>
 </body>

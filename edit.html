@@ -1139,12 +1139,6 @@ const configuratieAlarme = {
             document.getElementById('saveBtn').disabled = !(areLocatie && numeValid);
         }
 
-        async function stergeUtilaj(id) {
-            if (confirm("🚨 ATENȚIE CRITICĂ: Ești sigur că vrei să ștergi acest utilaj și ÎNTREGUL său istoric definitiv din Cloud?")) {
-                await database.ref('utilaje/' + id).remove(); resetForm();
-            }
-        }
-
         async function salveaza() {
             const btn = document.getElementById('saveBtn');
             const msg = document.getElementById('feedbackMsg');
@@ -1160,9 +1154,7 @@ const configuratieAlarme = {
                 const manual = document.getElementById('extraCheck') ? document.getElementById('extraCheck').value : "";
                 if (manual !== "") verificariFinale = verificariFinale ? verificariFinale + " | " + manual : manual;
 
-            // ⚙️ SOLUȚIA 6: GENERARE ID UNIC ABSOLUT (TIMESTAMP BAZĂ 36 + SECVENȚĂ RANDOM) - ZERO RISC COLIZIUNE
-          /* const finalId = selectedId ? selectedId : "K-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(Math.random() * 10);
-           */ let fortamOffline = false;
+                let fortamOffline = false;
 
                 // 🛡️ SISTEM ANTI-DUPLICARE ID: Generăm codul și verificăm dacă e liber
                 let finalId = selectedId;
@@ -1171,24 +1163,54 @@ const configuratieAlarme = {
                     do {
                         const codScurt = Math.floor(1000 + Math.random() * 9000);
                         idGenerat = "K-" + codScurt;
-                    } while (dbRaw[idGenerat] !== undefined); // Cât timp ID-ul există, mai trage un bilet!
+                    } while (dbRaw[idGenerat] !== undefined); 
                     finalId = idGenerat;
                 }
 
-                // 🧠 PRELUAREA INTELIGENTĂ A NUMELUI: Lista Fixă sau Scris de mână
+                // 🧠 PRELUAREA INTELIGENTĂ A NUMELUI
                 const numeSelectat = document.getElementById('mecanicSelect').value;
                 const numeFinal = (numeSelectat === "Altcineva") ? document.getElementById('mecanicCustom').value : numeSelectat;
 
                 const entry = {
                     data: document.getElementById('data').value,
                     tip: document.getElementById('tipInterventie').value,
-                    mecanic: numeFinal || "Necunoscut", // Salvăm ce s-a ales sau s-a scris
+                    mecanic: numeFinal || "Necunoscut", 
                     verificari: verificariFinale,
                     obs: document.getElementById('obs').value,
                     timestamp: Date.now(),
                     revizie: document.getElementById('esteRevizie').checked,
                     foto: ""
                 };
+
+                // 🚀 ACTUALIZARE INSTANTANEE A HĂRȚII (OPTIMISTIC UI)
+                // Băgăm datele direct în dbRaw ca să nu mai așteptăm după net!
+                if (!dbRaw) dbRaw = {};
+                if (!dbRaw[finalId]) {
+                    dbRaw[finalId] = {
+                        id: finalId,
+                        nume: document.getElementById('nume').value,
+                        model: document.getElementById('model').value,
+                        sectie: document.getElementById('sectie').value,
+                        lat: currentCoords ? parseFloat(currentCoords[0]) : 0,
+                        lng: currentCoords ? parseFloat(currentCoords[1]) : 0,
+                        istoric: {}
+                    };
+                } else {
+                    // Actualizăm datele de bază dacă s-au schimbat
+                    dbRaw[finalId].nume = document.getElementById('nume').value;
+                    dbRaw[finalId].sectie = document.getElementById('sectie').value;
+                    dbRaw[finalId].model = document.getElementById('model').value;
+                }
+                
+                // Adăugăm intervenția la istoric (local)
+                if(!dbRaw[finalId].istoric) dbRaw[finalId].istoric = {};
+                dbRaw[finalId].istoric[Date.now()] = entry; 
+                
+                // Salvăm local și forțăm redesenarea IMEDIATĂ a pinilor
+                localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
+                if (typeof refreshPini === "function") refreshPini(); 
+                if (typeof actualizeazaListaSidebar === "function") actualizeazaListaSidebar();
+                // --- FINAL OPTIMISTIC UI ---
 
                 if (esteOnline) {
                     const ruleazaFirebase = (promisiune) => Promise.race([
@@ -1201,6 +1223,8 @@ const configuratieAlarme = {
                             const storageRef = firebase.storage().ref('utilaje/' + finalId + '/' + Date.now() + "_" + file.name);
                             const snap = await ruleazaFirebase(storageRef.put(file));
                             entry.foto = await snap.ref.getDownloadURL();
+                            // Actualizăm și în dbRaw cu linkul pozei pentru consistență
+                            dbRaw[finalId].istoric[Date.now()].foto = entry.foto;
                         }
 
                         if (selectedId) {
@@ -1260,12 +1284,13 @@ const configuratieAlarme = {
 
                 msg.style.display = "block";
 
+                // 🚀 REDUS DE LA 3 SECUNDE LA 1 SECUNDĂ
                 setTimeout(() => {
                     if (typeof resetForm === "function") resetForm();
                     btn.innerText = "💾 SALVEAZĂ FIȘA";
                     btn.disabled = false;
                     msg.style.display = "none";
-                }, 3000);
+                }, 1000); 
 
             } catch (e) {
                 console.error(e);

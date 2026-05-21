@@ -528,16 +528,7 @@
                 </div>
                 <input type="hidden" id="imagineUrl">
             </div>
-            
-            <div id="lastInterventionContainer" style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; border-left: 4px solid var(--accent); display: none;">
-    <label>Ultima Intervenție (Editabilă):</label>
-    <div id="lastInterventionDetails" style="font-size: 12px; margin-bottom: 10px;"></div>
-    <div style="display: flex; gap: 10px;">
-        <button id="btnEdit" onclick="editeazaInterventie()" style="flex:1; background:#3498db; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">✏️ Editează</button>
-        <button id="btnDel" onclick="stergeUltimaInterventie()" style="flex:1; background:#e74c3c; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">🗑️ Șterge</button>
-    </div>
-</div>
-            
+                                  
             <div class="group" id="grup-punere-functiune">
                 <label>Data Punere în Funcțiune (Fixă)</label>
                 <input type="date" id="data-punere">
@@ -631,6 +622,13 @@
 
             <div id="feedbackMsg" class="msg-popup"></div>
             <div id="deleteZone"></div>
+            <div id="istoricCompletContainer" style="margin-top: 25px; display: none; border-top: 2px dashed rgba(255,255,255,0.1); padding-top: 15px;">
+    <h3 style="font-size: 13px; color: var(--accent); margin: 0 0 12px 0; text-transform: uppercase; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+        📋 Istoric Complet Intervenții Utilaj
+    </h3>
+    <div id="listaInterventiiUtilaj" style="max-height: 300px; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 10px;">
+        </div>
+</div>
         </div>
     </div>
 
@@ -750,7 +748,7 @@ firebase.auth().onAuthStateChanged((user) => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const qrId = urlParams.get('id');
                 if (qrId && dbRaw[qrId] && selectedId !== qrId) {
-                    incarcaUtilaj(qrId);
+                    Utilaj(qrId);
                 }
                 
                 console.log("✅ Date sincronizate și ID procesat.");
@@ -845,7 +843,7 @@ const configuratieAlarme = {
                         });
 
                         const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(markersGroup);
-                        m.on('click', (e) => { L.DomEvent.stopPropagation(e); incarcaUtilaj(id); });
+                        m.on('click', (e) => { L.DomEvent.stopPropagation(e); Utilaj(id); });
                     }
                 }
             });
@@ -876,7 +874,7 @@ const configuratieAlarme = {
                     }
 
                     const itemHtml = `
-                    <div onclick="incarcaUtilaj('${id}'); map.setView([${u.lat}, ${u.lng}], 2);" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px; cursor: pointer; border-left: 5px solid ${col}; transition: 0.2s; box-sizing: border-box;">
+                    <div onclick="Utilaj('${id}'); map.setView([${u.lat}, ${u.lng}], 2);" style="padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 8px; cursor: pointer; border-left: 5px solid ${col}; transition: 0.2s; box-sizing: border-box;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <strong style="font-size: 13px; color: white;">${u.nume}</strong>
                             <span style="font-family: monospace; font-size: 11px; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #3498db; font-weight: bold;">${id}</span>
@@ -943,7 +941,7 @@ const configuratieAlarme = {
             checkReady();
         });
 
-        function incarcaUtilaj(id) {
+      /*  function incarcaUtilaj(id) {
             selectedId = id; const u = dbRaw[id];
             if (!u) return; // Siguranță
             const isAdmin = (sessionStorage.getItem('is_admin') === 'true');
@@ -1013,8 +1011,103 @@ const configuratieAlarme = {
     } else {
         container.style.display = "none";
     }
+}*/
+        function incarcaUtilaj(id) {
+    selectedId = id; const u = dbRaw[id];
+    if (!u) return; // Siguranță
+    const isAdmin = (sessionStorage.getItem('is_admin') === 'true');
+    
+    // Centrare automată pe utilaj
+    if (u.lat && u.lng) {
+        map.setView([u.lat, u.lng], 2); 
+    }
+
+    document.getElementById('sidebar').style.display = 'flex';
+    document.getElementById('lista-utilaje-container').style.display = 'none';
+    document.getElementById('form-container').style.display = 'block';
+    document.getElementById('sidebar').classList.add('panou-deschis');
+    document.getElementById('sidebar').classList.remove('minimizat');
+
+    setTimeout(() => { map.invalidateSize(); }, 400);
+
+    document.getElementById('nume').disabled = !isAdmin;
+    document.getElementById('model').disabled = !isAdmin;
+    document.getElementById('sectie').disabled = !isAdmin;
+
+    const campPunere = document.getElementById('data-punere');
+    if (u.dataPunere) { campPunere.value = u.dataPunere; campPunere.disabled = true; }
+    else { campPunere.value = ""; campPunere.disabled = !isAdmin; }
+
+    document.getElementById('nume').value = u.nume;
+    document.getElementById('model').value = u.model || "";
+    document.getElementById('sectie').value = u.sectie;
+
+    if (isAdmin) {
+        document.getElementById('status').innerHTML = `MOD: ADMINISTRARE UTILAJ (ID: ${id})`;
+        document.getElementById('status').className = "status-badge status-edit";
+        document.getElementById('deleteZone').innerHTML = `<button class="btn-del" onclick="stergeUtilaj('${id}')">⚠️ ȘTERGE UTILAJ DEFINITIV</button>`;
+    } else {
+        document.getElementById('status').innerHTML = `MOD: ADĂUGARE INTERVENȚIE (ID: ${id})`;
+        document.getElementById('status').className = "status-badge";
+        document.getElementById('deleteZone').innerHTML = "";
+    }
+
+    if (activeMarker) map.removeLayer(activeMarker);
+
+    const btnSalvare = document.getElementById('saveBtn');
+    btnSalvare.innerText = isAdmin ? "📝 ACTUALIZEAZĂ DATE UTILAJ & FIȘĂ" : "💾 SALVEAZĂ FIȘA INTERVENȚIE";
+    btnSalvare.style.background = isAdmin ? "#3498db" : "var(--success)";
+    document.getElementById('cancelBtn').style.display = "block";
+
+    toggleExtra(); checkReady(); refreshPini();
+
+    // 🌐 GENERARE ISTORIC COMPLET UTILAJ
+    const istoricContainer = document.getElementById('istoricCompletContainer');
+    const listaDiv = document.getElementById('listaInterventiiUtilaj');
+    
+    currentEditKey = null; // Când deschidem utilajul, pornim implicit pe mod "Intervenție Nouă"
+
+    if (u.istoric) {
+        istoricContainer.style.display = "block";
+        listaDiv.innerHTML = "";
+
+        // Extragem și sortăm toate intervențiile descrescător după timestamp (cele mai noi sus)
+        const intrari = Object.entries(u.istoric);
+        intrari.sort((a, b) => {
+            const tA = a[1].timestamp || 0;
+            const tB = b[1].timestamp || 0;
+            return tB - tA;
+        });
+
+        intrari.forEach(([key, i]) => {
+            if (key === 'init') return; // Sărim peste placeholderul inițial dacă există
+
+            const itemHtml = `
+                <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border-left: 4px solid ${i.revizie ? '#2ecc71' : '#f39c12'}; font-size: 12px; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px;">
+                        <span style="color: #fff;">📅 ${i.data || '-'}</span>
+                        <span style="color: var(--accent); background: rgba(243,156,18,0.1); padding: 2px 6px; border-radius: 4px; font-size: 10px;">${i.tip || 'Preventivă'}</span>
+                    </div>
+                    <div style="color: var(--text-dim); margin-bottom: 3px;">👤 <b>Mecanic:</b> ${i.mecanic || 'Necunoscut'}</div>
+                    ${i.verificari ? `<div style="color: #3498db; margin-bottom: 3px;">🔧 <b>Operațiuni:</b> ${i.verificari}</div>` : ''}
+                    <div style="color: #eee; font-style: italic;">📝 <b>Obs:</b> ${i.obs || 'Fără observații'}</div>
+                    
+                    <div style="display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end;">
+                        <button type="button" onclick="editeazaInterventie('${key}')" style="background: #3498db; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">✏️ Editează</button>
+                        <button type="button" onclick="stergeInterventie('${key}')" style="background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">🗑️ Șterge</button>
+                    </div>
+                </div>
+            `;
+            listaDiv.innerHTML += itemHtml;
+        });
+
+        if (listaDiv.innerHTML === "") {
+            listaDiv.innerHTML = "<p style='font-size:11px; color:var(--text-dim); text-align:center;'>Fără intervenții salvate în registru.</p>";
+        }
+    } else {
+        istoricContainer.style.display = "none";
+    }
 }
-        
 
         // 🔒 LOGICĂ MODAL MASCAT PAROLĂ ADMIN
         function comutaModAdmin() {
@@ -1363,7 +1456,9 @@ const configuratieAlarme = {
             currentCoords = null;
 
             if (document.getElementById('searchBar')) { document.getElementById('searchBar').value = ""; }
-
+            if (document.getElementById('istoricCompletContainer')) {
+    document.getElementById('istoricCompletContainer').style.display = 'none';
+}
             document.getElementById('form-container').style.display = 'none';
             document.getElementById('lista-utilaje-container').style.display = 'block';
 
@@ -1480,43 +1575,81 @@ const configuratieAlarme = {
         }
         let currentEditKey = null;
 
-async function stergeUltimaInterventie(key) {
-    if (!key || !selectedId) return;
-    if (!confirm("🚨 Ești sigur că vrei să ștergi DEFINITIV ultima intervenție?")) return;
-    
-    try {
-        await database.ref('utilaje/' + selectedId + '/istoric/' + key).remove();
-        alert("Intervenție ștearsă!");
-        location.reload(); 
-    } catch (e) { alert("Eroare la ștergere: " + e.message); }
-}
-
-/*function editeazaInterventie() {
-    const i = dbRaw[selectedId].istoric[currentEditKey];
-    document.getElementById('data').value = i.data;
-    document.getElementById('tipInterventie').value = i.tip;
-    document.getElementById('obs').value = i.obs;
-    // (Dacă ai mai multe câmpuri, completează-le aici)
-    
-    document.getElementById('saveBtn').innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
-    window.scrollTo(0,0);
-}*/
-       function editeazaInterventie(key) {
+function editeazaInterventie(key) {
     if (!selectedId || !key) return;
 
     const utilaj = dbRaw[selectedId];
     const i = utilaj.istoric[key];
-    
+    if (!i) return;
+
+    // 1. Populăm câmpurile simple
     document.getElementById('data').value = i.data || "";
     document.getElementById('tipInterventie').value = i.tip || "";
     document.getElementById('obs').value = i.obs || "";
+    document.getElementById('esteRevizie').checked = i.revizie || false;
+
+    // 2. Populăm mecanicul (mecanism inteligent pentru listă fixă vs text manual)
+    const mecanicSelect = document.getElementById('mecanicSelect');
+    const mecanicCustom = document.getElementById('mecanicCustom');
+    let esteInLista = false;
+
+    for (let option of mecanicSelect.options) {
+        if (option.value === i.mecanic) {
+            mecanicSelect.value = i.mecanic;
+            esteInLista = true;
+            break;
+        }
+    }
+    if (!esteInLista && i.mecanic) {
+        mecanicSelect.value = "Altcineva";
+        mecanicCustom.style.display = "block";
+        mecanicCustom.value = i.mecanic;
+    } else {
+        mecanicCustom.style.display = "none";
+        mecanicCustom.value = "";
+    }
+
+    // 3. Re-bifăm automat checkbox-urile din checklist
+    const checkboxuri = document.querySelectorAll('.task');
+    const operatiuniSalvate = i.verificari ? i.verificari.split(" | ")[0].split(", ") : [];
+    const textManualSalvat = i.verificari && i.verificari.includes(" | ") ? i.verificari.split(" | ")[1] : (!i.verificari?.includes(", ") && i.verificari ? i.verificari : "");
+
+    checkboxuri.forEach(cb => {
+        cb.checked = operatiuniSalvate.includes(cb.value);
+    });
+
+    if (document.getElementById('extraCheck')) {
+        document.getElementById('extraCheck').value = textManualSalvat || "";
+    }
+
+    // 4. Activăm cheia curentă de editare
+    currentEditKey = key;
     
-    currentEditKey = key; // 🚀 ABIA ACUM, după ce ai apăsat "Editează", intrăm în modul Editare!
-    
+    // 5. Schimbăm designul butonului ca utilizatorul să știe că modifică ceva existent
     const btn = document.getElementById('saveBtn');
-    btn.innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
+    btn.innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA SELECTATĂ";
+    btn.style.background = "#2980b9";
+
+    // Mergem automat în susul paginii la formular
+    document.getElementById('sidebar').scrollTop = 0;
     window.scrollTo(0, 0);
 }
+
+async function stergeInterventie(key) {
+    if (!key || !selectedId) return;
+    if (!confirm("🚨 Ești sigur că vrei să ștergi DEFINITIV această intervenție din istoric?")) return;
+    
+    try {
+        await database.ref('utilaje/' + selectedId + '/istoric/' + key).remove();
+        alert("Intervenție ștearsă din baza de date!");
+        
+        // Actualizăm rapid interfața fără refresh total de pagină pentru viteză
+        setTimeout(() => {
+            incarcaUtilaj(selectedId);
+        }, 300);
+    } catch (e) { alert("Eroare la ștergere: " + e.message); }
+}
+     
     </script>
 </body>
 

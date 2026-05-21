@@ -528,7 +528,16 @@
                 </div>
                 <input type="hidden" id="imagineUrl">
             </div>
-
+            
+            <div id="lastInterventionContainer" style="margin: 15px 0; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; border-left: 4px solid var(--accent); display: none;">
+    <label>Ultima Intervenție (Editabilă):</label>
+    <div id="lastInterventionDetails" style="font-size: 12px; margin-bottom: 10px;"></div>
+    <div style="display: flex; gap: 10px;">
+        <button id="btnEdit" onclick="editeazaInterventie()" style="flex:1; background:#3498db; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">✏️ Editează</button>
+        <button id="btnDel" onclick="stergeUltimaInterventie()" style="flex:1; background:#e74c3c; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;">🗑️ Șterge</button>
+    </div>
+</div>
+            
             <div class="group" id="grup-punere-functiune">
                 <label>Data Punere în Funcțiune (Fixă)</label>
                 <input type="date" id="data-punere">
@@ -982,7 +991,26 @@ const configuratieAlarme = {
             document.getElementById('cancelBtn').style.display = "block";
 
             toggleExtra(); checkReady(); refreshPini();
-        }
+
+            // ADAUGĂ ASTA LA FINALUL FUNCȚIEI:
+    const container = document.getElementById('lastInterventionContainer');
+    const details = document.getElementById('lastInterventionDetails');
+    window.currentEditKey = null; // Resetăm la fiecare încărcare
+
+    if (u.istoric) {
+        // Găsim ultima intervenție (cea cu timestamp-ul cel mai mare)
+        const intrari = Object.entries(u.istoric);
+        const ultima = intrari.sort((a, b) => b[1].timestamp - a[1].timestamp)[0];
+        const [key, date] = ultima;
+
+        window.currentEditKey = key; // Salvăm cheia global
+        container.style.display = "block";
+        details.innerHTML = `<b>Data:</b> ${date.data} | <b>Tip:</b> ${date.tip}<br><b>Obs:</b> ${date.obs}`;
+    } else {
+        container.style.display = "none";
+    }
+}
+        
 
         // 🔒 LOGICĂ MODAL MASCAT PAROLĂ ADMIN
         function comutaModAdmin() {
@@ -1227,7 +1255,7 @@ const configuratieAlarme = {
                             dbRaw[finalId].istoric[Date.now()].foto = entry.foto;
                         }
 
-                        if (selectedId) {
+                        /*if (selectedId) {
                             await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
                             await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
                             await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
@@ -1239,7 +1267,31 @@ const configuratieAlarme = {
                             if (entry.foto) {
                                 await ruleazaFirebase(database.ref('utilaje/' + finalId + '/imagine').set(entry.foto));
                             }
-                        } else {
+                        } else {*/
+                        if (selectedId) {
+    // Verificăm dacă suntem în modul de EDITARE (dacă avem o cheie selectată)
+    if (window.currentEditKey) {
+        // MOD EDITARE: Actualizăm doar intervenția specifică
+        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric/' + window.currentEditKey).update(entry));
+        msg.innerText = "✅ INTERVENȚIE ACTUALIZATĂ!";
+    } else {
+        // MOD NOU: Adăugăm o intervenție nouă
+        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/istoric').push(entry));
+        msg.innerText = "✅ SALVAT CU SUCCES!";
+    }
+
+    // Restul update-urilor (Model, Sectie, Nume) rămân la fel:
+    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/model').set(document.getElementById('model').value));
+    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/sectie').set(document.getElementById('sectie').value));
+    await ruleazaFirebase(database.ref('utilaje/' + finalId + '/nume').set(document.getElementById('nume').value));
+
+    const d = document.getElementById('data-punere').value;
+    if (d) await ruleazaFirebase(database.ref('utilaje/' + finalId + '/dataPunere').set(d));
+
+    if (entry.foto) {
+        await ruleazaFirebase(database.ref('utilaje/' + finalId + '/imagine').set(entry.foto));
+    }
+} else {
                             await ruleazaFirebase(database.ref('utilaje/' + finalId).set({
                                 id: finalId,
                                 nume: document.getElementById('nume').value,
@@ -1290,6 +1342,7 @@ const configuratieAlarme = {
                     btn.innerText = "💾 SALVEAZĂ FIȘA";
                     btn.disabled = false;
                     msg.style.display = "none";
+                    window.currentEditKey = null;
                 }, 1000); 
 
             } catch (e) {
@@ -1422,6 +1475,29 @@ const configuratieAlarme = {
                 reader.readAsDataURL(input.files[0]);
             }
         }
+        let currentEditKey = null;
+
+async function stergeUltimaInterventie() {
+    if (!currentEditKey || !selectedId) return;
+    if (!confirm("🚨 Ești sigur că vrei să ștergi DEFINITIV ultima intervenție?")) return;
+    
+    try {
+        await database.ref('utilaje/' + selectedId + '/istoric/' + currentEditKey).remove();
+        alert("Intervenție ștearsă!");
+        location.reload(); 
+    } catch (e) { alert("Eroare: " + e.message); }
+}
+
+function editeazaInterventie() {
+    const i = dbRaw[selectedId].istoric[currentEditKey];
+    document.getElementById('data').value = i.data;
+    document.getElementById('tipInterventie').value = i.tip;
+    document.getElementById('obs').value = i.obs;
+    // (Dacă ai mai multe câmpuri, completează-le aici)
+    
+    document.getElementById('saveBtn').innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
+    window.scrollTo(0,0);
+}
     </script>
 </body>
 

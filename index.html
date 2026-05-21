@@ -492,10 +492,20 @@
         { facingMode: "environment" }, 
         { fps: 10, qrbox: 250 },
         (decodedText) => {
-            alert("Scanat: " + decodedText); // Verifică dacă merge
+            // 1. Oprim camera prima dată
             inchideScanner();
+            
+            // 2. Facem redirecționarea (Scoatem alert-ul)
+            // Dacă în QR este un link complet (cum e în poza ta):
+            if (decodedText.startsWith("http")) {
+                window.location.href = decodedText;
+            } else {
+                // Dacă în QR este scris doar "K-1111":
+                // Te duce automat în pagina scan.html
+                window.location.href = "scan.html?id=" + decodedText; 
+            }
         },
-        (err) => { /* erori */ }
+        (err) => { /* erorile de focus ale camerei le ignorăm */ }
     ).catch(err => alert("Eroare cameră: " + err));
 }
 

@@ -1488,7 +1488,7 @@ async function stergeUltimaInterventie() {
     } catch (e) { alert("Eroare: " + e.message); }
 }
 
-function editeazaInterventie() {
+/*function editeazaInterventie() {
     const i = dbRaw[selectedId].istoric[currentEditKey];
     document.getElementById('data').value = i.data;
     document.getElementById('tipInterventie').value = i.tip;
@@ -1497,6 +1497,35 @@ function editeazaInterventie() {
     
     document.getElementById('saveBtn').innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
     window.scrollTo(0,0);
+}*/
+        function editeazaInterventie(key) {
+    // 1. Verificăm dacă avem datele necesare înainte să le citim
+    if (!dbRaw || !dbRaw[selectedId] || !dbRaw[selectedId].istoric || !dbRaw[selectedId].istoric[key]) {
+        console.error("❌ EROARE DEBUG: Datele nu au fost găsite!");
+        console.error("Cheia căutată:", key);
+        console.error("Obiectul utilajului:", dbRaw[selectedId]);
+        alert("Eroare: Nu am putut găsi detaliile acestei intervenții. Te rog dă un refresh la pagină.");
+        return; // Oprim execuția ca să nu mai crape scriptul
+    }
+
+    // 2. Acum suntem siguri că datele există
+    const i = dbRaw[selectedId].istoric[key];
+    
+    // 3. Populăm formularul cu verificare (folosim || "" pentru siguranță)
+    document.getElementById('data').value = i.data || "";
+    document.getElementById('tipInterventie').value = i.tip || "";
+    document.getElementById('obs').value = i.obs || "";
+    
+    // Dacă ai și alte câmpuri (ex: verificari, mecanic), adaugă-le aici:
+    // document.getElementById('mecanicSelect').value = i.mecanic || "";
+    
+    // 4. Salvăm cheia global
+    window.currentEditKey = key;
+    
+    // 5. Schimbăm butonul
+    const btn = document.getElementById('saveBtn');
+    btn.innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
+    window.scrollTo(0, 0);
 }
     </script>
 </body>

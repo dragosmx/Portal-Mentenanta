@@ -993,9 +993,10 @@ const configuratieAlarme = {
             toggleExtra(); checkReady(); refreshPini();
 
            // ADAUGĂ ASTA LA FINALUL FUNCȚIEI incarcaUtilaj:
-    const container = document.getElementById('lastInterventionContainer');
+   const container = document.getElementById('lastInterventionContainer');
     const details = document.getElementById('lastInterventionDetails');
-    currentEditKey = null; // FĂRĂ "window."
+    
+    currentEditKey = null; // AM SCOS window.
 
     if (u.istoric) {
         // Găsim ultima intervenție (cea cu timestamp-ul cel mai mare)
@@ -1003,7 +1004,7 @@ const configuratieAlarme = {
         const ultima = intrari.sort((a, b) => b[1].timestamp - a[1].timestamp)[0];
         const [key, date] = ultima;
 
-        currentEditKey = key; // Salvăm cheia global (FĂRĂ "window.")
+        currentEditKey = key; // SALVĂM CHEIA GLOBAL (Fără window.)
         container.style.display = "block";
         details.innerHTML = `<b>Data:</b> ${date.data} | <b>Tip:</b> ${date.tip}<br><b>Obs:</b> ${date.obs}`;
     } else {
@@ -1484,7 +1485,7 @@ async function stergeUltimaInterventie() {
         await database.ref('utilaje/' + selectedId + '/istoric/' + currentEditKey).remove();
         alert("Intervenție ștearsă!");
         location.reload(); 
-    } catch (e) { alert("Eroare: " + e.message); }
+    } catch (e) { alert("Eroare la ștergere: " + e.message); }
 }
 
 /*function editeazaInterventie() {
@@ -1498,18 +1499,27 @@ async function stergeUltimaInterventie() {
     window.scrollTo(0,0);
 }*/
        function editeazaInterventie() {
-    // Folosim direct variabila globală currentEditKey
-    if (!currentEditKey || !selectedId || !dbRaw[selectedId].istoric[currentEditKey]) {
-        alert("Eroare: Nu am putut încărca datele intervenției.");
+    // 1. Verificăm dacă știm ce trebuie să edităm
+    if (!selectedId || !currentEditKey) {
+        alert("Eroare: Nu știm ce intervenție să edităm. Dă un refresh paginii.");
         return;
     }
 
-    const i = dbRaw[selectedId].istoric[currentEditKey];
+    // 2. Ne asigurăm că datele sunt în memorie
+    const utilaj = dbRaw[selectedId];
+    if (!utilaj || !utilaj.istoric || !utilaj.istoric[currentEditKey]) {
+        alert("Eroare: Intervenția nu se găsește în memorie.");
+        return;
+    }
+
+    // 3. Extragem datele și le punem în căsuțe
+    const i = utilaj.istoric[currentEditKey];
     
     document.getElementById('data').value = i.data || "";
     document.getElementById('tipInterventie').value = i.tip || "";
     document.getElementById('obs').value = i.obs || "";
     
+    // 4. Transformăm butonul de Salvare în Actualizare
     const btn = document.getElementById('saveBtn');
     btn.innerText = "💾 ACTUALIZEAZĂ INTERVENȚIA";
     window.scrollTo(0, 0);

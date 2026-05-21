@@ -843,7 +843,7 @@ const configuratieAlarme = {
                         });
 
                         const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(markersGroup);
-                        m.on('click', (e) => { L.DomEvent.stopPropagation(e); Utilaj(id); });
+                        m.on('click', (e) => { L.DomEvent.stopPropagation(e); utilaj(id); });
                     }
                 }
             });

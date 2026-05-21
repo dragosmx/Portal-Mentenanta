@@ -1278,11 +1278,65 @@ const configuratieAlarme = {
             hContent += '</div></body></html>'; win.document.write(hContent); win.document.close();
         }
 
-        function cauta() {
+      /*  function cauta() {
             const v = document.getElementById('searchInput').value.toUpperCase().trim();
             const m = markersList.find(x => x.uData.id.includes(v) || x.uData.n.includes(v));
             if (m) { map.setView(m.getLatLng(), 2); m.openPopup(); }
+        }*/
+        function cauta() {
+    const input = document.getElementById('searchInput');
+    const textCautat = input ? input.value.toLowerCase().trim() : "";
+    const filtru = document.getElementById('filterSectie').value;
+
+    // 1. ASCUNDEM TASTATURA și PANOU pe mobil
+    if (input) input.blur(); 
+    document.querySelector('.panel').classList.remove('activ');
+
+    if (!dbRaw) return;
+
+    let utilajGasit = null;
+
+    // 2. LOGICA DE CĂUTARE EXACTĂ
+    Object.keys(dbRaw).forEach(id => {
+        const u = dbRaw[id];
+        // Filtrăm secția
+        if (filtru !== "Toate" && u.sectie !== filtru) return;
+        
+        const nume = (u.nume || "").toLowerCase();
+        const cod = (id || "").toLowerCase();
+
+        // Căutăm potrivire exactă (cod sau nume)
+        if (textCautat !== "" && (cod === textCautat || nume === textCautat)) {
+            utilajGasit = u;
         }
+    });
+
+    // Dacă nu am găsit exact, căutăm parțial (doar dacă textul nu e gol)
+    if (!utilajGasit && textCautat !== "") {
+        Object.keys(dbRaw).forEach(id => {
+            const u = dbRaw[id];
+            if (filtru !== "Toate" && u.sectie !== filtru) return;
+            
+            const nume = (u.nume || "").toLowerCase();
+            const cod = id.toLowerCase();
+            if (nume.includes(textCautat) || cod.includes(textCautat)) {
+                if (!utilajGasit) utilajGasit = u;
+            }
+        });
+    }
+
+    // 3. ZOOM ȘI REFRESH
+    if (utilajGasit && utilajGasit.lat && utilajGasit.lng) {
+        map.setView([utilajGasit.lat, utilajGasit.lng], 18); // Zoom aproape
+        // Deschidem popup-ul automat (opțional)
+        // markersList.find(m => m.uData.id === utilajGasit.id).openPopup();
+    } else if (textCautat !== "") {
+        alert("Utilajul nu a fost găsit în această secție.");
+    }
+
+    // Refresh final la pini
+    if (typeof afiseazaPuncte === "function") afiseazaPuncte();
+}
 
         function verificaAlarmeMentenanta() {
             if (!dbRaw) return;

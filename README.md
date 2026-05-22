@@ -1,21 +1,21 @@
-🛠️ Sistem de Mentenanță - Killer SRL
+# Killer CMMS - Mentenanță Industrială Digitală
 
-Descriere: Aplicație web pentru gestionarea reviziilor și alertelor utilajelor din fabrică.
+Sistem avansat de management al mentenanței pentru unități de producție. 
+Proiectul digitalizează complet fluxul de la raportarea defectelor în teren până la intervenția tehnică și auditarea istorică.
 
-Funcționalități principale:
+## 🛠️ Stack Tehnologic
+- **Frontend:** HTML5, CSS3 (Dark Mode, Flexbox), JavaScript (Vanilla).
+- **Backend/Database:** Google Firebase (Auth, Realtime Database, Hosting).
+- **Maps:** Leaflet.js (Custom Image Overlays).
+- **Utilities:** SheetJS (Excel Export), QRServer API.
 
-Sistem de Roluri: Implementare securitate pe bază de roluri (Admin, Mecanic, Operator).
+## ✨ Funcționalități Cheie
+- **Monitorizare Live:** Vizualizarea stării utilajelor pe harta halei.
+- **Sistem de Ticketing:** Operatorii raportează defecte; mecanicii preiau și rezolvă cu un click.
+- **Audit & Compliance:** Istoric complet, calcul automat al scadențelor de revizie.
+- **Accesibilitate:** QR Code-uri pentru acces rapid la fișa utilajului de pe orice telefon.
 
-Ticket System (Sesizări): Flux complet de raportare defecte (Operator -> Notificare Live -> Reparație -> Închidere Ticket).
-
-Interfață Vizuală (Dark Mode): Design modern cu carduri de istoric și alerte roșii pentru urgențe.
-
-Audit Mentenanță: Algoritm automat pentru calcularea zilelor de la ultima revizie și avertizări vizuale (Verde/Portocaliu/Roșu).
-
-Integrare QR: Sistem de generare și printare QR coduri pentru identificare rapidă în teren.
-
-Dashboard Global: Rapoarte centralizate în timp real și export Excel pentru date.
-
-Geolocalizare: Hartă interactivă cu poziționarea utilajelor.
-
-Offline Mode: Capacitatea de a încărca datele din localStorage pentru viteză și acces în zone fără net.
+## 🚀 Instalare și Deploy
+1. Clonează acest repository.
+2. Configurează `firebaseConfig` în fișierul principal.
+3. Rulează `firebase deploy` pentru a publica în mediul de producție.

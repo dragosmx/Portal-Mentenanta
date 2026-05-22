@@ -1,4 +1,4 @@
-const CACHE_NAME = 'killer-mentenanta-v4';
+const CACHE_NAME = 'killer-mentenanta-v5';
 
 // ⚠️ Am adăugat librăriile externe. Fără ele, HTML-ul se încarcă degeaba offline.
 const urlsToCache = [

@@ -4,16 +4,18 @@ Descriere: Aplicație web pentru gestionarea reviziilor și alertelor utilajelor
 
 Funcționalități principale:
 
--Monitorizare stadiu revizii (Alarme automate).
+Sistem de Roluri: Implementare securitate pe bază de roluri (Admin, Mecanic, Operator).
 
--Scanare QR pentru acces rapid la fișa utilajului.
+Ticket System (Sesizări): Flux complet de raportare defecte (Operator -> Notificare Live -> Reparație -> Închidere Ticket).
 
--Panou de control vizual pe hartă.
+Interfață Vizuală (Dark Mode): Design modern cu carduri de istoric și alerte roșii pentru urgențe.
 
-Tehnologii folosite:
+Audit Mentenanță: Algoritm automat pentru calcularea zilelor de la ultima revizie și avertizări vizuale (Verde/Portocaliu/Roșu).
 
--HTML5, CSS3, JavaScript (Vanilla).
+Integrare QR: Sistem de generare și printare QR coduri pentru identificare rapidă în teren.
 
--Firebase Realtime Database.
+Dashboard Global: Rapoarte centralizate în timp real și export Excel pentru date.
 
--Leaflet.js (pentru hărți).
+Geolocalizare: Hartă interactivă cu poziționarea utilajelor.
+
+Offline Mode: Capacitatea de a încărca datele din localStorage pentru viteză și acces în zone fără net.

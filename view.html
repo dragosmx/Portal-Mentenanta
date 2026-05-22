@@ -1,20 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
 
 <head>
-    <meta charset="utf-8">
-    <link rel="icon" type="image/png" href="logo.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Killer Mentenanță - Control Panel ULTIMATE PRO</title>
 
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Mentenanță">
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Mentenanță" />
 
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c3e50">
-    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#2c3e50" />
+    <link rel="apple-touch-icon" href="logo.png" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
@@ -47,7 +47,7 @@
             display: flex;
             flex-direction: column;
             background: var(--dark);
-            font-family: 'Segoe UI', sans-serif;
+            font-family: "Segoe UI", sans-serif;
             overflow: hidden;
         }
 
@@ -711,41 +711,81 @@
 </head>
 
 <body>
-
     <div id="loading-screen">
-        <img src="logo.png">
-        <div
-            style="width:40px; height:40px; border:4px solid rgba(255,255,255,0.1); border-top-color:#2ecc71; border-radius:50%; animation:spin 1s linear infinite; margin-top:20px;">
-        </div>
+        <img src="logo.png" />
+        <div style="
+          width: 40px;
+          height: 40px;
+          border: 4px solid rgba(255, 255, 255, 0.1);
+          border-top-color: #2ecc71;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-top: 20px;
+        "></div>
     </div>
 
     <nav>
-        <div class="nav-left"><img src="logo.png" onclick="window.location.href='index.html'"></div>
+        <div class="nav-left">
+            <img src="logo.png" onclick="window.location.href = 'index.html'" />
+        </div>
         <div class="nav-scroll">
-            <button onclick="deschideRapoarte()" style="background:var(--success);">📊 DASHBOARD GLOBAL</button>
-            <button onclick="deschideModulPersonal()" class="btn-top"
-                style="background:#8e44ad; font-size:12px; white-space:nowrap;">👥 PERSONAL</button>
-            <button onclick="window.location.href='edit.html'" style="background:var(--warning); color:black;">⚙️
-                ADMINISTRARE</button>
-            <button onclick="printeazaQR()" style="background:#8e44ad;">🖨️ QR CODE</button>
-            <div class="cloud-status-view no-print">
-                <div class="dot-cloud"></div>
-                <span>CLOUD ACTIV</span>
+            <button onclick="deschideRapoarte()" id="btn-view-dash" style="background: var(--success)">
+                📊 DASHBOARD GLOBAL
+            </button>
+            <button onclick="deschideModulPersonal()" id="btn-view-pers" class="btn-top"
+                style="background: #8e44ad; font-size: 12px; white-space: nowrap">
+                👥 PERSONAL
+            </button>
+            <button onclick="window.location.href = 'edit.html'" id="btn-view-admin"
+                style="background: var(--warning); color: black">
+                ⚙️ ADMINISTRARE
+            </button>
+            <button onclick="printeazaQR()" id="btn-view-qr" style="background: #8e44ad">
+                🖨️ QR CODE
+            </button>
+
+            <div style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+          ">
+                <div class="cloud-status-view no-print" style="margin: 0">
+                    <div class="dot-cloud"></div>
+                    <span>CLOUD ACTIV</span>
+                </div>
+                <button onclick="logout()" class="btn-top no-print" style="
+              background: #e74c3c;
+              color: white;
+              border: 1px solid #c0392b;
+              font-size: 12px;
+              padding: 6px 15px;
+              margin: 0;
+            ">
+                    🚪 IEȘIRE
+                </button>
             </div>
         </div>
     </nav>
 
     <div id="btn-lupa-mobil" class="btn-mobil-toggle"
-        onclick="document.querySelector('.panel').classList.toggle('activ')">🔍</div>
+        onclick="document.querySelector('.panel').classList.toggle('activ')">
+        🔍
+    </div>
 
-    <div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">🔔</div>
+    <div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">
+        🔔
+    </div>
 
     <div class="panel">
         <label>🔍 Căutare Utilaj</label>
         <input type="text" id="searchInput" placeholder="Nume sau Cod..."
-            onkeyup="if(event.key==='Enter') cautaSmart()">
+            onkeyup="if (event.key === 'Enter') cautaSmart();" />
         <label>📂 Filtru Secție</label>
-        <select id="filterSectie" onchange="cauta(); zoomSectie(this.value)">
+        <select id="filterSectie" onchange="
+          cauta();
+          zoomSectie(this.value);
+        ">
             <option value="Toate">Toate Secțiile</option>
             <option value="Spălare">Spălare</option>
             <option value="Tranșare">Tranșare</option>
@@ -768,37 +808,74 @@
         <span class="close-modal-pro no-print" onclick="inchideModal('reportModal')">&times;</span>
         <div class="modal-c">
             <div class="report-side">
-                <h3 style="margin-top:0;">📊 Statisici Generale</h3>
-                <div
-                    style="background:#2c3e50; color:white; padding:25px; border-radius:20px; text-align:center; margin-bottom:20px;">
-                    <h1 id="totalInterventii" style="margin:0; color:#2ecc71; font-size:45px;">0</h1>
-                    <p style="font-size:10px; font-weight:bold; opacity:0.8;">INTERVENȚII ÎNREGISTRATE</p>
+                <h3 style="margin-top: 0">📊 Statisici Generale</h3>
+                <div style="
+              background: #2c3e50;
+              color: white;
+              padding: 25px;
+              border-radius: 20px;
+              text-align: center;
+              margin-bottom: 20px;
+            ">
+                    <h1 id="totalInterventii" style="margin: 0; color: #2ecc71; font-size: 45px">
+                        0
+                    </h1>
+                    <p style="font-size: 10px; font-weight: bold; opacity: 0.8">
+                        INTERVENȚII ÎNREGISTRATE
+                    </p>
                 </div>
                 <p>✅ UTILAJE OK: <b id="statOK">0</b></p>
                 <p>⚠️ ATENȚIE (>30z): <b id="statAtentie">0</b></p>
                 <p>🚨 CRITIC (>90z): <b id="statCritic">0</b></p>
-                <div class="no-print"
-                    style="margin-top:auto; padding-top:20px; display:flex; flex-direction:column; gap:10px;">
-                    <button onclick="exportaTotExcel()"
-                        style="width:100%; background:var(--excel); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">📥
-                        DESCARCĂ EXCEL</button>
-                    <button onclick="printeazaElement('reportModal')"
-                        style="width:100%; background:var(--print); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">🖨️
-                        PRINTARE RAPORT</button>
+                <div class="no-print" style="
+              margin-top: auto;
+              padding-top: 20px;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+            ">
+                    <button onclick="exportaTotExcel()" style="
+                width: 100%;
+                background: var(--excel);
+                color: white;
+                border: none;
+                padding: 15px;
+                border-radius: 12px;
+                font-weight: bold;
+                cursor: pointer;
+              ">
+                        📥 DESCARCĂ EXCEL
+                    </button>
+                    <button onclick="printeazaElement('reportModal')" style="
+                width: 100%;
+                background: var(--print);
+                color: white;
+                border: none;
+                padding: 15px;
+                border-radius: 12px;
+                font-weight: bold;
+                cursor: pointer;
+              ">
+                        🖨️ PRINTARE RAPORT
+                    </button>
                 </div>
             </div>
             <div class="report-main">
-                <h3 style="margin-top:0;">🕒 Ultimele Intervenții (Live)</h3>
+                <h3 style="margin-top: 0">🕒 Ultimele Intervenții (Live)</h3>
                 <div class="scroll-v">
                     <table>
                         <thead>
                             <tr>
-                                <th style="text-align: left; padding: 12px;">Data / Ora</th>
-                                <th style="text-align: left; padding: 12px;">Cod ID</th>
-                                <th style="text-align: left; padding: 12px;">Denumire Utilaj</th>
-                                <th style="text-align: left; padding: 12px;">Secție</th>
-                                <th style="text-align: left; padding: 12px;">Mecanic</th>
-                                <th style="text-align: left; padding: 12px;">Operațiuni Efectuate</th>
+                                <th style="text-align: left; padding: 12px">Data / Ora</th>
+                                <th style="text-align: left; padding: 12px">Cod ID</th>
+                                <th style="text-align: left; padding: 12px">
+                                    Denumire Utilaj
+                                </th>
+                                <th style="text-align: left; padding: 12px">Secție</th>
+                                <th style="text-align: left; padding: 12px">Mecanic</th>
+                                <th style="text-align: left; padding: 12px">
+                                    Operațiuni Efectuate
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="corpFluxLive"></tbody>
@@ -810,25 +887,58 @@
 
     <div id="historyModal" class="modal">
         <span class="close-modal-pro no-print" onclick="inchideModal('historyModal')">&times;</span>
-        <div class="modal-c" style="flex-direction:column; max-width:950px; background:white;">
-            <div
-                style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid var(--primary); padding-bottom:15px; margin-bottom:15px;">
+        <div class="modal-c" style="flex-direction: column; max-width: 950px; background: white">
+            <div style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+          ">
                 <div>
-                    <h2 id="histNume" style="margin:0; color:var(--primary); font-size:28px;">-</h2>
-                    <p id="histModel" style="color:#666; margin:5px 0 0; font-weight:bold;"></p>
+                    <h2 id="histNume" style="margin: 0; color: var(--primary); font-size: 28px">
+                        -
+                    </h2>
+                    <p id="histModel" style="color: #666; margin: 5px 0 0; font-weight: bold"></p>
                 </div>
-                <img src="logo.png" style="height:50px;" class="print-only-logo">
+                <img src="logo.png" style="height: 50px" class="print-only-logo" />
             </div>
-            <div class="no-print" style="display:flex; gap:15px; margin-bottom:20px;">
-                <button id="btnExcelIndv"
-                    style="flex:1; background:var(--excel); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">📥
-                    EXPORT EXCEL</button>
-                <button onclick="printeazaElement('historyModal')"
-                    style="flex:1; background:var(--print); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer;">🖨️
-                    PRINTARE FIȘĂ UTILAJ</button>
-                <button onclick="printeazaQRIndividual()"
-                    style="background:#8e44ad; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">🖨️
-                    DOAR ACEST QR</button>
+            <div class="no-print" style="display: flex; gap: 15px; margin-bottom: 20px">
+                <button id="btnExcelIndv" style="
+              flex: 1;
+              background: var(--excel);
+              color: white;
+              border: none;
+              padding: 15px;
+              border-radius: 12px;
+              font-weight: bold;
+              cursor: pointer;
+            ">
+                    📥 EXPORT EXCEL
+                </button>
+                <button onclick="printeazaElement('historyModal')" style="
+              flex: 1;
+              background: var(--print);
+              color: white;
+              border: none;
+              padding: 15px;
+              border-radius: 12px;
+              font-weight: bold;
+              cursor: pointer;
+            ">
+                    🖨️ PRINTARE FIȘĂ UTILAJ
+                </button>
+                <button onclick="printeazaQRIndividual()" style="
+              background: #8e44ad;
+              color: white;
+              border: none;
+              padding: 10px;
+              border-radius: 8px;
+              cursor: pointer;
+            ">
+                    🖨️ DOAR ACEST QR
+                </button>
             </div>
             <div class="scroll-v">
                 <table>
@@ -849,49 +959,88 @@
     <div id="alert-panel" class="alert-hidden">
         <div class="alert-header">
             <span>⚠️ Alerte Mentenanță</span>
-            <span onclick="inchideAlarmaManual()"
-                style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:4px; font-size:10px;">❌
-                ÎNCHIDE</span>
+            <span onclick="inchideAlarmaManual()" style="
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+          ">❌ ÎNCHIDE</span>
         </div>
         <div id="alert-list"></div>
     </div>
     <div id="personalModal" class="modal">
         <span class="close-modal-pro no-print" onclick="inchideModal('personalModal')">&times;</span>
         <div class="modal-c">
-            <div class="report-side" style="background: white;">
-                <h3 style="margin-top:0; color: var(--primary);">👥 Personal Intervenții</h3>
-                <p
-                    style="font-size: 11px; color:#7f8c8d; font-weight: bold; margin-top: -5px; text-transform: uppercase;">
-                    Selectează utilizatorul:</p>
+            <div class="report-side" style="background: white">
+                <h3 style="margin-top: 0; color: var(--primary)">
+                    👥 Personal Intervenții
+                </h3>
+                <p style="
+              font-size: 11px;
+              color: #7f8c8d;
+              font-weight: bold;
+              margin-top: -5px;
+              text-transform: uppercase;
+            ">
+                    Selectează utilizatorul:
+                </p>
 
-                <div id="listaPersonalNume"
-                    style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
-                </div>
+                <div id="listaPersonalNume" style="
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+              margin-bottom: 20px;
+            "></div>
 
-                <div class="no-print" style="margin-top:auto; padding-top:15px;">
-                    <button id="btnExcelPersonal" onclick="exportaExcelPersonal()"
-                        style="width:100%; background:var(--excel); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold; cursor:pointer; display:none; transition: 0.2s;">📥
-                        EXPORT EXCEL PERSOANĂ</button>
+                <div class="no-print" style="margin-top: auto; padding-top: 15px">
+                    <button id="btnExcelPersonal" onclick="exportaExcelPersonal()" style="
+                width: 100%;
+                background: var(--excel);
+                color: white;
+                border: none;
+                padding: 15px;
+                border-radius: 12px;
+                font-weight: bold;
+                cursor: pointer;
+                display: none;
+                transition: 0.2s;
+              ">
+                        📥 EXPORT EXCEL PERSOANĂ
+                    </button>
                 </div>
             </div>
 
-            <div class="report-main" style="background: white;">
-                <h3 id="titluAuditPersonal" style="margin-top:0; color: var(--primary);">🕒 Istoric Intervenții</h3>
+            <div class="report-main" style="background: white">
+                <h3 id="titluAuditPersonal" style="margin-top: 0; color: var(--primary)">
+                    🕒 Istoric Intervenții
+                </h3>
                 <div class="scroll-v">
                     <table>
                         <thead>
                             <tr>
-                                <th style="text-align: left; padding: 12px;">Data / Ora</th>
-                                <th style="text-align: left; padding: 12px;">Cod ID</th>
-                                <th style="text-align: left; padding: 12px;">Denumire Utilaj</th>
-                                <th style="text-align: left; padding: 12px;">Secție</th>
-                                <th style="text-align: left; padding: 12px;">Operațiuni Efectuate</th>
+                                <th style="text-align: left; padding: 12px">Data / Ora</th>
+                                <th style="text-align: left; padding: 12px">Cod ID</th>
+                                <th style="text-align: left; padding: 12px">
+                                    Denumire Utilaj
+                                </th>
+                                <th style="text-align: left; padding: 12px">Secție</th>
+                                <th style="text-align: left; padding: 12px">
+                                    Operațiuni Efectuate
+                                </th>
                             </tr>
                         </thead>
                         <tbody id="corpAuditPersonal">
                             <tr>
-                                <td colspan="5" style="text-align:center; color:#999; padding:60px; font-weight:bold;">
-                                    👈 Selectează o persoană din stânga pentru a-i deschide raportul de activitate.</td>
+                                <td colspan="5" style="
+                      text-align: center;
+                      color: #999;
+                      padding: 60px;
+                      font-weight: bold;
+                    ">
+                                    👈 Selectează o persoană din stânga pentru a-i deschide
+                                    raportul de activitate.
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -904,12 +1053,23 @@
         const firebaseConfig = {
             apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
             authDomain: "killer-mentenanta.firebaseapp.com",
-            databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
+            databaseURL:
+                "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "killer-mentenanta",
             storageBucket: "killer-mentenanta.firebasestorage.app",
             messagingSenderId: "434460062600",
-            appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
+            appId: "1:434460062600:web:38a2ff00266c3c1dff403d",
         };
+        const permissionMatrix = {
+            admin: ["add_machine", "delete_machine", "edit_history", "add_ticket"],
+            mecanic: ["edit_history", "add_ticket"],
+            operator: ["add_ticket"],
+        };
+        function canPerform(action) {
+            const rol = sessionStorage.getItem("user_rol");
+            if (!rol || !permissionMatrix[rol]) return false;
+            return permissionMatrix[rol].includes(action);
+        }
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
@@ -921,19 +1081,24 @@
         // VARIABILĂ GLOBALĂ PENTRU A ȚINE MINTE CĂ AI ÎNCHIS ALARMA
         let alertaInchisaManual = false;
 
-
-
-
         // 🗺️ INITIALIZARE HARTĂ (Lăsată la nivel global pentru a fi accesibilă peste tot)
-        var map = L.map('map', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 3, zoomControl: false });
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
-        L.imageOverlay('harta.jpg', [[0, 0], [1000, 1400]]).addTo(map);
+        var map = L.map("map", {
+            crs: L.CRS.Simple,
+            minZoom: 0,
+            maxZoom: 3,
+            zoomControl: false,
+        });
+        L.control.zoom({ position: "bottomright" }).addTo(map);
+        L.imageOverlay("harta.jpg", [
+            [0, 0],
+            [1000, 1400],
+        ]).addTo(map);
         map.setView([500, 700], 0.5);
 
         // 1. Încărcare INSTANTANEE din memoria telefonului (pentru viteză și mod offline)
         // O facem imediat cum se deschide fișierul, ca să nu aștepte Firebase-ul
-        window.addEventListener('DOMContentLoaded', () => {
-            const backup = localStorage.getItem('backup_utilaje');
+        window.addEventListener("DOMContentLoaded", () => {
+            const backup = localStorage.getItem("backup_utilaje");
             if (backup) {
                 dbRaw = JSON.parse(backup);
                 afiseazaPuncte(); // Asta pune pinii pe hartă instant!
@@ -947,16 +1112,28 @@
         // 2. 🛡️ Conectare la Firebase (când avem net) pentru a trage datele actualizate live
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
+                // Ascundem butoanele complexe dacă e operator
+                const rol = sessionStorage.getItem("user_rol");
+                if (rol === "operator") {
+                    document.getElementById("btn-view-dash").style.display = "none";
+                    document.getElementById("btn-view-pers").style.display = "none";
+                    document.getElementById("btn-view-admin").style.display = "none";
+                    document.getElementById("btn-view-qr").style.display = "none";
+                }
+
                 if (navigator.onLine) {
-                    firebase.database().ref('utilaje').on('value', (snap) => {
-                        dbRaw = snap.val() || {};
-                        
-                        // 💾 Salvăm copia proaspătă în telefon
-                        localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
-                        
-                        afiseazaPuncte(); // Actualizăm pinii cu datele noi din cloud
-                        verificaAlarmeMentenanta(); 
-                    });
+                    firebase
+                        .database()
+                        .ref("utilaje")
+                        .on("value", (snap) => {
+                            dbRaw = snap.val() || {};
+
+                            // 💾 Salvăm copia proaspătă în telefon
+                            localStorage.setItem("backup_utilaje", JSON.stringify(dbRaw));
+
+                            afiseazaPuncte(); // Actualizăm pinii cu datele noi din cloud
+                            verificaAlarmeMentenanta();
+                        });
                 }
             } else {
                 // Acces interzis fără parolă
@@ -965,30 +1142,32 @@
         });
 
         // Siguranță pentru ecranul de loading
-        setTimeout(() => { document.getElementById('loading-screen').style.display = 'none'; }, 4000);
+        setTimeout(() => {
+            document.getElementById("loading-screen").style.display = "none";
+        }, 4000);
         // Modifică lista astfel încât să recunoască și ID-ul cu tot cu "K-"
         // Lista unificată (include tot ce ai nevoie pentru ambele pagini)
-const configuratieAlarme = { 
-    "9728": 30, 
-    "6355": 30, 
-    "1111": 14, 
-    "2222": 14, 
-    "3333": 14, 
-    "4444": 14, 
-    "9902": 14,
-    "5061": 14 
-};
+        const configuratieAlarme = {
+            9728: 30,
+            6355: 30,
+            1111: 14,
+            2222: 14,
+            3333: 14,
+            4444: 14,
+            9902: 14,
+            5061: 14,
+        };
         function afiseazaPuncte() {
             if (!dbRaw) return;
-            const filtru = document.getElementById('filterSectie').value;
+            const filtru = document.getElementById("filterSectie").value;
 
             // Curățăm markerii
-            markersList.forEach(m => map.removeLayer(m));
+            markersList.forEach((m) => map.removeLayer(m));
             markersList = [];
 
             //const configuratieAlarme = { "9728": 30, "6355": 30, "9902": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
 
-            Object.keys(dbRaw).forEach(id => {
+            Object.keys(dbRaw).forEach((id) => {
                 const u = dbRaw[id];
                 if (filtru !== "Toate" && u.sectie !== filtru) return;
                 if (!u.lat || !u.lng) return;
@@ -996,12 +1175,17 @@ const configuratieAlarme = {
                 // 1. Calculăm revizia folosind funcția noastră sigură
                 const ultimaRev = gasesteUltimaRevizie(u.istoric);
                 const z = ultimaRev ? calculeazaZile(ultimaRev.data) : 999;
-                const limitaZile = configuratieAlarme[id] || configuratieAlarme[id.replace("K-", "")] || configuratieAlarme[parseInt(id.replace("K-", ""))] || 30;
+                const limitaZile =
+                    configuratieAlarme[id] ||
+                    configuratieAlarme[id.replace("K-", "")] ||
+                    configuratieAlarme[parseInt(id.replace("K-", ""))] ||
+                    30;
 
                 // 2. Calculăm culoarea
                 let col = "#2ecc71"; // Verde
-                if (z >= limitaZile && z < (limitaZile * 3)) col = "#f39c12"; // Portocaliu
-                else if (z >= (limitaZile * 3)) col = "#e74c3c"; // Roșu
+                if (z >= limitaZile && z < limitaZile * 3)
+                    col = "#f39c12"; // Portocaliu
+                else if (z >= limitaZile * 3) col = "#e74c3c"; // Roșu
 
                 // 3. Obținem ultima activitate sigură (fără istArr)
                 let ultimaActivitate = "Mentenanță";
@@ -1009,15 +1193,22 @@ const configuratieAlarme = {
 
                 if (u.istoric) {
                     // Sortăm rapid local ca să obținem ultima activitate
-                    const toateActiunile = Object.values(u.istoric).sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
+                    const toateActiunile = Object.values(u.istoric).sort(
+                        (a, b) => obtineTimp(b.data) - obtineTimp(a.data),
+                    );
                     if (toateActiunile.length > 0) {
                         dataUltimaActivitate = toateActiunile[0].data;
-                        ultimaActivitate = toateActiunile[0].verificari || toateActiunile[0].tip || "Mentenanță";
+                        ultimaActivitate =
+                            toateActiunile[0].verificari ||
+                            toateActiunile[0].tip ||
+                            "Mentenanță";
                     }
                 }
 
-                const esteSelectat = (id === selectedId);
-                const clasaPin = esteSelectat ? 'custom-pin pin-selectat' : 'custom-pin';
+                const esteSelectat = id === selectedId;
+                const clasaPin = esteSelectat
+                    ? "custom-pin pin-selectat"
+                    : "custom-pin";
 
                 const customIcon = L.divIcon({
                     className: clasaPin,
@@ -1027,26 +1218,52 @@ const configuratieAlarme = {
                     <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 30 15 30s15-19.5 15-30c0-8.3-6.7-15-15-15z" fill="${col}" stroke="#fff" stroke-width="0.5"/>
                     <circle cx="15" cy="15" r="5.5" fill="white"/>
                 </svg>`,
-                    iconSize: [30, 45], iconAnchor: [15, 45], popupAnchor: [0, -45]
+                    iconSize: [30, 45],
+                    iconAnchor: [15, 45],
+                    popupAnchor: [0, -45],
                 });
 
-                const m = L.marker([u.lat, u.lng], { icon: customIcon, zIndexOffset: esteSelectat ? 1000 : 0 }).addTo(map);
+                const m = L.marker([u.lat, u.lng], {
+                    icon: customIcon,
+                    zIndexOffset: esteSelectat ? 1000 : 0,
+                }).addTo(map);
 
+                // --- 🔒 GENERĂM AFIȘAJUL ÎN FUNCȚIE DE ROL ---
+                const rolCurent = sessionStorage.getItem("user_rol") || "operator";
+                let zonaButoane = "";
+                let zonaInfoTehnic = "";
+
+                if (rolCurent === "operator") {
+                    // Operatorul vede DOAR butonul roșu, FĂRĂ detalii tehnice
+                    zonaButoane = `<button class="btn-history" style="width:100%; margin-top:0; background:#e74c3c; border-color:#c0392b; color:white; font-weight:bold; font-size:14px; padding:10px;" onclick="trimiteSesizare('${id}')">🚨 RAPORTEAZĂ DEFECT</button>`;
+                    // zonaInfoTehnic rămâne goală (ascunsă) pentru el
+                } else {
+                    // Adminul și Mecanicul văd toate detaliile tehnice...
+                    zonaInfoTehnic = `
+                        <div class="last-info">
+                            <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
+                            <span style="color:#666; font-size:11px;">Ultima revizie: ${ultimaRev ? ultimaRev.data : "Niciuna"}</span><br>
+                            <span style="color:#666; font-size:11px;">Ultima activitate: ${dataUltimaActivitate}</span><br>
+                            <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px;">Recent: ${ultimaActivitate}</i>
+                        </div>
+                    `;
+                    // ...și butoanele complete de lucru
+                    zonaButoane = `
+                        <button class="btn-history" style="flex:1; margin-top:0;" onclick="deschideHist('${id}')">📜 ISTORIC</button>
+                        <a href="edit.html?id=${id}" class="btn-history" style="flex:1; margin-top:0; background:#3498db; text-decoration:none; text-align:center; box-sizing:border-box;">🔧 INTERVENȚIE</a>
+                    `;
+                }
+
+                // 🗺️ ATAȘĂM POPUP-UL FINAL
                 m.bindPopup(`
             <div class="popup-header">
                 <h3>${u.nume}</h3>
                 <p>ID: ${u.id} | ${u.sectie}</p>
             </div>
             <div class="popup-body">
-                <div class="last-info">
-                    <b style="color:${col}; font-size:14px;">Zile de la revizie: ${z}</b><br>
-                    <span style="color:#666; font-size:11px;">Ultima revizie: ${ultimaRev ? ultimaRev.data : "Niciuna"}</span><br>
-                    <span style="color:#666; font-size:11px;">Ultima activitate: ${dataUltimaActivitate}</span><br>
-                    <i style="color:#444; margin-top:5px; display:block; padding:5px; background:#f8f9fa; border-radius:5px;">Recent: ${ultimaActivitate}</i>
-                </div>
+                ${zonaInfoTehnic}
                 <div style="display:flex; gap:5px; margin-top:10px;">
-                    <button class="btn-history" style="flex:1; margin-top:0;" onclick="deschideHist('${id}')">📜 ISTORIC</button>
-                    <a href="edit.html?id=${id}" class="btn-history" style="flex:1; margin-top:0; background:#3498db; text-decoration:none; text-align:center; box-sizing:border-box;">🔧 INTERVENȚIE</a>
+                    ${zonaButoane}
                 </div>
             </div>
         `);
@@ -1054,16 +1271,20 @@ const configuratieAlarme = {
                 markersList.push(m);
             });
         }
-
         // --- START TRADUCĂTOR DATE ---
         function obtineTimp(dataString) {
-            if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
-            const curat = dataString.replace(/[^0-9./-]/g, '').trim();
+            if (!dataString || dataString === "-" || dataString.trim() === "")
+                return 0;
+            const curat = dataString.replace(/[^0-9./-]/g, "").trim();
             const part = curat.split(/[./-]/);
             if (part.length < 3) return 0;
 
             let d, m, y;
-            if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
+            if (part[0].length === 4) {
+                [y, m, d] = part;
+            } else {
+                [d, m, y] = part;
+            }
 
             return new Date(y, m - 1, d).getTime();
         }
@@ -1072,14 +1293,15 @@ const configuratieAlarme = {
             const timp = obtineTimp(dataString);
             if (timp === 0) return 999;
             const dt = new Date(timp);
-            const azi = new Date(); azi.setHours(0, 0, 0, 0);
+            const azi = new Date();
+            azi.setHours(0, 0, 0, 0);
             const diff = Math.floor((azi - dt) / 86400000);
-            return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+            return isNaN(diff) ? 999 : diff < 0 ? 0 : diff;
         }
 
         function gasesteUltimaRevizie(istoric) {
             if (!istoric) return null;
-            let revizii = Object.values(istoric).filter(i => i.revizie === true);
+            let revizii = Object.values(istoric).filter((i) => i.revizie === true);
             if (revizii.length === 0) return null;
 
             revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
@@ -1087,33 +1309,55 @@ const configuratieAlarme = {
         }
         // --- END TRADUCĂTOR DATE ---
         window.zoomSectie = function (sectie) {
-            if (sectie === "Toate") { map.setView([500, 700], 0.5); return; }
+            if (sectie === "Toate") {
+                map.setView([500, 700], 0.5);
+                return;
+            }
             const bounds = [];
-            if (typeof dbRaw === 'undefined' || !dbRaw) return;
-            Object.values(dbRaw).forEach(u => {
-                if (u.sectie && u.sectie.trim().toLowerCase() === sectie.toLowerCase() && u.lat && u.lng) { bounds.push([u.lat, u.lng]); }
+            if (typeof dbRaw === "undefined" || !dbRaw) return;
+            Object.values(dbRaw).forEach((u) => {
+                if (
+                    u.sectie &&
+                    u.sectie.trim().toLowerCase() === sectie.toLowerCase() &&
+                    u.lat &&
+                    u.lng
+                ) {
+                    bounds.push([u.lat, u.lng]);
+                }
             });
-            if (bounds.length > 0) { map.flyToBounds(bounds, { padding: [100, 100], duration: 1.5, easeLinearity: 0.25 }); }
-            else { alert("Nu există utilaje înregistrate în secția: " + sectie); }
+            if (bounds.length > 0) {
+                map.flyToBounds(bounds, {
+                    padding: [100, 100],
+                    duration: 1.5,
+                    easeLinearity: 0.25,
+                });
+            } else {
+                alert("Nu există utilaje înregistrate în secția: " + sectie);
+            }
         };
 
         function cautaSmart() {
             clearTimeout(searchTimer);
-            searchTimer = setTimeout(() => { cauta(); }, 300);
+            searchTimer = setTimeout(() => {
+                cauta();
+            }, 300);
         }
 
         function inchideModal(idModal) {
-            document.getElementById(idModal).style.display = 'none';
-            document.getElementById(idModal).classList.remove('print-active');
+            document.getElementById(idModal).style.display = "none";
+            document.getElementById(idModal).classList.remove("print-active");
         }
 
         function deschideRapoarte() {
-            let ok = 0, wr = 0, cr = 0, total = 0;
-            const cF = document.getElementById('corpFluxLive');
+            let ok = 0,
+                wr = 0,
+                cr = 0,
+                total = 0;
+            const cF = document.getElementById("corpFluxLive");
             cF.innerHTML = "";
             let fl = [];
 
-            Object.values(dbRaw).forEach(u => {
+            Object.values(dbRaw).forEach((u) => {
                 let maxZile = 0;
                 if (u.istoric) {
                     const arr = Object.values(u.istoric).reverse();
@@ -1123,11 +1367,15 @@ const configuratieAlarme = {
                     if (ultimaRev) {
                         maxZile = calculeazaZile(ultimaRev.data);
                     }
-                    arr.forEach(i => {
+                    arr.forEach((i) => {
                         fl.push({
                             ts: i.timestamp || new Date(i.data).getTime(),
-                            d: i.data, n: u.nume, s: u.sectie,
-                            m: i.mecanic || '-', a: i.verificari || i.tip || '-', id: u.id
+                            d: i.data,
+                            n: u.nume,
+                            s: u.sectie,
+                            m: i.mecanic || "-",
+                            a: i.verificari || i.tip || "-",
+                            id: u.id,
                         });
                     });
                 }
@@ -1136,24 +1384,26 @@ const configuratieAlarme = {
                 else cr++;
             });
 
-            document.getElementById('totalInterventii').innerText = total;
-            document.getElementById('statOK').innerText = ok;
-            document.getElementById('statAtentie').innerText = wr;
-            document.getElementById('statCritic').innerText = cr;
+            document.getElementById("totalInterventii").innerText = total;
+            document.getElementById("statOK").innerText = ok;
+            document.getElementById("statAtentie").innerText = wr;
+            document.getElementById("statCritic").innerText = cr;
 
-            fl.sort((a, b) => b.ts - a.ts).slice(0, 50).forEach(f => {
-                let afisareOra = "";
-                if (f.ts) {
-                    const d = new Date(f.ts);
-                    const ore = String(d.getHours()).padStart(2, '0');
-                    const minute = String(d.getMinutes()).padStart(2, '0');
-                    afisareOra = ` <span style="color:#7f8c8d; font-size:11px; font-weight:normal; margin-left:6px;">🕒 ${ore}:${minute}</span>`;
-                }
+            fl.sort((a, b) => b.ts - a.ts)
+                .slice(0, 50)
+                .forEach((f) => {
+                    let afisareOra = "";
+                    if (f.ts) {
+                        const d = new Date(f.ts);
+                        const ore = String(d.getHours()).padStart(2, "0");
+                        const minute = String(d.getMinutes()).padStart(2, "0");
+                        afisareOra = ` <span style="color:#7f8c8d; font-size:11px; font-weight:normal; margin-left:6px;">🕒 ${ore}:${minute}</span>`;
+                    }
 
-                // 🚀 AICI TRANSFORMĂM ETICHETA ÎN LINK DIRECT CĂTRE ISTORIC
-                const etichetaId = ` <a href="#" onclick="deschideHist('${f.id}'); return false;" style="background:#3498db; color:white; padding:2px 8px; border-radius:4px; font-size:11px; margin-left:6px; font-weight:bold; font-family:monospace; text-decoration:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); transition:0.2s;">🔍 ${f.id}</a>`;
+                    // 🚀 AICI TRANSFORMĂM ETICHETA ÎN LINK DIRECT CĂTRE ISTORIC
+                    const etichetaId = ` <a href="#" onclick="deschideHist('${f.id}'); return false;" style="background:#3498db; color:white; padding:2px 8px; border-radius:4px; font-size:11px; margin-left:6px; font-weight:bold; font-family:monospace; text-decoration:none; box-shadow:0 2px 5px rgba(0,0,0,0.2); transition:0.2s;">🔍 ${f.id}</a>`;
 
-                cF.innerHTML += `<tr>
+                    cF.innerHTML += `<tr>
             <td style="white-space: nowrap; min-width: 120px;"><b>${f.d}</b>${afisareOra}</td>
             <td style="white-space: nowrap; text-align: center; width: 90px;">${etichetaId}</td>
             <td style="white-space: nowrap; min-width: 200px;"><b>${f.n}</b></td>
@@ -1161,188 +1411,358 @@ const configuratieAlarme = {
             <td style="white-space: nowrap;">${f.m}</td>
             <td style="min-width: 180px;">${f.a}</td>
         </tr>`;
-            });
+                });
 
-            document.getElementById('reportModal').style.display = "flex";
+            document.getElementById("reportModal").style.display = "flex";
         }
         function deschideHist(id) {
             const u = dbRaw[id];
-            document.getElementById('histNume').innerText = u.nume;
-            document.getElementById('histModel').innerText = "Cod ID: " + u.id + " | Secție: " + u.sectie;
-            const c = document.getElementById('corpIstoricIndividual');
-            c.innerHTML = "";
-            document.querySelector('#historyModal table thead tr').innerHTML = `<th>Data</th><th>Mecanic</th><th>Operațiuni & Audit Management</th><th>Observații</th><th>Foto</th>`;
+            document.getElementById("histNume").innerText = u.nume;
+            document.getElementById("histModel").innerText =
+                "Cod ID: " + u.id + " | Secție: " + u.sectie;
 
+            const c = document.getElementById("corpIstoricIndividual");
+            // Afișăm un mesaj de încărcare până aducem ticketele de pe server
+            c.innerHTML =
+                "<tr><td colspan='5' style='text-align:center; padding: 30px;'>⏳ Se construiește dosarul complet al utilajului...</td></tr>";
+
+            // Am actualizat antetul tabelului ca să aibă sens și pentru sesizări
+            document.querySelector("#historyModal table thead tr").innerHTML =
+                `<th>Data</th><th>Efectuat / Raportat de</th><th>Operațiuni & Status</th><th>Observații / Defect</th><th>Foto</th>`;
+
+            document.getElementById("historyModal").style.display = "flex";
+
+            // 1. PREGĂTIM ISTORICUL DE MENTENANȚĂ (Revizii + Reparații)
+            let istoricCombinat = [];
             if (u.istoric) {
-                // 🧠 ALGORITMUL DE AUDIT: Sortăm cronologic de la vechi la nou pentru a calcula diferența
-                const istoricArray = Object.values(u.istoric).sort((a, b) => {
-                    const dateA = new Date(a.data);
-                    const dateB = new Date(b.data);
-                    return dateA - dateB;
+                Object.values(u.istoric).forEach((i) => {
+                    istoricCombinat.push({
+                        tip: "mentenanta",
+                        data: i.data,
+                        timestamp: i.timestamp || new Date(i.data).getTime(),
+                        mecanic: i.mecanic || "-",
+                        verificari: i.verificari || i.tip || "-",
+                        obs: i.obs || "-",
+                        revizie: i.revizie || false,
+                        foto: i.foto || "",
+                    });
                 });
-
-                let previousRevDate = null;
-                let historyRows = [];
-
-                istoricArray.forEach(i => {
-                    let indicatorRev = "";
-                    let auditText = "";
-
-                    if (i.revizie) {
-                        indicatorRev = `<span style="background:#27ae60; color:white; padding:3px 6px; border-radius:5px; font-size:10px;">REVIZIE</span> `;
-
-                        if (previousRevDate) {
-                            // Calculăm matematica: Câte zile au trecut între această revizie și cea dinaintea ei?
-                            const diffTime = Math.abs(new Date(i.data) - previousRevDate);
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                            if (diffDays > 30) {
-                                const intarziere = diffDays - 30;
-                                auditText = `<div style="color: #e74c3c; font-size: 11px; font-weight: bold; margin-top: 5px; background: rgba(231,76,60,0.1); padding: 5px; border-radius: 4px; display: inline-block; border: 1px solid rgba(231,76,60,0.3);">⚠️ EFECTUAT LA ${diffDays} ZILE (Întârziere: ${intarziere} zile)</div>`;
-                            } else {
-                                auditText = `<div style="color: #27ae60; font-size: 11px; font-weight: bold; margin-top: 5px; background: rgba(46,204,113,0.1); padding: 5px; border-radius: 4px; display: inline-block; border: 1px solid rgba(46,204,113,0.3);">✅ EFECTUAT LA TIMP (${diffDays} zile)</div>`;
-                            }
-                        } else {
-                            auditText = `<div style="color: #3498db; font-size: 11px; font-weight: bold; margin-top: 5px; background: rgba(52,152,219,0.1); padding: 5px; border-radius: 4px; display: inline-block; border: 1px solid rgba(52,152,219,0.3);">ℹ️ Prima revizie înregistrată pe platformă</div>`;
-                        }
-                        previousRevDate = new Date(i.data);
-                    }
-
-                    const linkFoto = (i.foto && i.foto !== "") ? `<a href="${i.foto}" target="_blank" style="background:var(--primary); color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:11px; font-weight:bold;">📷 VEZI</a>` : "-";
-
-                    let afisareOra = "";
-                    if (i.timestamp) {
-                        const d = new Date(i.timestamp);
-                        const ore = String(d.getHours()).padStart(2, '0');
-                        const minute = String(d.getMinutes()).padStart(2, '0');
-                        afisareOra = `<span style="color:#7f8c8d; font-size:11px; display:block;">🕒 ${ore}:${minute}</span>`;
-                    }
-
-                    historyRows.push(`<tr>
-                <td style="min-width: 90px;"><b>${i.data}</b>${afisareOra}</td>
-                <td><b>${i.mecanic || '-'}</b></td>
-                <td>${indicatorRev} ${i.verificari || i.tip || '-'}<br>${auditText}</td>
-                <td>${i.obs || '-'}</td>
-                <td style="text-align:center;">${linkFoto}</td>
-            </tr>`);
-                });
-
-                // 🔄 Inversăm array-ul la final pentru a le afișa pe cele mai noi sus în tabel!
-                c.innerHTML = historyRows.reverse().join("");
-            } else {
-                c.innerHTML = "<tr><td colspan='5' style='text-align:center;'>Niciun istoric găsit.</td></tr>";
             }
 
-            document.getElementById('historyModal').style.display = "flex";
-        }
+            // 2. TRAGEM SESIZĂRILE DIN FIREBASE (Doar cele pentru acest utilaj)
+            firebase
+                .database()
+                .ref("sesizari")
+                .orderByChild("utilajId")
+                .equalTo(id)
+                .once("value")
+                .then((snap) => {
+                    const sesizari = snap.val();
+                    if (sesizari) {
+                        Object.values(sesizari).forEach((s) => {
+                            // Adăugăm ticketele în același format
+                            istoricCombinat.push({
+                                tip: "sesizare",
+                                data: s.dataTrimiterii.split(" ")[0], // Păstrăm formatul scurt al datei
+                                timestamp: s.timestamp,
+                                mecanic: s.raportatDe || "Operator Necunoscut", // Cine a raportat
+                                verificari:
+                                    s.status === "rezolvat"
+                                        ? "🛠️ DEFECT REMEDIAT"
+                                        : "🚨 DEFECT ACTIV",
+                                status: s.status,
+                                obs: s.problema,
+                                revizie: false,
+                                foto: "",
+                            });
+                        });
+                    }
 
+                    // 3. AFIȘĂM REZULTATUL FINAL
+                    if (istoricCombinat.length === 0) {
+                        c.innerHTML =
+                            "<tr><td colspan='5' style='text-align:center;'>Niciun istoric și nicio sesizare găsită pentru acest utilaj.</td></tr>";
+                        return;
+                    }
+
+                    // Sortăm cronologic (de la vechi la nou) pentru algoritmul de Audit al Reviziilor
+                    istoricCombinat.sort((a, b) => a.timestamp - b.timestamp);
+
+                    let previousRevDate = null;
+                    let historyRows = [];
+
+                    istoricCombinat.forEach((i) => {
+                        let indicator = "";
+                        let auditText = "";
+                        let stilRand = "";
+
+                        // CUM COLORĂM TICKETELE RAPORTATE DE OPERATORI:
+                        if (i.tip === "sesizare") {
+                            if (i.status === "rezolvat") {
+                                indicator = `<span style="background:#34495e; color:white; padding:3px 6px; border-radius:5px; font-size:10px;">TICKET ÎNCHIS</span> `;
+                                stilRand = `background: rgba(236, 240, 241, 0.4);`; // Fundal gri discret
+                            } else {
+                                indicator = `<span style="background:#e74c3c; color:white; padding:3px 6px; border-radius:5px; font-size:10px; box-shadow: 0 0 5px red;">URGENȚĂ DESCHISĂ</span> `;
+                                stilRand = `background: rgba(231, 76, 60, 0.08);`; // Fundal roșiatic de alertă
+                            }
+                        }
+                        // CUM COLORĂM MENTENANȚA CLASICĂ:
+                        else {
+                            if (i.revizie) {
+                                indicator = `<span style="background:#27ae60; color:white; padding:3px 6px; border-radius:5px; font-size:10px;">REVIZIE</span> `;
+
+                                // Algoritmul tău inteligent de Audit Manager
+                                if (previousRevDate) {
+                                    const diffTime = Math.abs(
+                                        new Date(i.data) - previousRevDate,
+                                    );
+                                    const diffDays = Math.ceil(
+                                        diffTime / (1000 * 60 * 60 * 24),
+                                    );
+
+                                    if (diffDays > 30) {
+                                        auditText = `<div style="color: #e74c3c; font-size: 11px; font-weight: bold; margin-top: 5px; background: rgba(231,76,60,0.1); padding: 5px; border-radius: 4px; display: inline-block; border: 1px solid rgba(231,76,60,0.3);">⚠️ EFECTUAT LA ${diffDays} ZILE (Întârziere: ${diffDays - 30} zile)</div>`;
+                                    } else {
+                                        auditText = `<div style="color: #27ae60; font-size: 11px; font-weight: bold; margin-top: 5px; background: rgba(46,204,113,0.1); padding: 5px; border-radius: 4px; display: inline-block; border: 1px solid rgba(46,204,113,0.3);">✅ EFECTUAT LA TIMP (${diffDays} zile)</div>`;
+                                    }
+                                } else {
+                                    auditText = `<div style="color: #3498db; font-size: 11px; font-weight: bold; margin-top: 5px; background: rgba(52,152,219,0.1); padding: 5px; border-radius: 4px; display: inline-block; border: 1px solid rgba(52,152,219,0.3);">ℹ️ Prima revizie înregistrată</div>`;
+                                }
+                                previousRevDate = new Date(i.data);
+                            }
+                        }
+
+                        const linkFoto =
+                            i.foto && i.foto !== ""
+                                ? `<a href="${i.foto}" target="_blank" style="background:var(--primary); color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:11px; font-weight:bold;">📷 VEZI</a>`
+                                : "-";
+
+                        let afisareOra = "";
+                        if (i.timestamp) {
+                            const d = new Date(i.timestamp);
+                            const ore = String(d.getHours()).padStart(2, "0");
+                            const minute = String(d.getMinutes()).padStart(2, "0");
+                            afisareOra = `<span style="color:#7f8c8d; font-size:11px; display:block;">🕒 ${ore}:${minute}</span>`;
+                        }
+
+                        historyRows.push(`<tr style="${stilRand}">
+                        <td style="min-width: 90px;"><b>${i.data}</b>${afisareOra}</td>
+                        <td><b>${i.mecanic}</b></td>
+                        <td>${indicator} ${i.verificari}<br>${auditText}</td>
+                        <td>${i.obs}</td>
+                        <td style="text-align:center;">${linkFoto}</td>
+                    </tr>`);
+                    });
+
+                    // 🔄 Inversăm la final pentru a pune cele mai noi evenimente sus în tabel!
+                    c.innerHTML = historyRows.reverse().join("");
+                })
+                .catch((err) => {
+                    c.innerHTML =
+                        "<tr><td colspan='5' style='text-align:center; color:red;'>❌ Eroare la citirea serverului.</td></tr>";
+                    console.error(err);
+                });
+        }
+        // Funcția pentru trimiterea sesizărilor (Defecțiuni) cu nume obligatoriu
+        function trimiteSesizare(idUtilaj) {
+            // 1. Întrebăm care este defectul
+            const problema = prompt(
+                "🚨 RAPORTARE DEFECT\nDescrie pe scurt problema observată la acest utilaj:\n(Ex: Curge ulei, Motorul face zgomot, etc.)",
+            );
+
+            // Dacă anulează sau nu scrie defectul, ne oprim
+            if (!problema || problema.trim() === "") return;
+
+            // 2. 👤 ÎNTREBĂM NUMELE (Câmp obligatoriu)
+            const numeOperatorFizic = prompt(
+                "👤 CINE RAPORTEAZĂ?\nTe rog să îți scrii numele tău (ex: Ion Popescu) pentru a ști cine a trimis sesizarea:",
+            );
+
+            // Blocăm trimiterea dacă nu și-a scris numele
+            if (!numeOperatorFizic || numeOperatorFizic.trim() === "") {
+                alert(
+                    "❌ Sesizarea a fost anulată! Este obligatoriu să îți scrii numele pentru a putea trimite un raport.",
+                );
+                return;
+            }
+
+            // 3. Colectăm restul datelor și trimitem
+            const u = dbRaw[idUtilaj];
+            const acum = new Date();
+            const dataFormatata =
+                acum.toLocaleDateString("ro-RO") +
+                " " +
+                acum.toLocaleTimeString("ro-RO", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                });
+
+            firebase
+                .database()
+                .ref("sesizari")
+                .push({
+                    utilajId: idUtilaj,
+                    numeUtilaj: u.nume,
+                    sectie: u.sectie || "Nespecificat",
+                    problema: problema,
+                    dataTrimiterii: dataFormatata,
+                    timestamp: acum.getTime(),
+                    raportatDe: numeOperatorFizic, // 🎯 Aici se salvează numele real introdus!
+                    status: "deschis",
+                })
+                .then(() => {
+                    alert(
+                        "✅ Defecțiunea a fost raportată cu succes de către " +
+                        numeOperatorFizic +
+                        "!",
+                    );
+                    if (typeof map !== "undefined") map.closePopup(); // Închidem bucla de pe hartă automat
+                })
+                .catch((err) => {
+                    alert("❌ Eroare la trimitere. Verifică conexiunea.");
+                    console.error(err);
+                });
+        }
         function printeazaElement(idModal) {
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('print-active'));
-            document.getElementById(idModal).classList.add('print-active');
+            document
+                .querySelectorAll(".modal")
+                .forEach((m) => m.classList.remove("print-active"));
+            document.getElementById(idModal).classList.add("print-active");
             window.print();
-            setTimeout(() => { document.getElementById(idModal).classList.remove('print-active'); }, 500);
+            setTimeout(() => {
+                document.getElementById(idModal).classList.remove("print-active");
+            }, 500);
         }
 
         function exportaTotExcel() {
             let rows = [];
-            Object.values(dbRaw).forEach(u => {
+            Object.values(dbRaw).forEach((u) => {
                 if (u.istoric) {
-                    Object.values(u.istoric).forEach(i => {
+                    Object.values(u.istoric).forEach((i) => {
                         const rev = i.revizie ? "DA" : "NU";
-                        rows.push({ "Dată": i.data, "Utilaj": u.nume, "Cod ID": u.id, "Secție": u.sectie, "Mecanic": i.mecanic || "-", "Revizie Generala": rev, "Operațiuni": i.verificari, "Obs": i.obs || "-" });
+                        rows.push({
+                            Dată: i.data,
+                            Utilaj: u.nume,
+                            "Cod ID": u.id,
+                            Secție: u.sectie,
+                            Mecanic: i.mecanic || "-",
+                            "Revizie Generala": rev,
+                            Operațiuni: i.verificari,
+                            Obs: i.obs || "-",
+                        });
                     });
                 }
             });
-            const ws = XLSX.utils.json_to_sheet(rows); const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Raport"); XLSX.writeFile(wb, "Killer_Export_Total.xlsx");
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Raport");
+            XLSX.writeFile(wb, "Killer_Export_Total.xlsx");
         }
 
         function exportaExcelUtilaj(id) {
-            const u = dbRaw[id]; let dExport = [];
-            if (u.istoric) Object.values(u.istoric).forEach(i => {
-                const rev = i.revizie ? "DA" : "NU";
-                dExport.push({ "Dată": i.data, "Mecanic": i.mecanic || "-", "A Fost Revizie?": rev, "Operațiuni": i.verificari, "Obs": i.obs || "-" });
-            });
-            const ws = XLSX.utils.json_to_sheet(dExport); const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Fisa"); XLSX.writeFile(wb, `Fisa_${u.id}.xlsx`);
+            const u = dbRaw[id];
+            let dExport = [];
+            if (u.istoric)
+                Object.values(u.istoric).forEach((i) => {
+                    const rev = i.revizie ? "DA" : "NU";
+                    dExport.push({
+                        Dată: i.data,
+                        Mecanic: i.mecanic || "-",
+                        "A Fost Revizie?": rev,
+                        Operațiuni: i.verificari,
+                        Obs: i.obs || "-",
+                    });
+                });
+            const ws = XLSX.utils.json_to_sheet(dExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Fisa");
+            XLSX.writeFile(wb, `Fisa_${u.id}.xlsx`);
         }
 
         function printeazaQR() {
-            let root = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
-            let win = window.open('', '_blank');
+            let root = window.location.href.substring(
+                0,
+                window.location.href.lastIndexOf("/") + 1,
+            );
+            let win = window.open("", "_blank");
             let hContent = `<html><head><style>@page { size: portrait; margin: 5mm; } body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; } .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; } .qr-card { border: 1px solid #000; padding: 10px 5px; text-align: center; border-radius: 5px; page-break-inside: avoid; display: flex; flex-direction: column; justify-content: center; align-items: center; } .qr-card img { width: 90px; height: 90px; margin-bottom: 5px; } .utilaj-nume { font-size: 8px; font-weight: bold; display: block; margin-top: 5px; border-top: 1px solid #eee; padding-top: 5px; width: 100%; } .utilaj-model { font-size: 8px; color: #000; font-weight: bold; display: block; margin: 4px 0; } .utilaj-id { font-size: 6px; color: #444; background: #f0f0f0; padding: 2px 6px; border-radius: 4px; }</style></head><body onload="window.print()"><div class="grid-container">`;
-            Object.values(dbRaw).forEach(u => {
+            Object.values(dbRaw).forEach((u) => {
                 const modelAfisat = u.model ? u.model.toUpperCase() : "---";
-                hContent += `<div class="qr-card"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(root + 'scan.html?id=' + u.id)}"><span class="utilaj-nume">${u.nume.toUpperCase()}</span><span class="utilaj-model">${modelAfisat}</span><span class="utilaj-id">ID: ${u.id}</span></div>`;
+                hContent += `<div class="qr-card"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(root + "scan.html?id=" + u.id)}"><span class="utilaj-nume">${u.nume.toUpperCase()}</span><span class="utilaj-model">${modelAfisat}</span><span class="utilaj-id">ID: ${u.id}</span></div>`;
             });
-            hContent += '</div></body></html>'; win.document.write(hContent); win.document.close();
+            hContent += "</div></body></html>";
+            win.document.write(hContent);
+            win.document.close();
         }
 
-      /*  function cauta() {
-            const v = document.getElementById('searchInput').value.toUpperCase().trim();
-            const m = markersList.find(x => x.uData.id.includes(v) || x.uData.n.includes(v));
-            if (m) { map.setView(m.getLatLng(), 2); m.openPopup(); }
-        }*/
+        /*  function cauta() {
+              const v = document.getElementById('searchInput').value.toUpperCase().trim();
+              const m = markersList.find(x => x.uData.id.includes(v) || x.uData.n.includes(v));
+              if (m) { map.setView(m.getLatLng(), 2); m.openPopup(); }
+          }*/
         function cauta() {
-    const input = document.getElementById('searchInput');
-    const textCautat = input ? input.value.toLowerCase().trim() : "";
-    const filtru = document.getElementById('filterSectie').value;
+            const input = document.getElementById("searchInput");
+            const textCautat = input ? input.value.toLowerCase().trim() : "";
+            const filtru = document.getElementById("filterSectie").value;
 
-    // 1. ASCUNDEM TASTATURA și PANOU pe mobil
-    if (input) input.blur(); 
-    document.querySelector('.panel').classList.remove('activ');
+            // 1. ASCUNDEM TASTATURA și PANOU pe mobil
+            if (input) input.blur();
+            document.querySelector(".panel").classList.remove("activ");
 
-    if (!dbRaw) return;
+            if (!dbRaw) return;
 
-    let utilajGasit = null;
+            let utilajGasit = null;
 
-    // 2. LOGICA DE CĂUTARE EXACTĂ
-    Object.keys(dbRaw).forEach(id => {
-        const u = dbRaw[id];
-        // Filtrăm secția
-        if (filtru !== "Toate" && u.sectie !== filtru) return;
-        
-        const nume = (u.nume || "").toLowerCase();
-        const cod = (id || "").toLowerCase();
+            // 2. LOGICA DE CĂUTARE EXACTĂ
+            Object.keys(dbRaw).forEach((id) => {
+                const u = dbRaw[id];
+                // Filtrăm secția
+                if (filtru !== "Toate" && u.sectie !== filtru) return;
 
-        // Căutăm potrivire exactă (cod sau nume)
-        if (textCautat !== "" && (cod === textCautat || nume === textCautat)) {
-            utilajGasit = u;
-        }
-    });
+                const nume = (u.nume || "").toLowerCase();
+                const cod = (id || "").toLowerCase();
 
-    // Dacă nu am găsit exact, căutăm parțial (doar dacă textul nu e gol)
-    if (!utilajGasit && textCautat !== "") {
-        Object.keys(dbRaw).forEach(id => {
-            const u = dbRaw[id];
-            if (filtru !== "Toate" && u.sectie !== filtru) return;
-            
-            const nume = (u.nume || "").toLowerCase();
-            const cod = id.toLowerCase();
-            if (nume.includes(textCautat) || cod.includes(textCautat)) {
-                if (!utilajGasit) utilajGasit = u;
+                // Căutăm potrivire exactă (cod sau nume)
+                if (
+                    textCautat !== "" &&
+                    (cod === textCautat || nume === textCautat)
+                ) {
+                    utilajGasit = u;
+                }
+            });
+
+            // Dacă nu am găsit exact, căutăm parțial (doar dacă textul nu e gol)
+            if (!utilajGasit && textCautat !== "") {
+                Object.keys(dbRaw).forEach((id) => {
+                    const u = dbRaw[id];
+                    if (filtru !== "Toate" && u.sectie !== filtru) return;
+
+                    const nume = (u.nume || "").toLowerCase();
+                    const cod = id.toLowerCase();
+                    if (nume.includes(textCautat) || cod.includes(textCautat)) {
+                        if (!utilajGasit) utilajGasit = u;
+                    }
+                });
             }
-        });
-    }
 
-    // 3. ZOOM ȘI REFRESH
-    if (utilajGasit && utilajGasit.lat && utilajGasit.lng) {
-        map.setView([utilajGasit.lat, utilajGasit.lng], 18); // Zoom aproape
-        // Deschidem popup-ul automat (opțional)
-        // markersList.find(m => m.uData.id === utilajGasit.id).openPopup();
-    } else if (textCautat !== "") {
-        alert("Utilajul nu a fost găsit în această secție.");
-    }
+            // 3. ZOOM ȘI REFRESH
+            if (utilajGasit && utilajGasit.lat && utilajGasit.lng) {
+                map.setView([utilajGasit.lat, utilajGasit.lng], 18); // Zoom aproape
+                // Deschidem popup-ul automat (opțional)
+                // markersList.find(m => m.uData.id === utilajGasit.id).openPopup();
+            } else if (textCautat !== "") {
+                alert("Utilajul nu a fost găsit în această secție.");
+            }
 
-    // Refresh final la pini
-    if (typeof afiseazaPuncte === "function") afiseazaPuncte();
-}
+            // Refresh final la pini
+            if (typeof afiseazaPuncte === "function") afiseazaPuncte();
+        }
 
         function verificaAlarmeMentenanta() {
             if (!dbRaw) return;
-            const alertPanel = document.getElementById('alert-panel');
-            const container = document.getElementById('alert-list'); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
-            const btnClopotel = document.getElementById('btn-clopotel');
+            const alertPanel = document.getElementById("alert-panel");
+            const container = document.getElementById("alert-list"); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
+            const btnClopotel = document.getElementById("btn-clopotel");
 
             if (!alertPanel || !container) return;
 
@@ -1352,7 +1772,7 @@ const configuratieAlarme = {
             // Tabelul de configurare inclus direct ca să nu mai dea erori
             // const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
 
-            Object.keys(dbRaw).forEach(id => {
+            Object.keys(dbRaw).forEach((id) => {
                 const u = dbRaw[id];
                 const ultimaRev = gasesteUltimaRevizie(u.istoric);
 
@@ -1360,16 +1780,19 @@ const configuratieAlarme = {
                     const z = calculeazaZile(ultimaRev.data);
 
                     const idFaraK = id.replace("K-", "");
-                    const limitaZile = configuratieAlarme[id] || configuratieAlarme[idFaraK] || 30;
+                    const limitaZile =
+                        configuratieAlarme[id] || configuratieAlarme[idFaraK] || 30;
 
-                    // Debug 
+                    // Debug
                     console.log(`DEBUG: ID=${id} | Limita gasita=${limitaZile}`);
 
                     if (z >= limitaZile) {
                         areAlerte = true;
-                        const esteCritic = z >= (limitaZile * 3);
-                        const clasaAlerta = esteCritic ? 'alert-urgent' : 'alert-warning';
-                        const statusMesaj = esteCritic ? `CRITIC: Revizie depășită de ${z} zile!` : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
+                        const esteCritic = z >= limitaZile * 3;
+                        const clasaAlerta = esteCritic ? "alert-urgent" : "alert-warning";
+                        const statusMesaj = esteCritic
+                            ? `CRITIC: Revizie depășită de ${z} zile!`
+                            : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
 
                         container.innerHTML += `
                 <div class="alert-item ${clasaAlerta}">
@@ -1388,56 +1811,60 @@ const configuratieAlarme = {
 
             if (areAlerte) {
                 if (!alertaInchisaManual) {
-                    alertPanel.classList.remove('alert-hidden');
-                    alertPanel.classList.add('activ');
-                    if (btnClopotel) btnClopotel.style.display = 'none';
+                    alertPanel.classList.remove("alert-hidden");
+                    alertPanel.classList.add("activ");
+                    if (btnClopotel) btnClopotel.style.display = "none";
                 } else {
-                    alertPanel.classList.add('alert-hidden');
-                    alertPanel.classList.remove('activ');
-                    if (btnClopotel) btnClopotel.style.display = 'flex';
+                    alertPanel.classList.add("alert-hidden");
+                    alertPanel.classList.remove("activ");
+                    if (btnClopotel) btnClopotel.style.display = "flex";
                 }
             } else {
-                alertPanel.classList.add('alert-hidden');
-                alertPanel.classList.remove('activ');
-                if (btnClopotel) btnClopotel.style.display = 'none';
+                alertPanel.classList.add("alert-hidden");
+                alertPanel.classList.remove("activ");
+                if (btnClopotel) btnClopotel.style.display = "none";
             }
         }
         // Funcțiile atașate butoanelor "X" și "Clopoțel"
         function inchideAlarmaManual() {
             alertaInchisaManual = true; // Salvăm decizia ta
-            document.getElementById('alert-panel').classList.add('alert-hidden');
-            document.getElementById('btn-clopotel').style.display = 'flex';
+            document.getElementById("alert-panel").classList.add("alert-hidden");
+            document.getElementById("btn-clopotel").style.display = "flex";
         }
 
         function deschideAlarmaManual() {
             alertaInchisaManual = false; // Te-ai răzgândit
-            document.getElementById('alert-panel').classList.remove('alert-hidden');
-            document.getElementById('btn-clopotel').style.display = 'none';
+            document.getElementById("alert-panel").classList.remove("alert-hidden");
+            document.getElementById("btn-clopotel").style.display = "none";
 
             // Închidem și celelalte panouri de pe mobil (ex: panoul de căutare) dacă sunt deschise
             if (window.innerWidth <= 768) {
-                document.querySelector('.panel').classList.remove('activ');
+                document.querySelector(".panel").classList.remove("activ");
             }
         }
 
         function focalizeazaUtilaj(lat, lng, id) {
-            selectedId = id; afiseazaPuncte();
+            selectedId = id;
+            afiseazaPuncte();
             map.flyTo([lat, lng], 2, { animate: true, duration: 1.5 });
         }
         function printeazaQRIndividual() {
             // Luăm ID-ul utilajului care este deschis în History Modal
-            const nume = document.getElementById('histNume').innerText;
+            const nume = document.getElementById("histNume").innerText;
             // Extragem ID-ul din textul de sub nume (care conține "Cod ID: K-XXXX...")
-            const idFull = document.getElementById('histModel').innerText;
+            const idFull = document.getElementById("histModel").innerText;
             const idMatch = idFull.match(/ID: ([^|]+)/);
             const id = idMatch ? idMatch[1].trim() : "";
 
-            let root = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
-            let win = window.open('', '_blank');
+            let root = window.location.href.substring(
+                0,
+                window.location.href.lastIndexOf("/") + 1,
+            );
+            let win = window.open("", "_blank");
             win.document.write(`
         <html><body onload="window.print();window.close()" style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0;">
             <div style="border:2px solid #000; padding:20px; text-align:center; border-radius:10px; width:200px;">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(root + 'scan.html?id=' + id)}">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(root + "scan.html?id=" + id)}">
                 <h2 style="font-family:sans-serif; margin:10px 0;">${nume}</h2>
                 <p style="font-family:sans-serif; background:#eee;">ID: ${id}</p>
             </div>
@@ -1454,19 +1881,22 @@ const configuratieAlarme = {
         function deschideModulPersonal() {
             istoricGlobalPersonal = {};
             persoanaCurentaSelectata = null;
-            document.getElementById('btnExcelPersonal').style.display = 'none';
+            document.getElementById("btnExcelPersonal").style.display = "none";
 
             // Scanăm întreaga bază de date și grupăm fișele după persoană
-            Object.values(dbRaw).forEach(u => {
+            Object.values(dbRaw).forEach((u) => {
                 if (u.istoric) {
-                    Object.values(u.istoric).forEach(i => {
+                    Object.values(u.istoric).forEach((i) => {
                         let numeRaw = i.mecanic ? i.mecanic.trim() : "";
-                        if (!numeRaw || numeRaw === "-") numeRaw = "Necunoscut / Necompletat";
+                        if (!numeRaw || numeRaw === "-")
+                            numeRaw = "Necunoscut / Necompletat";
 
                         // Formatăm curat numele (Ex: Cristi)
-                        let numeFormata = numeRaw.charAt(0).toUpperCase() + numeRaw.slice(1);
+                        let numeFormata =
+                            numeRaw.charAt(0).toUpperCase() + numeRaw.slice(1);
 
-                        if (!istoricGlobalPersonal[numeFormata]) istoricGlobalPersonal[numeFormata] = [];
+                        if (!istoricGlobalPersonal[numeFormata])
+                            istoricGlobalPersonal[numeFormata] = [];
 
                         istoricGlobalPersonal[numeFormata].push({
                             data: i.data,
@@ -1474,18 +1904,21 @@ const configuratieAlarme = {
                             utilaj: u.nume,
                             idUtilaj: u.id || "Fără ID",
                             sectie: u.sectie || "-",
-                            op: (i.revizie ? `<span style="color:#27ae60; font-weight:bold;">[REVIZIE]</span> ` : "") + (i.verificari || i.tip || '-')
+                            op:
+                                (i.revizie
+                                    ? `<span style="color:#27ae60; font-weight:bold;">[REVIZIE]</span> `
+                                    : "") + (i.verificari || i.tip || "-"),
                         });
                     });
                 }
             });
 
-            const containerStanga = document.getElementById('listaPersonalNume');
+            const containerStanga = document.getElementById("listaPersonalNume");
             containerStanga.innerHTML = "";
 
             let sortatPersonal = Object.keys(istoricGlobalPersonal).sort();
 
-            sortatPersonal.forEach(nume => {
+            sortatPersonal.forEach((nume) => {
                 const nrInterventii = istoricGlobalPersonal[nume].length;
                 containerStanga.innerHTML += `
             <div class="item-selectie-personal" id="card-p-${nume}" onclick="incarcaFisaPersonal('${nume}')" style="background: #f8f9fa; padding: 12px; border-radius: 10px; cursor: pointer; border: 1px solid #eee; border-left: 4px solid #8e44ad; transition: 0.2s;">
@@ -1495,40 +1928,43 @@ const configuratieAlarme = {
         `;
             });
 
-            document.getElementById('titluAuditPersonal').innerHTML = "🕒 Istoric Intervenții";
-            document.getElementById('corpAuditPersonal').innerHTML = `<tr><td colspan="5" style="text-align:center; color:#999; padding:60px; font-weight:bold;">👈 Selectează o persoană din stânga pentru a-i deschide raportul de activitate.</td></tr>`;
-            document.getElementById('personalModal').style.display = 'flex';
+            document.getElementById("titluAuditPersonal").innerHTML =
+                "🕒 Istoric Intervenții";
+            document.getElementById("corpAuditPersonal").innerHTML =
+                `<tr><td colspan="5" style="text-align:center; color:#999; padding:60px; font-weight:bold;">👈 Selectează o persoană din stânga pentru a-i deschide raportul de activitate.</td></tr>`;
+            document.getElementById("personalModal").style.display = "flex";
         }
 
         function incarcaFisaPersonal(nume) {
             persoanaCurentaSelectata = nume;
-            document.getElementById('btnExcelPersonal').style.display = 'block';
+            document.getElementById("btnExcelPersonal").style.display = "block";
 
             // Evidențiem vizual doar persoana selectată din listă
-            document.querySelectorAll('.item-selectie-personal').forEach(el => {
-                el.style.background = '#f8f9fa';
-                el.style.borderColor = '#eee';
+            document.querySelectorAll(".item-selectie-personal").forEach((el) => {
+                el.style.background = "#f8f9fa";
+                el.style.borderColor = "#eee";
             });
             const cardSelectat = document.getElementById(`card-p-${nume}`);
             if (cardSelectat) {
-                cardSelectat.style.background = 'rgba(142, 68, 173, 0.08)';
-                cardSelectat.style.borderColor = '#8e44ad';
+                cardSelectat.style.background = "rgba(142, 68, 173, 0.08)";
+                cardSelectat.style.borderColor = "#8e44ad";
             }
 
-            document.getElementById('titluAuditPersonal').innerHTML = `👥 Registru Activitate Personal: <span style="color:#8e44ad; font-weight:bold;">${nume}</span>`;
+            document.getElementById("titluAuditPersonal").innerHTML =
+                `👥 Registru Activitate Personal: <span style="color:#8e44ad; font-weight:bold;">${nume}</span>`;
 
-            const corpTabel = document.getElementById('corpAuditPersonal');
+            const corpTabel = document.getElementById("corpAuditPersonal");
             corpTabel.innerHTML = "";
 
             // Sortăm descrescător (reparațiile cele mai noi apar primele)
             const actiuni = istoricGlobalPersonal[nume].sort((a, b) => b.ts - a.ts);
 
-            actiuni.forEach(a => {
+            actiuni.forEach((a) => {
                 let afisareOra = "";
                 if (a.ts) {
                     const d = new Date(a.ts);
-                    const ore = String(d.getHours()).padStart(2, '0');
-                    const minute = String(d.getMinutes()).padStart(2, '0');
+                    const ore = String(d.getHours()).padStart(2, "0");
+                    const minute = String(d.getMinutes()).padStart(2, "0");
                     afisareOra = ` <span style="color:#7f8c8d; font-size:11px; font-weight:normal; margin-left:6px;">🕒 ${ore}:${minute}</span>`;
                 }
 
@@ -1546,21 +1982,27 @@ const configuratieAlarme = {
         }
 
         function exportaExcelPersonal() {
-            if (!persoanaCurentaSelectata || !istoricGlobalPersonal[persoanaCurentaSelectata]) return;
+            if (
+                !persoanaCurentaSelectata ||
+                !istoricGlobalPersonal[persoanaCurentaSelectata]
+            )
+                return;
 
             let rows = [];
-            const actiuni = istoricGlobalPersonal[persoanaCurentaSelectata].sort((a, b) => b.ts - a.ts);
+            const actiuni = istoricGlobalPersonal[persoanaCurentaSelectata].sort(
+                (a, b) => b.ts - a.ts,
+            );
 
-            actiuni.forEach(a => {
+            actiuni.forEach((a) => {
                 // Curățăm codul HTML (precum span-ul de la [REVIZIE]) ca textul în Excel să fie 100% curat
-                let operatiuneText = a.op.replace(/<[^>]*>/g, '');
+                let operatiuneText = a.op.replace(/<[^>]*>/g, "");
 
                 rows.push({
                     "Dată Intervenție": a.data,
                     "Cod ID Utilaj": a.idUtilaj,
                     "Denumire Utilaj": a.utilaj,
                     "Secție Fabrică": a.sectie,
-                    "Activitate / Operațiuni": operatiuneText
+                    "Activitate / Operațiuni": operatiuneText,
                 });
             });
 
@@ -1569,12 +2011,30 @@ const configuratieAlarme = {
             XLSX.utils.book_append_sheet(wb, ws, "Audit Personal");
             XLSX.writeFile(wb, `Fisa_Activitate_${persoanaCurentaSelectata}.xlsx`);
         }
+        function logout() {
+            if (confirm("Ești sigur că vrei să te deconectezi?")) {
+                firebase
+                    .auth()
+                    .signOut()
+                    .then(() => {
+                        sessionStorage.clear(); // Curățăm memoria sesiunii (rol, nume)
+                        window.location.href = "index.html"; // Îl trimitem la poartă
+                    })
+                    .catch((error) => {
+                        console.error("Eroare la deconectare:", error);
+                        alert("❌ A apărut o eroare la deconectare.");
+                    });
+            }
+        }
     </script>
 
     <script>
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("sw.js");
+            });
+        }
     </script>
-
 </body>
 
 </html>

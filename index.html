@@ -1,17 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
-
-<head>
-    <meta charset="utf-8">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portal Mentenanță - Killer SRL</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c3e50">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Mentenanță">
-    <link rel="apple-touch-icon" href="favicon2.png">
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#2c3e50" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Mentenanță" />
+    <link rel="apple-touch-icon" href="favicon2.png" />
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
@@ -20,137 +22,145 @@
     <script src="offline.js"></script>
 
     <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #27ae60;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --bg-dark: #1a1a1a;
-            --text: #ecf0f1;
-        }
+      :root {
+        --primary: #2c3e50;
+        --accent: #27ae60;
+        --success: #2ecc71;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+        --bg-dark: #1a1a1a;
+        --text: #ecf0f1;
+      }
 
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-dark);
-            font-family: 'Segoe UI', sans-serif;
-            color: var(--text);
-        }
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-dark);
+        font-family: "Segoe UI", sans-serif;
+        color: var(--text);
+      }
 
-        .container {
-            background: var(--primary);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-            border-top: 6px solid var(--accent);
-        }
+      .container {
+        background: var(--primary);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        text-align: center;
+        width: 100%;
+        max-width: 400px;
+        box-sizing: border-box;
+        border-top: 6px solid var(--accent);
+      }
 
-        .logo-box img {
-            max-width: 160px;
-            margin-bottom: 20px;
-        }
+      .logo-box img {
+        max-width: 160px;
+        margin-bottom: 20px;
+      }
 
-        h2 {
-            margin: 0 0 5px 0;
-            font-size: 22px;
-        }
+      h2 {
+        margin: 0 0 5px 0;
+        font-size: 22px;
+      }
 
-        p {
-            margin: 0 0 25px 0;
-            font-size: 13px;
-            color: #bdc3c7;
-        }
+      p {
+        margin: 0 0 25px 0;
+        font-size: 13px;
+        color: #bdc3c7;
+      }
 
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
+      .input-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
 
-        .input-group label {
-            display: block;
-            font-size: 11px;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #bdc3c7;
-            text-transform: uppercase;
-        }
+      .input-group label {
+        display: block;
+        font-size: 11px;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #bdc3c7;
+        text-transform: uppercase;
+      }
 
-        input[type="password"] {
-            width: 100%;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-size: 16px;
-            box-sizing: border-box;
-            outline: none;
-            text-align: center;
-            letter-spacing: 3px;
-            transition: 0.3s;
-        }
+      input[type="password"],
+      input[type="email"],
+      select {
+        width: 100%;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        font-size: 16px;
+        box-sizing: border-box;
+        outline: none;
+        text-align: center;
+        letter-spacing: 1px;
+        transition: 0.3s;
+        margin-bottom: 10px;
+        appearance: none; /* Ascunde săgeata standard pe unele telefoane pentru un look curat */
+      }
+      select option {
+        background: var(--primary);
+        color: white;
+      }
+      input[type="password"]:focus,
+      select:focus {
+        border-color: var(--accent);
+      }
 
-        input[type="password"]:focus {
-            border-color: var(--accent);
-        }
+      .btn {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-bottom: 12px;
+        display: block;
+        text-decoration: none;
+        box-sizing: border-box;
+        text-align: center;
+      }
 
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-bottom: 12px;
-            display: block;
-            text-decoration: none;
-            box-sizing: border-box;
-            text-align: center;
-        }
+      .btn-login {
+        background: var(--accent);
+        color: white;
+      }
 
-        .btn-login {
-            background: var(--accent);
-            color: white;
-        }
+      .btn-login:hover {
+        background: #219653;
+      }
 
-        .btn-login:hover {
-            background: #219653;
-        }
+      .btn-menu {
+        background: #34495e;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
 
-        .btn-menu {
-            background: #34495e;
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+      .btn-menu:hover {
+        background: #2c3e50;
+      }
 
-        .btn-menu:hover {
-            background: #2c3e50;
-        }
+      .error-msg {
+        color: var(--danger);
+        font-size: 12px;
+        margin-bottom: 15px;
+        font-weight: bold;
+        display: none;
+      }
 
-        .error-msg {
-            color: var(--danger);
-            font-size: 12px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            display: none;
-        }
+      #menu-screen {
+        display: none;
+      }
 
-        #menu-screen {
-            display: none;
-        }
-
-        /*.footer-dev {
+      /*.footer-dev {
             position: absolute;
             bottom: 20px;
             font-size: 10px;
@@ -161,317 +171,644 @@
         /* ---------------------------------------------------
            ⚠️ STILURI DE ALERTE COPIATE 1:1 DIN VIEW.HTML
            --------------------------------------------------- */
-        .footer-dev {
-    position: absolute;
-    bottom: 20px;
-    z-index: 1; /* Footer-ul stă în spate */
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.3);
-}
-        #alert-panel {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            width: 280px;
-            background: rgba(44, 62, 80, 0.95);
-            border-left: 5px solid #f39c12;
-            border-radius: 8px;
-            z-index: 2000;
-            color: white;
-            padding: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            transition: all 0.5s ease;
-            text-align: left;
+      .footer-dev {
+        position: absolute;
+        bottom: 20px;
+        z-index: 1; /* Footer-ul stă în spate */
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.3);
+      }
+      #alert-panel {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        width: 280px;
+        background: rgba(44, 62, 80, 0.95);
+        border-left: 5px solid #f39c12;
+        border-radius: 8px;
+        z-index: 2000;
+        color: white;
+        padding: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        transition: all 0.5s ease;
+        text-align: left;
+      }
+
+      .alert-hidden {
+        right: -350px !important;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .alert-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #555;
+        padding-bottom: 5px;
+      }
+
+      .alert-item {
+        font-size: 12px;
+        margin-bottom: 8px;
+        padding: 5px;
+        border-radius: 4px;
+        color: white;
+      }
+
+      .alert-urgent {
+        background: rgba(231, 76, 60, 0.2);
+        border-left: 3px solid #e74c3c;
+      }
+
+      .alert-warning {
+        background: rgba(243, 156, 18, 0.2);
+        border-left: 3px solid #f39c12;
+      }
+
+      .btn-locate {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 6px 12px;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: background 0.2s;
+      }
+
+      .btn-locate:hover {
+        background: #2980b9;
+      }
+
+      #btn-clopotel {
+        display: none;
+        position: fixed;
+        z-index: 1500;
+        top: 80px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: var(--danger);
+        color: white;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        border: 2px solid white;
+        animation: pulse-cloud 1.5s infinite;
+      }
+
+      @keyframes pulse-cloud {
+        0% {
+          opacity: 0.4;
         }
 
-        .alert-hidden {
-            right: -350px !important;
-            opacity: 0;
-            pointer-events: none;
+        50% {
+          opacity: 1;
         }
 
-        .alert-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #555;
-            padding-bottom: 5px;
+        100% {
+          opacity: 0.4;
         }
+      }
 
-        .alert-item {
-            font-size: 12px;
-            margin-bottom: 8px;
-            padding: 5px;
-            border-radius: 4px;
-            color: white;
-        }
-
-        .alert-urgent {
-            background: rgba(231, 76, 60, 0.2);
-            border-left: 3px solid #e74c3c;
-        }
-
-        .alert-warning {
-            background: rgba(243, 156, 18, 0.2);
-            border-left: 3px solid #f39c12;
-        }
-
-        .btn-locate {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 6px 12px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: background 0.2s;
-        }
-
-        .btn-locate:hover {
-            background: #2980b9;
-        }
-
-        #btn-clopotel {
-            display: none;
-            position: fixed;
-            z-index: 1500;
-            top: 80px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: var(--danger);
-            color: white;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            border: 2px solid white;
-            animation: pulse-cloud 1.5s infinite;
-        }
-
-        @keyframes pulse-cloud {
-            0% {
-                opacity: 0.4;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.4;
-            }
-        }
-
-        /* @media (max-width: 768px) {
+      /* @media (max-width: 768px) {
             #alert-panel { display: none; top: 130px; left: 15px; width: calc(100% - 30px); right: auto !important; z-index: 2001; }
             #alert-panel.activ { display: block; }
             .alert-hidden { display: none !important; }
             #btn-clopotel { top: 75px; right: 15px; position: fixed; }
         }*/
-        @media (max-width: 768px) {
-            #alert-panel {
-                display: none;
-                top: 100px;
-                left: 50%;
-                /* Îl trage la jumătatea ecranului */
-                transform: translateX(-50%);
-                /* Îl centrează perfect pe orizontală */
-                width: 90%;
-                /* Ocupă 90% din ecran */
-                max-width: 400px;
-                /* Nu-l lăsăm să se lățească prea mult */
-                right: auto !important;
-                /* Resetăm orice setare de "right" */
-                z-index: 2001;
-            }
-
-            #alert-panel.activ {
-                display: block;
-            }
-
-            .alert-hidden {
-                display: none !important;
-            }
-
-            #btn-clopotel {
-                top: 75px;
-                right: 15px;
-                position: fixed;
-            }
+      @media (max-width: 768px) {
+        #alert-panel {
+          display: none;
+          top: 100px;
+          left: 50%;
+          /* Îl trage la jumătatea ecranului */
+          transform: translateX(-50%);
+          /* Îl centrează perfect pe orizontală */
+          width: 90%;
+          /* Ocupă 90% din ecran */
+          max-width: 400px;
+          /* Nu-l lăsăm să se lățească prea mult */
+          right: auto !important;
+          /* Resetăm orice setare de "right" */
+          z-index: 2001;
         }
-     .modal-scanner {
-    display: none; 
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: black; /* Fundal negru opac */
-    z-index: 9999999; /* Z-index uriaș */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
 
-.modal-scanner.activ {
-    display: flex;
-}
+        #alert-panel.activ {
+          display: block;
+        }
 
-/* 2. Asigurăm că reader-ul are loc */
-#reader {
-    width: 90%; 
-    max-width: 400px;
-    background: white;
-}
+        .alert-hidden {
+          display: none !important;
+        }
 
-/* 3. Footer-ul stă sub modal */
-.footer-dev {
-    z-index: 1; /* Footer-ul e în spate */
-}
+        #btn-clopotel {
+          top: 75px;
+          right: 15px;
+          position: fixed;
+        }
+      }
+      .modal-scanner {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: black; /* Fundal negru opac */
+        z-index: 9999999; /* Z-index uriaș */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
 
-/* Butonul de închidere mai vizibil */
-.btn-inchidere-scan {
-    margin-top: 30px; 
-    padding: 15px 40px; 
-    background: var(--danger); 
-    color: white; 
-    border: none; 
-    border-radius: 50px; 
-    font-weight: bold; 
-    cursor: pointer;
-    font-size: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
+      .modal-scanner.activ {
+        display: flex;
+      }
+
+      /* 2. Asigurăm că reader-ul are loc */
+      #reader {
+        width: 90%;
+        max-width: 400px;
+        background: white;
+      }
+
+      /* 3. Footer-ul stă sub modal */
+      .footer-dev {
+        z-index: 1; /* Footer-ul e în spate */
+      }
+
+      /* Butonul de închidere mai vizibil */
+      .btn-inchidere-scan {
+        margin-top: 30px;
+        padding: 15px 40px;
+        background: var(--danger);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
+    <div class="container">
+      <div class="logo-box">
+        <img src="logo.png" alt="Logo Killer SRL" />
+      </div>
 
-<div class="container">
-        <div class="logo-box">
-            <img src="logo.png" alt="Logo Killer SRL">
+      <div id="login-screen">
+        <h2>Sistem Mentenanță</h2>
+        <p>Alege contul și introdu parola</p>
+
+        <div class="input-group">
+          <select id="userSelect">
+            <option value="dragos.munteanu@killersrl.ro">
+              👨‍💻 Administrator
+            </option>
+            <option value="inginer@killersrl.ro">🔧 Ingineri</option>
+            <option value="operator@killersrl.ro">👷 Operatori</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <input
+            type="password"
+            id="passInput"
+            placeholder="Parolă"
+            onkeyup="if (event.key === 'Enter') executaLogin();"
+          />
         </div>
 
-        <div id="login-screen">
-            <h2>Sistem Mentenanță</h2>
-            <p>Acces securizat pentru echipa tehnică</p>
-            <div class="input-group">
-                <input type="password" id="passInput" placeholder="••••••••" onkeyup="if(event.key==='Enter') verificaParola()">
+        <div id="errorMsg" class="error-msg">❌ Parolă incorectă!</div>
+        <button class="btn btn-login" id="loginBtn" onclick="executaLogin()">
+          🔐 INTRĂ ÎN SISTEM
+        </button>
+      </div>
+
+      <div id="menu-screen">
+        <h2>Salut!</h2>
+        <p>Alege secțiunea dorită:</p>
+        <a
+          href="edit.html"
+          id="btn-meniu-edit"
+          class="btn btn-menu"
+          style="border-left: 5px solid var(--success)"
+          >🛠️ Administrare Mentenanță</a
+        >
+        <a
+          href="view.html"
+          class="btn btn-menu"
+          style="border-left: 5px solid #3498db"
+          >👁️ Centru de Control Mentenanță</a
+        >
+        <button
+          onclick="pornesteScanner()"
+          class="btn btn-menu"
+          style="border-left: 5px solid var(--warning)"
+        >
+          📷 Scanează Cod QR Utilaj
+        </button>
+
+        <div
+          id="zona-sesizari-index"
+          style="
+            margin-top: 25px;
+            text-align: left;
+            display: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 12px;
+            "
+          >
+            <h3
+              style="
+                font-size: 15px;
+                margin: 0;
+                color: var(--danger);
+                display: flex;
+                align-items: center;
+                gap: 5px;
+              "
+            >
+              🚨 Defecțiuni Active
+            </h3>
+            <button
+              onclick="deschideArhivaTickete()"
+              style="
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                cursor: pointer;
+              "
+            >
+              📂 Arhivă Închise
+            </button>
+          </div>
+          <div
+            id="lista-sesizari-index"
+            style="
+              max-height: 220px;
+              overflow-y: auto;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              padding-right: 5px;
+            "
+          ></div>
+        </div>
+
+        <div
+          id="modalArhivaTickete"
+          style="
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+          "
+        >
+          <div
+            style="
+              background: #2c3e50;
+              width: 100%;
+              max-width: 600px;
+              max-height: 85vh;
+              border-radius: 12px;
+              padding: 20px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              color: white;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: between;
+                align-items: center;
+                margin-bottom: 15px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 10px;
+              "
+            >
+              <h3 style="margin: 0; color: #2ecc71">
+                📂 Istoric Toate Ticketele Rezolvate
+              </h3>
+              <button
+                onclick="inchideArhivaTickete()"
+                style="
+                  background: transparent;
+                  border: none;
+                  color: #aaa;
+                  font-size: 20px;
+                  cursor: pointer;
+                "
+              >
+                &times;
+              </button>
             </div>
-            <div id="errorMsg" class="error-msg">❌ Parolă incorectă!</div>
-            <button class="btn btn-login" id="loginBtn" onclick="verificaParola()">🔐 INTRĂ ÎN SISTEM</button>
+            <div
+              id="corpArhivaTickete"
+              style="
+                overflow-y: auto;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding-right: 5px;
+              "
+            ></div>
+          </div>
         </div>
 
-        <div id="menu-screen">
-            <h2>Salut!</h2>
-            <p>Alege secțiunea dorită:</p>
-            <a href="edit.html" class="btn btn-menu" style="border-left: 5px solid var(--success);">🛠️ Administrare Mentenanță</a>
-            <a href="view.html" class="btn btn-menu" style="border-left: 5px solid #3498db;">👁️ Centru de Control Mentenanță</a>
-            <button onclick="pornesteScanner()" class="btn btn-menu" style="border-left: 5px solid var(--warning);">📷 Scanează Cod QR Utilaj</button>
-            <button class="btn" style="background:transparent; border:1px solid var(--danger); color:var(--danger); margin-top:20px;" onclick="logout()">Ieșire</button>
-        </div>
-        
+        <button
+          class="btn"
+          style="
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            margin-top: 20px;
+          "
+          onclick="logout()"
+        >
+          Ieșire
+        </button>
+      </div>
     </div>
 
     <div id="alert-panel" class="alert-hidden">
-        <div class="alert-header">
-            <span>⚠️ Alerte Mentenanță</span>
-            <span onclick="inchideAlarmaManual()" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:3px 8px; border-radius:4px; font-size:10px;">❌ ÎNCHIDE</span>
-        </div>
-        <div id="alert-list"></div>
+      <div class="alert-header">
+        <span>⚠️ Alerte Mentenanță</span>
+        <span
+          onclick="inchideAlarmaManual()"
+          style="
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+          "
+          >❌ ÎNCHIDE</span
+        >
+      </div>
+      <div id="alert-list"></div>
     </div>
-    
-    <div id="btn-clopotel" onclick="deschideAlarmaManual()" title="Arată Alarme">🔔</div>
-   
+
+    <div
+      id="btn-clopotel"
+      onclick="deschideAlarmaManual()"
+      title="Arată Alarme"
+    >
+      🔔
+    </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
-            authDomain: "killer-mentenanta.firebaseapp.com",
-            databaseURL: "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "killer-mentenanta",
-            storageBucket: "killer-mentenanta.firebasestorage.app",
-            messagingSenderId: "434460062600",
-            appId: "1:434460062600:web:38a2ff00266c3c1dff403d"
-        };
+      const firebaseConfig = {
+        apiKey: "AIzaSyBHfyZzJ-GUfUUqEidMytaCSh-B2SYh1Ks",
+        authDomain: "killer-mentenanta.firebaseapp.com",
+        databaseURL:
+          "https://killer-mentenanta-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "killer-mentenanta",
+        storageBucket: "killer-mentenanta.firebasestorage.app",
+        messagingSenderId: "434460062600",
+        appId: "1:434460062600:web:38a2ff00266c3c1dff403d",
+      };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      const _u = "ZHJhZ29zLm11bnRlYW51QGtpbGxlcnNybC5ybw==";
+      let dbRaw = {};
+      let html5QrCode;
+      let alertaInchisaManual = false;
+
+      const configuratieAlarme = {
+        9728: 30,
+        6355: 30,
+        1111: 14,
+        2222: 14,
+        3333: 14,
+        4444: 14,
+        9902: 14,
+      };
+
+      window.onload = function () {
+        if (sessionStorage.getItem("access_granted") === "true") {
+          afiseazaMeniuSauRedirectioneaza();
+        }
+      };
+
+      function executaLogin() {
+        // Acum luăm emailul direct din valoarea selectată în listă!
+        const email = document.getElementById("userSelect").value;
+        const pass = document.getElementById("passInput").value;
+        const btn = document.getElementById("loginBtn");
+        const msg = document.getElementById("errorMsg");
+
+        if (!pass) {
+          msg.innerText = "❌ Introdu parola!";
+          msg.style.display = "block";
+          return;
         }
 
-        const _u = "ZHJhZ29zLm11bnRlYW51QGtpbGxlcnNybC5ybw==";
-        let dbRaw = {};
-        let html5QrCode;
-        let alertaInchisaManual = false;
+        btn.innerText = "⏳ Se verifică...";
+        btn.disabled = true;
 
-        const configuratieAlarme = {
-            "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
-        };
+        // Logare în Firebase Auth
+        firebase
+          .auth()
+          .signInWithEmailAndPassword(email, pass)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            return firebase
+              .database()
+              .ref("utilizatori/" + user.uid)
+              .once("value");
+          })
+          .then((snapshot) => {
+            const dateUser = snapshot.val();
+            const rol = dateUser ? dateUser.rol : "operator";
 
-        window.onload = function () {
-            if (sessionStorage.getItem('access_granted') === 'true') {
-                afiseazaMeniuSauRedirectioneaza();
+            sessionStorage.setItem("access_granted", "true");
+            sessionStorage.setItem("user_rol", rol);
+
+            if (dateUser && dateUser.nume) {
+              sessionStorage.setItem("user_nume", dateUser.nume);
             }
-        };
 
-        function verificaParola() {
-            const pass = document.getElementById('passInput').value;
-            const btn = document.getElementById('loginBtn');
-            const msg = document.getElementById('errorMsg');
+            msg.style.display = "none";
+            afiseazaMeniuSauRedirectioneaza();
+          })
+          .catch((error) => {
+            console.error(error);
+            msg.innerText = "❌ Parolă incorectă!";
+            msg.style.display = "block";
+            document.getElementById("passInput").value = "";
+            btn.innerText = "🔐 INTRĂ ÎN SISTEM";
+            btn.disabled = false;
+          });
+      }
 
-            if (!pass) return;
+      function afiseazaMeniuSauRedirectioneaza() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refParams = urlParams.get("ref");
 
-            btn.innerText = "⏳ Se verifică...";
-            btn.disabled = true;
+        if (refParams) {
+          window.location.href = "edit.html" + refParams;
+        } else {
+          document.getElementById("login-screen").style.display = "none";
+          document.getElementById("menu-screen").style.display = "block";
 
-            const email = atob(_u);
+          const nume = sessionStorage.getItem("user_nume") || "Colegu'";
+          const rol = sessionStorage.getItem("user_rol");
+          document.querySelector("#menu-screen h2").innerText =
+            `Salut, ${nume}!`;
 
-            firebase.auth().signInWithEmailAndPassword(email, pass)
-                .then(() => {
-                    sessionStorage.setItem('access_granted', 'true');
-                    msg.style.display = 'none';
-                    afiseazaMeniuSauRedirectioneaza();
-                })
-                .catch((error) => {
-                    msg.innerText = "❌ Parolă incorectă!";
-                    msg.style.display = 'block';
-                    document.getElementById('passInput').value = "";
-                    btn.innerText = "🔐 INTRĂ ÎN SISTEM";
-                    btn.disabled = false;
-                });
+          // 🔒 AICI SE ASCUNDE BUTONUL PENTRU OPERATOR
+          if (rol === "operator") {
+            document.getElementById("btn-meniu-edit").style.display = "none";
+          } else {
+            document.getElementById("btn-meniu-edit").style.display = "block";
+          }
+
+          pornesteAscultareAlarme();
+          if (typeof pornesteAscultareSesizari === "function") {
+            pornesteAscultareSesizari();
+          }
         }
+      }
+      // Funcția care aduce sesizările live pe ecranul tău
+      function pornesteAscultareSesizari() {
+        const rol = sessionStorage.getItem("user_rol") || "operator";
 
-        function afiseazaMeniuSauRedirectioneaza() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const refParams = urlParams.get('ref');
-            if (refParams) {
-                window.location.href = "edit.html" + refParams;
-            } else {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('menu-screen').style.display = 'block';
-                pornesteAscultareAlarme();
+        // Protecție: Doar Adminul și Mecanicul au voie să vadă acest panou pe prima pagină
+        if (rol !== "admin" && rol !== "mecanic") return;
+
+        // Facem zona vizibilă pentru admin/mecanic
+        document.getElementById("zona-sesizari-index").style.display = "block";
+
+        // Ascultăm ramura 'sesizari' în timp real din Firebase
+        firebase
+          .database()
+          .ref("sesizari")
+          .on("value", (snapshot) => {
+            const sesizari = snapshot.val() || {};
+            const container = document.getElementById("lista-sesizari-index");
+            container.innerHTML = ""; // Curățăm lista veche înainte de actualizare
+
+            let areSesizariActive = false;
+
+            // Sortăm sesizările după timp (cele mai noi să apară primele sus)
+            const intrari = Object.entries(sesizari);
+            intrari.sort(
+              (a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0),
+            );
+
+            intrari.forEach(([key, s]) => {
+              // Afișăm DOAR defecțiunile care sunt încă 'deschise' (nerezolvate)
+              if (s.status === "deschis") {
+                areSesizariActive = true;
+
+                container.innerHTML += `
+                    <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border-left: 4px solid var(--danger); font-size: 12px; box-sizing: border-box;">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px;">
+                            <span style="color: #fff; font-size: 13px;">⚙️ ${s.numeUtilaj} (ID: ${s.utilajId})</span>
+                            <span style="color: #a0a0a0; font-size: 10px;">${s.dataTrimiterii}</span>
+                        </div>
+                        <div style="color: #bdc3c7; font-size: 11px; margin-bottom: 6px;">
+                            📍 Secția: <b>${s.sectie}</b> | Raportat de: <i>${s.raportatDe}</i>
+                        </div>
+                        <div style="color: #ff9f9f; background: rgba(231,76,60,0.1); padding: 6px; border-radius: 4px; font-style: italic; margin-bottom: 10px; border: 1px dashed rgba(231,76,60,0.2);">
+                            💬 ${s.problema}
+                        </div>
+                        
+                        <div style="display:flex; gap:5px;">
+                            <a href="edit.html?id=${s.utilajId}" style="flex:1; background:#3498db; color:white; padding:8px 5px; text-align:center; text-decoration:none; border-radius:4px; font-size:11px; font-weight:bold; box-sizing: border-box;">🔧 REPARĂ UTILAJ</a>
+                            
+                            <button onclick="bifeazaSesizareRezolvata('${key}')" style="flex:1; background: var(--success); color: white; border: none; padding:8px 5px; border-radius:4px; cursor: pointer; font-size: 11px; font-weight: bold; box-sizing: border-box; transition: 0.2s;">✅ ÎNCHIDE RAPID</button>
+                        </div>
+                    </div>
+                `;
+              }
+            });
+
+            // Dacă nu e nicio defecțiune activă, afișăm un mesaj frumos de liniște
+            if (!areSesizariActive) {
+              container.innerHTML =
+                "<p style='font-size:11px; color:#a0a0a0; text-align:center; margin: 15px 0;'>🎉 Toate utilajele funcționează normal. Nicio defecțiune nerezolvată!</p>";
             }
-        }
+          });
+      }
 
-        function logout() {
-            firebase.auth().signOut().then(() => {
-                sessionStorage.removeItem('access_granted');
-                document.getElementById('alert-panel').className = "alert-hidden";
-                document.getElementById('btn-clopotel').style.display = "none";
-                location.reload();
+      // Funcția care schimbă statusul în Firebase când reparația e gata
+      function bifeazaSesizareRezolvata(key) {
+        if (
+          confirm(
+            "Confirmi că această defecțiune a fost remediată și vrei să o închizi?",
+          )
+        ) {
+          firebase
+            .database()
+            .ref("sesizari/" + key)
+            .update({
+              status: "rezolvat",
+            })
+            .then(() => {
+              alert(
+                "✅ Defecțiune închisă cu succes! A fost scoasă din panoul activ.",
+              );
+            })
+            .catch((err) => {
+              alert("❌ Eroare la actualizare.");
+              console.error(err);
             });
         }
+      }
+      function logout() {
+        firebase
+          .auth()
+          .signOut()
+          .then(() => {
+            sessionStorage.removeItem("access_granted");
+            document.getElementById("alert-panel").className = "alert-hidden";
+            document.getElementById("btn-clopotel").style.display = "none";
+            location.reload();
+          });
+      }
 
-       /* function pornesteScanner() {
+      /* function pornesteScanner() {
             document.getElementById('reader').style.display = 'block';
             const html5QrCode = new Html5Qrcode("reader");
 
@@ -484,145 +821,182 @@
             html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
         }
 */
-        function pornesteScanner() {
-    document.getElementById('scanner-modal').classList.add('activ');
-    
-    html5QrCode = new Html5Qrcode("reader"); // Inițializare globală
-    html5QrCode.start(
-        { facingMode: "environment" }, 
-        { fps: 10, qrbox: 250 },
-        (decodedText) => {
-            // 1. Oprim camera prima dată
-            inchideScanner();
-            
-            // 2. Facem redirecționarea (Scoatem alert-ul)
-            // Dacă în QR este un link complet (cum e în poza ta):
-            if (decodedText.startsWith("http")) {
+      function pornesteScanner() {
+        document.getElementById("scanner-modal").classList.add("activ");
+
+        html5QrCode = new Html5Qrcode("reader"); // Inițializare globală
+        html5QrCode
+          .start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            (decodedText) => {
+              // 1. Oprim camera prima dată
+              inchideScanner();
+
+              // 2. Facem redirecționarea (Scoatem alert-ul)
+              // Dacă în QR este un link complet (cum e în poza ta):
+              if (decodedText.startsWith("http")) {
                 window.location.href = decodedText;
-            } else {
+              } else {
                 // Dacă în QR este scris doar "K-1111":
                 // Te duce automat în pagina scan.html
-                window.location.href = "scan.html?id=" + decodedText; 
-            }
-        },
-        (err) => { /* erorile de focus ale camerei le ignorăm */ }
-    ).catch(err => alert("Eroare cameră: " + err));
-}
+                window.location.href = "scan.html?id=" + decodedText;
+              }
+            },
+            (err) => {
+              /* erorile de focus ale camerei le ignorăm */
+            },
+          )
+          .catch((err) => alert("Eroare cameră: " + err));
+      }
 
-function inchideScanner() {
-    if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-            document.getElementById('scanner-modal').classList.remove('activ');
-        }).catch(err => {
-            document.getElementById('scanner-modal').classList.remove('activ');
-        });
-    }
-}
-        function calculeazaZile(dataInstalare) {
-            if (!dataInstalare) return 999;
-            const oZi = 24 * 60 * 60 * 1000;
-            const azi = new Date();
-            const dataR = new Date(dataInstalare);
-            return Math.floor(Math.abs(azi - dataR) / oZi);
+      function inchideScanner() {
+        if (html5QrCode) {
+          html5QrCode
+            .stop()
+            .then(() => {
+              document
+                .getElementById("scanner-modal")
+                .classList.remove("activ");
+            })
+            .catch((err) => {
+              document
+                .getElementById("scanner-modal")
+                .classList.remove("activ");
+            });
+        }
+      }
+      function calculeazaZile(dataInstalare) {
+        if (!dataInstalare) return 999;
+        const oZi = 24 * 60 * 60 * 1000;
+        const azi = new Date();
+        const dataR = new Date(dataInstalare);
+        return Math.floor(Math.abs(azi - dataR) / oZi);
+      }
+
+      // 🚀 REPARATĂ: Conectează Firebase direct la funcția de procesare
+      function pornesteAscultareAlarme() {
+        // 🔒 1. VERIFICĂM ROLUL: Dacă e operator, oprim funcția aici și ascundem clopoțelul!
+        const rol = sessionStorage.getItem("user_rol");
+        if (rol === "operator") {
+          const btnClopotel = document.getElementById("btn-clopotel");
+          if (btnClopotel) btnClopotel.style.display = "none";
+          return; // Ne oprim, nu mai ascultăm nicio alarmă!
         }
 
-        // 🚀 REPARATĂ: Conectează Firebase direct la funcția de procesare
-        function pornesteAscultareAlarme() {
-    const configuratieAlarme = {
-        "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "9902": 14
-    };
+        const configuratieAlarme = {
+          9728: 30,
+          6355: 30,
+          1111: 14,
+          2222: 14,
+          3333: 14,
+          4444: 14,
+          9902: 14,
+        };
 
-    // 1. Verificăm dacă suntem OFFLINE (Fără internet)
-    if (!navigator.onLine) {
-        const backup = localStorage.getItem('backup_utilaje');
-        if (backup) {
+        // 1. Verificăm dacă suntem OFFLINE (Fără internet)
+        if (!navigator.onLine) {
+          const backup = localStorage.getItem("backup_utilaje");
+          if (backup) {
             dbRaw = JSON.parse(backup);
             verificaAlarmeMentenanta();
             console.log("⚠️ Index offline: Alarme încărcate din memorie.");
+          }
+          return; // Ne oprim aici, nu mai încercăm să comunicăm cu Firebase
         }
-        return; // Ne oprim aici, nu mai încercăm să comunicăm cu Firebase
-    }
 
-    // 2. Dacă suntem ONLINE (Avem internet)
-    // 🛡️ Așteptăm aprobarea serverului înainte de a cere alarmele live
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            firebase.database().ref('utilaje').on('value', (snapshot) => {
+        // 2. Dacă suntem ONLINE (Avem internet)
+        // 🛡️ Așteptăm aprobarea serverului înainte de a cere alarmele live
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            firebase
+              .database()
+              .ref("utilaje")
+              .on("value", (snapshot) => {
                 dbRaw = snapshot.val() || {};
-                
+
                 // 💾 SALVĂM datele în telefon în caz că pică netul mai târziu
-                localStorage.setItem('backup_utilaje', JSON.stringify(dbRaw));
-                
+                localStorage.setItem("backup_utilaje", JSON.stringify(dbRaw));
+
                 verificaAlarmeMentenanta();
-            });
-        }
-    });
-}
-        // --- START TRADUCĂTOR DATE ---
-        function obtineTimp(dataString) {
-            if (!dataString || dataString === "-" || dataString.trim() === "") return 0;
-            const curat = dataString.replace(/[^0-9./-]/g, '').trim();
-            const part = curat.split(/[./-]/);
-            if (part.length < 3) return 0;
+              });
+          }
+        });
+      }
+      // --- START TRADUCĂTOR DATE ---
+      function obtineTimp(dataString) {
+        if (!dataString || dataString === "-" || dataString.trim() === "")
+          return 0;
+        const curat = dataString.replace(/[^0-9./-]/g, "").trim();
+        const part = curat.split(/[./-]/);
+        if (part.length < 3) return 0;
 
-            let d, m, y;
-            if (part[0].length === 4) { [y, m, d] = part; } else { [d, m, y] = part; }
-
-            return new Date(y, m - 1, d).getTime();
-        }
-
-        function calculeazaZile(dataString) {
-            const timp = obtineTimp(dataString);
-            if (timp === 0) return 999;
-            const dt = new Date(timp);
-            const azi = new Date(); azi.setHours(0, 0, 0, 0);
-            const diff = Math.floor((azi - dt) / 86400000);
-            return isNaN(diff) ? 999 : (diff < 0 ? 0 : diff);
+        let d, m, y;
+        if (part[0].length === 4) {
+          [y, m, d] = part;
+        } else {
+          [d, m, y] = part;
         }
 
-        function gasesteUltimaRevizie(istoric) {
-            if (!istoric) return null;
-            let revizii = Object.values(istoric).filter(i => i.revizie === true);
-            if (revizii.length === 0) return null;
+        return new Date(y, m - 1, d).getTime();
+      }
 
-            revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
-            return revizii[0];
-        }
-        // --- END TRADUCĂTOR DATE ---
-        function verificaAlarmeMentenanta() {
-            if (!dbRaw) return;
-            const alertPanel = document.getElementById('alert-panel');
-            const container = document.getElementById('alert-list'); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
-            const btnClopotel = document.getElementById('btn-clopotel');
+      function calculeazaZile(dataString) {
+        const timp = obtineTimp(dataString);
+        if (timp === 0) return 999;
+        const dt = new Date(timp);
+        const azi = new Date();
+        azi.setHours(0, 0, 0, 0);
+        const diff = Math.floor((azi - dt) / 86400000);
+        return isNaN(diff) ? 999 : diff < 0 ? 0 : diff;
+      }
 
-            if (!alertPanel || !container) return;
+      function gasesteUltimaRevizie(istoric) {
+        if (!istoric) return null;
+        let revizii = Object.values(istoric).filter((i) => i.revizie === true);
+        if (revizii.length === 0) return null;
 
-            container.innerHTML = "";
-            let areAlerte = false;
+        revizii.sort((a, b) => obtineTimp(b.data) - obtineTimp(a.data));
+        return revizii[0];
+      }
+      // --- END TRADUCĂTOR DATE ---
+      function verificaAlarmeMentenanta() {
+        if (!dbRaw) return;
+        const alertPanel = document.getElementById("alert-panel");
+        const container = document.getElementById("alert-list"); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
+        const btnClopotel = document.getElementById("btn-clopotel");
 
-            // Tabelul de configurare inclus direct ca să nu mai dea erori
-            // const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+        if (!alertPanel || !container) return;
 
-            Object.keys(dbRaw).forEach(id => {
-                const u = dbRaw[id];
-                const ultimaRev = gasesteUltimaRevizie(u.istoric);
+        container.innerHTML = "";
+        let areAlerte = false;
 
-                if (ultimaRev) {
-                    const z = calculeazaZile(ultimaRev.data);
+        // Tabelul de configurare inclus direct ca să nu mai dea erori
+        // const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
 
-                    const idFaraK = id.replace("K-", "");
-                    const limitaZile = configuratieAlarme[id] || configuratieAlarme[idFaraK] || 30;
+        Object.keys(dbRaw).forEach((id) => {
+          const u = dbRaw[id];
+          const ultimaRev = gasesteUltimaRevizie(u.istoric);
 
-                    // Debug 
-                    console.log(`DEBUG: ID=${id} | Limita gasita=${limitaZile}`);
+          if (ultimaRev) {
+            const z = calculeazaZile(ultimaRev.data);
 
-                    if (z >= limitaZile) {
-                        areAlerte = true;
-                        const esteCritic = z >= (limitaZile * 3);
-                        const clasaAlerta = esteCritic ? 'alert-urgent' : 'alert-warning';
-                        const statusMesaj = esteCritic ? `CRITIC: Revizie depășită de ${z} zile!` : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
+            const idFaraK = id.replace("K-", "");
+            const limitaZile =
+              configuratieAlarme[id] || configuratieAlarme[idFaraK] || 30;
 
-                        container.innerHTML += `
+            // Debug
+            console.log(`DEBUG: ID=${id} | Limita gasita=${limitaZile}`);
+
+            if (z >= limitaZile) {
+              areAlerte = true;
+              const esteCritic = z >= limitaZile * 3;
+              const clasaAlerta = esteCritic ? "alert-urgent" : "alert-warning";
+              const statusMesaj = esteCritic
+                ? `CRITIC: Revizie depășită de ${z} zile!`
+                : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
+
+              container.innerHTML += `
                         <div class="alert-item ${clasaAlerta}">
                             <b style="font-size: 14px; display:block;">${u.nume}</b>
                             <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
@@ -633,51 +1007,118 @@ function inchideScanner() {
                                 <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">🔧 REPARĂ</a>
                             </div>
                         </div>`;
-                    }
-                }
+            }
+          }
+        });
+
+        if (areAlerte) {
+          if (!alertaInchisaManual) {
+            alertPanel.classList.remove("alert-hidden");
+            alertPanel.classList.add("activ");
+            if (btnClopotel) btnClopotel.style.display = "none";
+          } else {
+            alertPanel.classList.add("alert-hidden");
+            alertPanel.classList.remove("activ");
+            if (btnClopotel) btnClopotel.style.display = "flex";
+          }
+        } else {
+          alertPanel.classList.add("alert-hidden");
+          alertPanel.classList.remove("activ");
+          if (btnClopotel) btnClopotel.style.display = "none";
+        }
+      }
+      function inchideAlarmaManual() {
+        alertaInchisaManual = true;
+        document.getElementById("alert-panel").classList.add("alert-hidden");
+        const btn = document.getElementById("btn-clopotel");
+        if (btn) btn.style.display = "flex";
+      }
+
+      function deschideAlarmaManual() {
+        alertaInchisaManual = false;
+        document.getElementById("alert-panel").classList.remove("alert-hidden");
+        const btn = document.getElementById("btn-clopotel");
+        if (btn) btn.style.display = "none";
+      }
+      // Deschide fereastra cu arhiva de tickete rezolvate
+      function deschideArhivaTickete() {
+        document.getElementById("modalArhivaTickete").style.display = "flex";
+        const container = document.getElementById("corpArhivaTickete");
+        container.innerHTML =
+          "<p style='text-align:center; color:#aaa; font-size:12px; margin-top:20px;'>⏳ Se încarcă arhiva...</p>";
+
+        // Tragem datele din ramura 'sesizari'
+        firebase
+          .database()
+          .ref("sesizari")
+          .once("value")
+          .then((snapshot) => {
+            const sesizari = snapshot.val() || {};
+            container.innerHTML = "";
+
+            let areRezolvate = false;
+            const intrari = Object.entries(sesizari);
+            // Sortăm să fie cele mai noi reparații primele
+            intrari.sort(
+              (a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0),
+            );
+
+            intrari.forEach(([key, s]) => {
+              if (s.status === "rezolvat") {
+                areRezolvate = true;
+                container.innerHTML += `
+                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border-left: 4px solid #2ecc71; font-size: 12px; border-top:1px solid rgba(255,255,255,0.05);">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px;">
+                            <span style="color: #fff; font-size: 13px;">⚙️ ${s.numeUtilaj} (ID: ${s.utilajId})</span>
+                            <span style="color: #2ecc71; font-size: 10px; background:rgba(46,204,113,0.1); padding:2px 6px; border-radius:3px;">REPARAT</span>
+                        </div>
+                        <div style="color: #a0a0a0; font-size: 10px; margin-bottom: 6px;">
+                            📍 ${s.sectie} | Raportat de: <b>${s.raportatDe}</b> la data: ${s.dataTrimiterii}
+                        </div>
+                        <div style="color: #bdc3c7; background: rgba(255,255,255,0.05); padding: 6px; border-radius: 4px; font-style: italic;">
+                            💬 Defect raportat: ${s.problema}
+                        </div>
+                    </div>
+                `;
+              }
             });
 
-            if (areAlerte) {
-                if (!alertaInchisaManual) {
-                    alertPanel.classList.remove('alert-hidden');
-                    alertPanel.classList.add('activ');
-                    if (btnClopotel) btnClopotel.style.display = 'none';
-                } else {
-                    alertPanel.classList.add('alert-hidden');
-                    alertPanel.classList.remove('activ');
-                    if (btnClopotel) btnClopotel.style.display = 'flex';
-                }
-            } else {
-                alertPanel.classList.add('alert-hidden');
-                alertPanel.classList.remove('activ');
-                if (btnClopotel) btnClopotel.style.display = 'none';
+            if (!areRezolvate) {
+              container.innerHTML =
+                "<p style='text-align:center; color:#aaa; font-size:12px; margin-top:20px;'>Nicio sesizare închisă în arhivă.</p>";
             }
-        }
-        function inchideAlarmaManual() {
-            alertaInchisaManual = true;
-            document.getElementById('alert-panel').classList.add('alert-hidden');
-            const btn = document.getElementById('btn-clopotel');
-            if (btn) btn.style.display = 'flex';
-        }
+          })
+          .catch((err) => {
+            container.innerHTML =
+              "<p style='text-align:center; color:#e74c3c; font-size:12px; margin-top:20px;'>❌ Eroare la încărcare.</p>";
+            console.error(err);
+          });
+      }
 
-        function deschideAlarmaManual() {
-            alertaInchisaManual = false;
-            document.getElementById('alert-panel').classList.remove('alert-hidden');
-            const btn = document.getElementById('btn-clopotel');
-            if (btn) btn.style.display = 'none';
-        }
+      function inchideArhivaTickete() {
+        document.getElementById("modalArhivaTickete").style.display = "none";
+      }
     </script>
-  <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
+    <div class="footer-dev">Developed by Dragos Munteanu • 2026</div>
 
     <div id="scanner-modal" class="modal-scanner">
-        <div id="reader"></div>
-        <button onclick="inchideScanner()" 
-                style="margin-top: 20px; padding: 15px 40px; background: var(--danger); 
-                color: white; border: none; border-radius: 50px; font-size: 16px; 
-                font-weight: bold; cursor: pointer;">
-            ❌ ÎNCHIDE SCANNER
-        </button>
+      <div id="reader"></div>
+      <button
+        onclick="inchideScanner()"
+        style="
+          margin-top: 20px;
+          padding: 15px 40px;
+          background: var(--danger);
+          color: white;
+          border: none;
+          border-radius: 50px;
+          font-size: 16px;
+          font-weight: bold;
+          cursor: pointer;
+        "
+      >
+        ❌ ÎNCHIDE SCANNER
+      </button>
     </div>
-</body>
-
+  </body>
 </html>

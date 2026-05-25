@@ -1759,72 +1759,81 @@
         }
 
         function verificaAlarmeMentenanta() {
-            if (!dbRaw) return;
-            const alertPanel = document.getElementById("alert-panel");
-            const container = document.getElementById("alert-list"); // Am schimbat în alert-list (trebuie să corespundă cu ID-ul din HTML)
-            const btnClopotel = document.getElementById("btn-clopotel");
+    if (!dbRaw) return;
+    
+    // --- BARIERĂ DE SECURITATE PENTRU OPERATORI ---
+    // Dacă ești operator, ascundem forțat și definitiv orice alarmă!
+    const rol = sessionStorage.getItem("user_rol");
+    if (rol === "operator") {
+        const pnl = document.getElementById("alert-panel");
+        const clp = document.getElementById("btn-clopotel");
+        if (pnl) {
+            pnl.classList.add("alert-hidden");
+            pnl.style.display = "none"; // O ascundem complet
+        }
+        if (clp) clp.style.display = "none";
+        return; // Oprim execuția funcției aici!
+    }
+    // ----------------------------------------------
 
-            if (!alertPanel || !container) return;
+    const alertPanel = document.getElementById("alert-panel");
+    const container = document.getElementById("alert-list"); 
+    const btnClopotel = document.getElementById("btn-clopotel");
+    if (!alertPanel || !container) return;
 
-            container.innerHTML = "";
-            let areAlerte = false;
+    container.innerHTML = "";
+    let areAlerte = false;
 
-            // Tabelul de configurare inclus direct ca să nu mai dea erori
-            // const configuratieAlarme = { "9728": 30, "6355": 30, "1111": 14, "2222": 14, "3333": 14, "4444": 14, "5061": 14 };
+    Object.keys(dbRaw).forEach((id) => {
+        const u = dbRaw[id];
+        const ultimaRev = gasesteUltimaRevizie(u.istoric);
 
-            Object.keys(dbRaw).forEach((id) => {
-                const u = dbRaw[id];
-                const ultimaRev = gasesteUltimaRevizie(u.istoric);
+        if (ultimaRev) {
+            const z = calculeazaZile(ultimaRev.data);
+            const idFaraK = id.replace("K-", "");
+            const limitaZile = configuratieAlarme[id] || configuratieAlarme[idFaraK] || 30;
 
-                if (ultimaRev) {
-                    const z = calculeazaZile(ultimaRev.data);
+            if (z >= limitaZile) {
+                areAlerte = true;
+                const esteCritic = z >= limitaZile * 3;
+                const clasaAlerta = esteCritic ? "alert-urgent" : "alert-warning";
+                const statusMesaj = esteCritic ? `CRITIC: Revizie depășită de ${z} zile!` : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
 
-                    const idFaraK = id.replace("K-", "");
-                    const limitaZile =
-                        configuratieAlarme[id] || configuratieAlarme[idFaraK] || 30;
+                let hartaBtn = typeof focalizeazaUtilaj === "function" 
+                    ? `<button class="btn-locate" style="flex:1; padding: 8px 5px;" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">📍 HARTĂ</button>`
+                    : `<a href="view.html?id=${id}" class="btn-locate" style="flex:1; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">📍 HARTĂ</a>`;
 
-                    // Debug
-                    console.log(`DEBUG: ID=${id} | Limita gasita=${limitaZile}`);
-
-                    if (z >= limitaZile) {
-                        areAlerte = true;
-                        const esteCritic = z >= limitaZile * 3;
-                        const clasaAlerta = esteCritic ? "alert-urgent" : "alert-warning";
-                        const statusMesaj = esteCritic
-                            ? `CRITIC: Revizie depășită de ${z} zile!`
-                            : `ATENȚIE: Au trecut ${z} zile de la ultima revizie!`;
-
-                        container.innerHTML += `
-                <div class="alert-item ${clasaAlerta}">
-                    <b style="font-size: 14px; display:block;">${u.nume}</b>
-                    <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
-                    <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
-                    
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <button class="btn-locate" style="flex:1; padding: 8px 5px;" onclick="focalizeazaUtilaj(${u.lat}, ${u.lng}, '${id}')">📍 HARTĂ</button>
-                        <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">🔧 REPARĂ</a>
-                    </div>
-                </div>`;
-                    }
-                }
-            });
-
-            if (areAlerte) {
-                if (!alertaInchisaManual) {
-                    alertPanel.classList.remove("alert-hidden");
-                    alertPanel.classList.add("activ");
-                    if (btnClopotel) btnClopotel.style.display = "none";
-                } else {
-                    alertPanel.classList.add("alert-hidden");
-                    alertPanel.classList.remove("activ");
-                    if (btnClopotel) btnClopotel.style.display = "flex";
-                }
-            } else {
-                alertPanel.classList.add("alert-hidden");
-                alertPanel.classList.remove("activ");
-                if (btnClopotel) btnClopotel.style.display = "none";
+                container.innerHTML += `
+                    <div class="alert-item ${clasaAlerta}">
+                        <b style="font-size: 14px; display:block;">${u.nume}</b>
+                        <span style="font-size: 10px; color: #ccc;">Secția: ${u.sectie} | ID: ${id}</span>
+                        <div style="margin-top: 5px; font-weight: bold; font-size: 13px;">⚠️ ${statusMesaj}</div>
+                        <div style="display:flex; gap:5px; margin-top:10px;">
+                            ${hartaBtn}
+                            <a href="edit.html?id=${id}" class="btn-locate" style="flex:1; background:#8e44ad; text-decoration:none; text-align:center; padding: 8px 5px; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">🔧 REPARĂ</a>
+                        </div>
+                    </div>`;
             }
         }
+    });
+
+    if (areAlerte) {
+        if (!alertaInchisaManual) {
+            alertPanel.style.display = "block"; // O reafișăm în caz că a fost ascunsă
+            alertPanel.classList.remove("alert-hidden");
+            alertPanel.classList.add("activ");
+            if (btnClopotel) btnClopotel.style.display = "none";
+        } else {
+            alertPanel.classList.add("alert-hidden");
+            alertPanel.classList.remove("activ");
+            if (btnClopotel) btnClopotel.style.display = "flex";
+        }
+    } else {
+        alertPanel.classList.add("alert-hidden");
+        alertPanel.classList.remove("activ");
+        if (btnClopotel) btnClopotel.style.display = "none";
+    }
+}
         // Funcțiile atașate butoanelor "X" și "Clopoțel"
         function inchideAlarmaManual() {
             alertaInchisaManual = true; // Salvăm decizia ta

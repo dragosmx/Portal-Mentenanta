@@ -54,6 +54,20 @@
         max-width: 400px;
         box-sizing: border-box;
         border-top: 6px solid var(--accent);
+        
+        /* 🚀 REPARARE SUPRAPUNERE AICI */
+        max-height: 85vh; /* Nu îl lasă să fie mai înalt de 85% din ecran */
+        overflow-y: auto; /* Activează scroll-ul interior dacă lista e lungă */
+        margin-bottom: 25px; /* Îl ține la distanță de footer */
+      }
+
+      /* Bară de scroll finuță pentru container, să arate modern */
+      .container::-webkit-scrollbar {
+        width: 6px;
+      }
+      .container::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
       }
 
       .logo-box img {
@@ -172,11 +186,14 @@
            ⚠️ STILURI DE ALERTE COPIATE 1:1 DIN VIEW.HTML
            --------------------------------------------------- */
       .footer-dev {
-        position: absolute;
-        bottom: 20px;
-        z-index: 1; /* Footer-ul stă în spate */
+        position: fixed;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%); /* Îl centrează perfect pe orizontală */
+        z-index: 1;
         font-size: 10px;
         color: rgba(255, 255, 255, 0.3);
+        pointer-events: none; /* Mouse-ul trece prin el, nu blochează click-urile */
       }
       #alert-panel {
         position: fixed;

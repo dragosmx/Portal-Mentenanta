@@ -1425,7 +1425,7 @@
               actiuniHtml = `
                     <div style="display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end;">
                         <button type="button" onclick="editeazaInterventie('${key}')" style="background: #3498db; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;">✏️ Editează</button>
-                        <button type="button" onclick="stergeInterventie('${key}')" style="background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Șterge</button>
+                        <button type="button" onclick="ventie('${key}')" style="background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Șterge</button>
                     </div>`;
             }
 
@@ -2089,6 +2089,36 @@
           alert("Eroare la ștergere: " + e.message);
         }
       }
+      async function stergeUtilaj(id) {
+    if (!id) return;
+    
+    // 1. Confirmare de siguranță pentru a preveni ștergerile accidentale
+    const confirmare = confirm(`⚠️ ATENȚIE! Ești sigur că vrei să ștergi DEFINITIV utilajul cu ID-ul ${id}?\n\nAceastă acțiune va șterge și tot istoricul intervențiilor asociate și nu poate fi anulată!`);
+    
+    if (!confirmare) {
+        return; // Oprim execuția dacă utilizatorul apasă "Cancel"
+    }
+
+    try {
+        // 2. Ștergerea efectivă din baza de date Firebase
+        await firebase.database().ref('utilaje/' + id).remove();
+        
+        // 3. Ștergerea din memoria locală pentru a actualiza instant interfața
+        if (dbRaw && dbRaw[id]) {
+            delete dbRaw[id];
+            localStorage.setItem("backup_utilaje", JSON.stringify(dbRaw));
+        }
+
+        alert("✅ Utilajul a fost șters cu succes din baza de date!");
+
+        // 4. Resetăm formularul, închidem panoul și reîncărcăm pinii pe hartă
+        resetForm(); 
+        
+    } catch (eroare) {
+        console.error("Eroare la ștergerea utilajului:", eroare);
+        alert("❌ A apărut o eroare la ștergerea utilajului: " + eroare.message);
+    }
+}
 
       // Funcția care caută ticketul în baza de date
       function verificaTicketeActive(idUtilaj) {
